@@ -3,21 +3,23 @@ import { CHAPTERS, chapterOf, openingStep, storyCaption, type ChapterIndex } fro
 import { initialState, reduceDemo, stateFromSearch, visibleSteps } from "../../shared/demo/engine";
 import { scenarios } from "../../shared/demo/scenarios";
 import type { DemoAction, DemoState } from "../../shared/demo/types";
-import type { Seat, StageController, StagePose } from "./stage/createStage";
+import { interactiveSurface, seatLines, watchScript, type StorySeat } from "../../shared/demo/watch";
+import type { StageController, StagePose } from "./stage/createStage";
 
-const seats: Array<{ id: Seat; label: string; line: string }> = [
-  { id: "office", label: "Office", line: "Office view of the same job. The gap and the next action stay visible." },
-  { id: "field", label: "Field", line: "Field view of the same job, with a synthetic sketch." },
-  { id: "customer", label: "Customer", line: "Customer view of the same job. The note is unsent." },
+const seats: Array<{ id: StorySeat; label: string }> = [
+  { id: "office", label: "Office" },
+  { id: "field", label: "Field" },
+  { id: "customer", label: "Customer" },
 ];
 
 const blurbs: Record<string, string> = {
-  inspection: "A roof assessment. Access notes stay missing.",
-  "field-service": "A no-heat call, a visit, and an unsent status.",
-  recurring: "A routine visit, an exception, and a held update.",
+  inspection: "Harborline asks for a roof assessment. The outcome is a report that was not sent.",
+  "field-service": "North Pier calls about no heat. The outcome is an unsent repair status.",
+  recurring: "Lumen has a drain check due. The outcome is an exception that waits for a person.",
 };
 
 type BlockReason = "motion" | "save-data" | "memory" | "cores" | "webgl" | "lost" | null;
+type StoryMode = "watch" | "interactive";
 
 function blockReason(): Exclude<BlockReason, "motion" | "lost"> {
   const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
@@ -35,13 +37,17 @@ function blockReason(): Exclude<BlockReason, "motion" | "lost"> {
 
 export default function ProductStage({ variant = "home" }: { variant?: "home" | "focus" }) {
   const baseId = useId();
+  const stageColumnRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stageRef = useRef<StageController | null>(null);
   const poseRef = useRef<StagePose | null>(null);
   const swipeRef = useRef<{ x: number; y: number } | null>(null);
   const [state, setState] = useState<DemoState>(() => initialState("inspection"));
-  const [seat, setSeat] = useState<Seat>("office");
+  const [mode, setMode] = useState<StoryMode>("watch");
+  const [beat, setBeat] = useState(0);
+  const [watchPlaying, setWatchPlaying] = useState(false);
+  const [seat, setSeat] = useState<StorySeat>("office");
   const [arrangement, setArrangement] = useState<"auto" | "scattered" | "connected">("auto");
   const [ready, setReady] = useState(false);
   const [engine, setEngine] = useState<"pending" | "webgl" | "illustrated">("pending");
@@ -54,34 +60,56 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
   const [urlReady, setUrlReady] = useState(false);
 
   const scenario = scenarios.find((item) => item.id === state.scenarioId) ?? scenarios[0]!;
+  const script = watchScript(scenario.id);
+  const currentBeat = script[Math.min(beat, script.length - 1)] ?? script[0]!;
   const steps = visibleSteps(scenario, state);
   const step = steps[Math.min(state.index, steps.length - 1)] ?? steps[0];
-  const chapter = step ? chapterOf(scenario.id, step.id) : 0;
-  const connected = arrangement === "auto" ? !openingStep(scenario.id, step?.id ?? "request") : arrangement === "connected";
-  const blocked = state.missingInfo || state.decision === "rejected";
+  const watchMode = mode === "watch";
+  const chapter = watchMode ? currentBeat.chapter : step ? chapterOf(scenario.id, step.id) : 0;
+  const connected = watchMode
+    ? currentBeat.connected
+    : arrangement === "auto"
+      ? !openingStep(scenario.id, step?.id ?? "request")
+      : arrangement === "connected";
+  const decision = watchMode ? currentBeat.decision : state.decision;
+  const blocked = watchMode ? currentBeat.blocked : state.missingInfo || state.decision === "rejected";
   const pose: StagePose = {
     chapter,
     connected,
-    decision: state.decision,
+    decision,
     blocked,
     seat,
     scenario: scenario.id as StagePose["scenario"],
   };
   poseRef.current = pose;
+  const playing = watchMode ? watchPlaying : state.playing && !reduced;
 
   function dispatch(action: DemoAction) {
     setClosedNote(false);
+    setState((current) => reduceDemo(current, action, scenarios));
+  }
+
+  function showWatch() {
+    setMode("watch");
+    setBeat(0);
+    setWatchPlaying(false);
+    setClosedNote(false);
+    dispatch({ type: "reset" });
+  }
+
+  function showInteractive() {
+    setWatchPlaying(false);
+    setMode("interactive");
+    setClosedNote(false);
+    const target = currentBeat.stepId;
     setState((current) => {
-      let next = reduceDemo(current, action, scenarios);
-      if (next.decision === "rejected" && next.scenarioId === "field-service") {
-        const currentScenario = scenarios.find((item) => item.id === next.scenarioId) ?? scenario;
-        const visible = visibleSteps(currentScenario, next);
-        let limit = 0;
-        visible.forEach((item, index) => {
-          if (chapterOf(currentScenario.id, item.id) <= 1) limit = index;
-        });
-        if (next.index > limit) next = { ...next, index: limit, playing: false };
-      }
+      let next = reduceDemo(initialState(current.scenarioId), { type: "reset" }, scenarios);
+      if (currentBeat.decision === "approved") next = reduceDemo(next, { type: "approve" }, scenarios);
+      if (currentBeat.decision === "rejected") next = reduceDemo(next, { type: "reject" }, scenarios);
+      if (currentBeat.missingInfo) next = reduceDemo(next, { type: "missing", value: true }, scenarios);
+      const visible = visibleSteps(scenarios.find((item) => item.id === next.scenarioId) ?? scenario, next);
+      const index = visible.findIndex((item) => item.id === target);
+      if (index >= 0) next = reduceDemo(next, { type: "goto", index }, scenarios);
       return next;
     });
   }
@@ -92,13 +120,18 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
     apply();
     media.addEventListener("change", apply);
     if (variant === "focus") {
-      setState(stateFromSearch(new URLSearchParams(window.location.search), scenarios));
+      const params = new URLSearchParams(window.location.search);
+      const hasDecision = ["step", "gap", "decision", "sync"].some((key) => params.has(key));
+      if (params.get("scenario") || hasDecision) {
+        setState(stateFromSearch(params, scenarios));
+      }
+      if (hasDecision) setMode("interactive");
     }
     setUrlReady(true);
     const onHide = () => setHidden(document.hidden);
     document.addEventListener("visibilitychange", onHide);
     const node = frameRef.current;
-    const observer = new IntersectionObserver(([entry]) => setOnScreen(Boolean(entry?.isIntersecting)), { threshold: 0.15 });
+    const observer = new IntersectionObserver(([entry]) => setOnScreen(Boolean(entry?.isIntersecting)), { threshold: 0 });
     if (node) observer.observe(node);
     return () => {
       media.removeEventListener("change", apply);
@@ -111,39 +144,55 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
     if (variant !== "focus" || !urlReady) return;
     const url = new URL(window.location.href);
     url.searchParams.set("scenario", state.scenarioId);
-    url.searchParams.set("step", String(state.index));
-    url.searchParams.set("view", seat === "customer" ? "customer" : "internal");
-    url.searchParams.set("gap", state.missingInfo ? "1" : "0");
-    url.searchParams.set("decision", state.decision);
-    url.searchParams.set("sync", state.syncProblem ? "1" : "0");
+    if (mode === "watch") {
+      for (const key of ["step", "gap", "decision", "sync", "view"]) url.searchParams.delete(key);
+    } else {
+      url.searchParams.set("step", String(state.index));
+      url.searchParams.set("view", seat === "customer" ? "customer" : "internal");
+      url.searchParams.set("gap", state.missingInfo ? "1" : "0");
+      url.searchParams.set("decision", state.decision);
+      url.searchParams.set("sync", state.syncProblem ? "1" : "0");
+    }
     window.history.replaceState(null, "", url);
-  }, [state, seat, urlReady, variant]);
+  }, [state, seat, urlReady, variant, mode]);
 
   useEffect(() => {
-    if (!state.playing || reduced || !onScreen || hidden) return;
+    if (mode !== "watch" || !watchPlaying || reduced || !onScreen || hidden) return;
+    const current = script[beat];
+    if (!current) return;
+    const timer = window.setTimeout(() => {
+      if (beat >= script.length - 1) setWatchPlaying(false);
+      else setBeat(beat + 1);
+    }, current.durationMs);
+    return () => window.clearTimeout(timer);
+  }, [mode, watchPlaying, reduced, onScreen, hidden, beat, script]);
+
+  useEffect(() => {
+    if (mode !== "interactive" || !state.playing || reduced || !onScreen || hidden) return;
     const timer = window.setInterval(() => dispatch({ type: "tick" }), 2600);
     return () => window.clearInterval(timer);
-  }, [state.playing, reduced, onScreen, hidden]);
+  }, [mode, state.playing, reduced, onScreen, hidden]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     let cancelled = false;
     let controller: StageController | null = null;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const limited = blockReason();
-    if (reducedMotion || (limited && !forceWebgl)) {
+    if (limited && !forceWebgl) {
       setEngine("illustrated");
       setReady(false);
-      setReason(reducedMotion ? "motion" : limited);
+      setReason(limited);
       return;
     }
-    const intro = sessionStorage.getItem("cpl-cc-intro") !== "1";
+    const intro = !reduced && sessionStorage.getItem("cpl-cc-intro") !== "1";
     if (intro) sessionStorage.setItem("cpl-cc-intro", "1");
     setEngine("webgl");
+    setReason(reduced ? "motion" : null);
     void import("./stage/createStage")
       .then((mod) => mod.mountStage(canvas, {
         intro,
+        reduced,
         onReady: () => { if (!cancelled) setReady(true); },
         onLost: () => {
           if (cancelled) return;
@@ -173,7 +222,7 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
       controller?.dispose();
       if (stageRef.current === controller) stageRef.current = null;
     };
-  }, [forceWebgl]);
+  }, [forceWebgl, reduced]);
 
   useEffect(() => {
     stageRef.current?.setPose(pose);
@@ -183,23 +232,60 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
     stageRef.current?.setPaused(hidden || !onScreen || engine !== "webgl");
   }, [hidden, onScreen, engine, ready]);
 
-  if (!step) return null;
-  const caption = storyCaption(scenario.id, step.id, state.decision, state.missingInfo);
-  const seatCopy = seats.find((item) => item.id === seat) ?? seats[0]!;
+  if (!step || !currentBeat) return null;
+  const caption = watchMode
+    ? currentBeat.cue ?? currentBeat.title
+    : storyCaption(scenario.id, step.id, state.decision, state.missingInfo);
+  const surface = watchMode
+    ? {
+      jobId: currentBeat.jobId,
+      title: currentBeat.title,
+      lines: seatLines(currentBeat, seat),
+      cue: currentBeat.cue,
+    }
+    : interactiveSurface(scenario, step, seat, state);
   const illustrated = engine !== "webgl" || !ready;
+
+  function keepSceneVisible() {
+    frameRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+
+  function play() {
+    keepSceneVisible();
+    if (watchMode) {
+      if (reduced) {
+        setWatchPlaying(false);
+        setBeat((index) => Math.min(index + 1, script.length - 1));
+        return;
+      }
+      setBeat((index) => (index >= script.length - 1 ? 0 : index));
+      setWatchPlaying(true);
+      return;
+    }
+    if (reduced) {
+      dispatch({ type: "next" });
+      return;
+    }
+    if (state.index >= steps.length - 1) dispatch({ type: "run", autoplay: true });
+    else dispatch({ type: "resume" });
+  }
 
   function onKeyDown(event: KeyboardEvent<HTMLElement>) {
     const target = event.target as HTMLElement;
     if (target.closest("input, select, textarea, a")) return;
     if (event.key === "ArrowRight") {
       event.preventDefault();
-      dispatch({ type: "next" });
+      next();
     } else if (event.key === "ArrowLeft") {
       event.preventDefault();
-      dispatch({ type: "prev" });
+      if (watchMode) {
+        setWatchPlaying(false);
+        setBeat((index) => Math.max(index - 1, 0));
+      } else dispatch({ type: "prev" });
     } else if (event.key === " " && target === event.currentTarget) {
       event.preventDefault();
-      dispatch(state.playing ? { type: "pause" } : { type: "resume" });
+      if (playing) pause();
+      else play();
     }
   }
 
@@ -214,10 +300,52 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
     const dy = event.clientY - swipeRef.current.y;
     swipeRef.current = null;
     if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
-    dispatch(dx < 0 ? { type: "next" } : { type: "prev" });
+    if (dx < 0) next();
+    else if (watchMode) {
+      setWatchPlaying(false);
+      setBeat((index) => Math.max(index - 1, 0));
+    } else dispatch({ type: "prev" });
+  }
+
+  function next() {
+    setClosedNote(false);
+    if (watchMode) {
+      setWatchPlaying(false);
+      setBeat((index) => Math.min(index + 1, script.length - 1));
+      return;
+    }
+    dispatch({ type: "next" });
+  }
+
+  function pause() {
+    setWatchPlaying(false);
+    dispatch({ type: "pause" });
+  }
+
+  function replay() {
+    setArrangement("auto");
+    setClosedNote(false);
+    keepSceneVisible();
+    if (watchMode) {
+      setBeat(0);
+      setWatchPlaying(!reduced);
+      return;
+    }
+    dispatch(reduced ? { type: "reset" } : { type: "run", autoplay: true });
   }
 
   function goChapter(index: ChapterIndex) {
+    if (watchMode) {
+      const found = script.findIndex((item) => item.chapter === index);
+      if (found < 0) {
+        setClosedNote(true);
+        return;
+      }
+      setClosedNote(false);
+      setWatchPlaying(false);
+      setBeat(found);
+      return;
+    }
     const found = steps.findIndex((item) => chapterOf(scenario.id, item.id) === index);
     if (found < 0) {
       setClosedNote(true);
@@ -226,36 +354,21 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
     dispatch({ type: "goto", index: found });
   }
 
-  function seeIt() {
-    document.getElementById("story-controls")?.focus();
-    if (reduced) {
-      dispatch({ type: "next" });
-      return;
-    }
-    if (state.index >= steps.length - 1) {
-      setArrangement("auto");
-      dispatch({ type: "run", autoplay: true });
-      return;
-    }
-    dispatch({ type: "resume" });
-  }
-
   return (
     <section className={variant === "home" ? "experience" : "experience experience-focus"} id={variant === "home" ? "see-it-work" : undefined} aria-labelledby={`${baseId}-title`}>
       {variant === "home" && (
         <div className="hero-copy">
           <p className="eyebrow">CPL COMMAND CENTER</p>
-          <h1 id={`${baseId}-title`}>Your service business. <span>Finally connected.</span></h1>
-          <p className="lede">Requests, plans, visits, and the outcome share one job. Scattered notes gather on the desk, then a review, a visit, and a report.</p>
-          <p className="fine">You can play it, step it, or switch the kind of work. Approving a sample does not mean a customer said yes. Field sketches are drawn for this preview. They are not photographs, and nothing is emailed.</p>
-          <p className="badge">Early access · In development</p>
+          <h1 id={`${baseId}-title`}>Less chasing. <span>More work moving.</span></h1>
+          <p className="lede">A request becomes one record. A missing detail stays visible. A person approves it, then the visit and the report move with the same job.</p>
+          <p className="fine">Early access. Command Center is in development.</p>
           <div className="hero-actions">
-            <button type="button" className="button light" onClick={seeIt}>See it in motion</button>
+            <button type="button" className="button light" onClick={play}>Watch the story</button>
             <a className="button light secondary" href="#contact">Talk to Aaron</a>
           </div>
         </div>
       )}
-      <div className="stage-column">
+      <div className="stage-column" ref={stageColumnRef}>
         <div
           className={`stage-frame${engine === "webgl" && ready ? " is-ready" : ""}`}
           data-engine={engine === "illustrated" ? "illustrated" : "webgl"}
@@ -268,7 +381,7 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
             className="desk"
             data-chapter={chapter}
             data-connected={connected ? "yes" : "no"}
-            data-decision={state.decision}
+            data-decision={decision}
             data-scenario={scenario.id}
             data-seat={seat}
             data-blocked={blocked ? "yes" : "no"}
@@ -288,101 +401,92 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
             <div className="prop booklet" />
           </div>
           <canvas ref={canvasRef} className="stage-canvas" aria-hidden="true" />
+          <article className="record-card" aria-live="polite" data-seat={seat} data-job={surface.jobId}>
+            <p className="record-kicker">{surface.jobId} · {seats.find((item) => item.id === seat)?.label}</p>
+            <h3>{surface.title}</h3>
+            <ul>
+              {surface.lines.map((line) => <li key={line}>{line}</li>)}
+            </ul>
+            {surface.cue && <p className="cue">{surface.cue}</p>}
+          </article>
         </div>
-        <p className="live" aria-live="polite">
-          {CHAPTERS[chapter].kicker}. Step {Math.min(state.index, steps.length - 1) + 1} of {steps.length}. {caption}
+        <div className="stage-transport" id="story-controls" tabIndex={0} onKeyDown={onKeyDown} aria-label="Story controls">
+          <div className="chapter-row" role="group" aria-label="Chapters">
+            {CHAPTERS.map((item, index) => (
+              <button key={item.id} type="button" aria-pressed={chapter === index} onClick={() => goChapter(index as ChapterIndex)}>
+                <span>{item.kicker}</span>
+              </button>
+            ))}
+          </div>
+          <div className="transport">
+            {playing ? (
+              <button type="button" onClick={pause}>Pause</button>
+            ) : (
+              <button type="button" onClick={play}>Play</button>
+            )}
+            <button type="button" onClick={next}>Next</button>
+            <button type="button" className="secondary" onClick={replay}>Replay</button>
+          </div>
+        </div>
+        <p className="live">
+          {CHAPTERS[chapter].kicker}. {watchMode ? `Beat ${Math.min(beat, script.length - 1) + 1} of ${script.length}.` : `Step ${Math.min(state.index, steps.length - 1) + 1} of ${steps.length}.`} {caption}
         </p>
-        {illustrated && reason && (
+        {reduced && <p className="stage-note">Reduced motion is on, so Play and Replay step one beat at a time and the camera does not glide.</p>}
+        {illustrated && reason && reason !== "motion" && (
           <p className="stage-note">
-            {reason === "motion" && "Reduced motion is on, so this is the illustrated story."}
             {reason === "lost" && "The 3D view stopped. This illustrated story is the same job."}
             {reason === "webgl" && "This browser has no 3D view. The illustrated story is the same job."}
             {(reason === "save-data" || reason === "memory" || reason === "cores") && "This device is using the illustrated story."}
-            {reason !== "motion" && reason !== "webgl" && reason !== "lost" && (
-              <> <button type="button" className="text-button" onClick={() => setForceWebgl(true)}>Try the 3D view</button></>
-            )}
+            {" "}
+            <button type="button" className="text-button" onClick={() => setForceWebgl(true)}>Try the 3D view</button>
           </p>
         )}
-      </div>
-      <div className="story-controls" id="story-controls" tabIndex={0} onKeyDown={onKeyDown} aria-label="Story controls">
-        {variant === "focus" && <h2 id={`${baseId}-title`}>Sample job</h2>}
-        {variant === "home" && <h2>The job</h2>}
-        <p>Four chapters. Missing facts stay missing. Nothing here is sent. A blocked review keeps the visit closed.</p>
-        <div className="chapter-row" role="group" aria-label="Chapters">
-          {CHAPTERS.map((item, index) => (
-            <button key={item.id} type="button" aria-pressed={chapter === index} onClick={() => goChapter(index as ChapterIndex)}>
-              <span>{item.kicker}</span>
-            </button>
-          ))}
+        <div className="mode-row" role="radiogroup" aria-label="Story mode">
+          <button type="button" role="radio" aria-checked={watchMode} onClick={showWatch}>Watch the story</button>
+          <button type="button" role="radio" aria-checked={!watchMode} onClick={showInteractive}>Make a decision</button>
         </div>
-        {closedNote && <p className="stage-note" role="status">That chapter stays closed while this sample is blocked.</p>}
-        <div className="transport">
-          {state.playing && !reduced ? (
-            <button type="button" onClick={() => dispatch({ type: "pause" })}>Pause</button>
-          ) : (
-            <button type="button" onClick={seeIt}>Play</button>
-          )}
-          <button type="button" onClick={() => dispatch({ type: "prev" })}>Back</button>
-          <button type="button" onClick={() => dispatch({ type: "next" })}>Next</button>
-          <button type="button" className="secondary" onClick={() => { setArrangement("auto"); dispatch({ type: "reset" }); }}>Replay</button>
-        </div>
-        <label className="progress-label" htmlFor={`${baseId}-progress`}>
-          Progress
-          <input
-            id={`${baseId}-progress`}
-            type="range"
-            min={0}
-            max={Math.max(steps.length - 1, 0)}
-            value={Math.min(state.index, steps.length - 1)}
-            onChange={(event) => dispatch({ type: "goto", index: Number(event.target.value) })}
-          />
-        </label>
-        <div className="decision-row">
-          <button type="button" aria-pressed={state.decision === "approved"} onClick={() => dispatch({ type: "approve" })}>Approve sample</button>
-          <button type="button" aria-pressed={state.decision === "rejected"} onClick={() => dispatch({ type: "reject" })}>Needs changes</button>
-        </div>
-        <p className="fine">Internal review does not mean a customer accepted.</p>
-        <div className="toggle-row" role="group" aria-label="Arrangement">
-          <button type="button" aria-pressed={!connected} onClick={() => setArrangement("scattered")}>Scattered</button>
-          <button type="button" aria-pressed={connected} onClick={() => setArrangement("connected")}>Connected</button>
-        </div>
-        <label className="check">
-          <input type="checkbox" checked={state.missingInfo} onChange={(event) => dispatch({ type: "missing", value: event.target.checked })} />
-          Hold for missing information
-        </label>
-        {scenario.id === "inspection" && (
-          <label className="check">
-            <input type="checkbox" checked={state.syncProblem} onChange={(event) => dispatch({ type: "sync", value: event.target.checked })} />
-            Handoff cannot sync
-          </label>
-        )}
-        <div className="seat-row" role="radiogroup" aria-label="Illustrative view">
+        <div className="seat-row" role="radiogroup" aria-label="Who is looking">
           {seats.map((item) => (
             <button key={item.id} type="button" role="radio" aria-checked={seat === item.id} onClick={() => setSeat(item.id)}>{item.label}</button>
           ))}
         </div>
-        <p className="fine">Illustrative view. Not a screenshot of the shipping app. {seatCopy.line}</p>
+      </div>
+      <div className="story-controls">
+        {variant === "focus" ? <h2 id={`${baseId}-title`}>Sample job {surface.jobId}</h2> : <h2>The job</h2>}
+        <p>Watch the story plays REQUEST, PLAN, WORK, and WRAP UP. A simulated customer reply fills the gap, then a simulated internal approval, then a separate customer acceptance.</p>
+        {closedNote && <p className="stage-note" role="status">That chapter stays closed while this sample is blocked.</p>}
+        {!watchMode && (
+          <div className="decision-row">
+            <button type="button" aria-pressed={state.decision === "approved"} onClick={() => dispatch({ type: "approve" })}>Approve</button>
+            <button type="button" aria-pressed={state.decision === "rejected"} onClick={() => dispatch({ type: "reject" })}>Needs changes</button>
+            <button type="button" aria-pressed={state.missingInfo} onClick={() => dispatch({ type: "missing", value: !state.missingInfo })}>Missing info</button>
+          </div>
+        )}
         <details>
-          <summary>About this step</summary>
+          <summary>Sample options</summary>
+          <div className="toggle-row" role="group" aria-label="Arrangement">
+            <button type="button" aria-pressed={!connected} onClick={() => setArrangement("scattered")}>Scattered</button>
+            <button type="button" aria-pressed={connected} onClick={() => setArrangement("connected")}>Connected</button>
+          </div>
+          {scenario.id === "inspection" && !watchMode && (
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={state.syncProblem}
+                disabled={state.decision !== "approved"}
+                onChange={(event) => dispatch({ type: "sync", value: event.target.checked })}
+              />
+              Handoff cannot sync
+            </label>
+          )}
           <p>{step.narration}</p>
           <p className="fine">{step.evidenceNote}</p>
-          <dl className="record-list">
-            {step.record.fields.map((field) => (
-              <div key={field.label}><dt>{field.label}</dt><dd>{field.value}</dd></div>
-            ))}
-          </dl>
-          {step.output && (
-            <div>
-              <p><strong>{step.output.title}</strong></p>
-              {step.output.lines.map((line) => <p key={line}>{line}</p>)}
-            </div>
-          )}
-          <p><a href={`/contact/?scenario=${scenario.id}&interest=demonstration`}>Talk about this workflow</a></p>
+          <p><a href={`/contact/?scenario=${scenario.id}`}>Talk about this workflow</a></p>
         </details>
       </div>
       <div className="use-cases" id="use-cases">
         <h2>Show me my business</h2>
-        <p>The same preview changes the request, the objects, and the outcome. Harborline, North Pier, and Lumen are invented companies.</p>
+        <p>Each business changes the request and the outcome. Harborline, North Pier, and Lumen are invented companies. The sample job id stays with that business.</p>
         <div role="radiogroup" aria-label="Sample business">
           {scenarios.map((item) => (
             <button
@@ -390,7 +494,12 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
               type="button"
               role="radio"
               aria-checked={item.id === scenario.id}
-              onClick={() => { setArrangement("auto"); dispatch({ type: "select", scenarioId: item.id }); }}
+              onClick={() => {
+                setArrangement("auto");
+                setBeat(0);
+                setWatchPlaying(false);
+                dispatch({ type: "select", scenarioId: item.id });
+              }}
             >
               {item.title}
             </button>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { initialState, reduceDemo, visibleSteps } from "../shared/demo/engine";
+import { initialState, reconcileState, reduceDemo, stateFromSearch, visibleSteps } from "../shared/demo/engine";
 import { scenarios } from "../shared/demo/scenarios";
 
 const inspection = scenarios[0]!;
@@ -58,6 +58,27 @@ describe("scenario transitions", () => {
     expect(reset.index).toBe(0);
     expect(reset.scenarioId).toBe("field-service");
     expect(visibleSteps(field, reset).length).toBeGreaterThan(3);
+  });
+
+  it("drops a deep link that combines a hold with an approval", () => {
+    const state = stateFromSearch(new URLSearchParams("scenario=inspection&gap=1&decision=approved&sync=1&step=8"), scenarios);
+    expect(state.missingInfo).toBe(false);
+    expect(state.decision).toBe("approved");
+    expect(state.syncProblem).toBe(true);
+    expect(visibleSteps(inspection, state).some((step) => step.id === "job")).toBe(true);
+  });
+
+  it("does not keep a sync failure without an approval", () => {
+    const state = reconcileState({ ...initialState("inspection"), syncProblem: true, index: 4 }, scenarios);
+    expect(state.syncProblem).toBe(false);
+    expect(state.decision).toBe("pending");
+  });
+
+  it("keeps a rejected field-service sample inside the plan chapter", () => {
+    let state = reduceDemo(initialState("field-service"), { type: "reject" }, scenarios);
+    for (let i = 0; i < 6; i += 1) state = reduceDemo(state, { type: "next" }, scenarios);
+    const step = visibleSteps(field, state)[state.index];
+    expect(step?.id === "update" || step?.id === "status" || step?.id === "follow-up").toBe(false);
   });
 
   it("ticks forward and stops at the end", () => {

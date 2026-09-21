@@ -1,3 +1,4 @@
+import { chapterOf } from "./chapters";
 import type { DemoAction, DemoState, DemoStep, Gate, Scenario } from "./types";
 
 export function stepVisible(gate: Gate, state: Pick<DemoState, "missingInfo" | "decision" | "syncProblem">): boolean {
@@ -31,8 +32,37 @@ export function initialState(scenarioId: string): DemoState {
 
 function clamp(state: DemoState, scenario: Scenario): DemoState {
   const steps = visibleSteps(scenario, state);
-  const index = Math.min(state.index, Math.max(steps.length - 1, 0));
+  let index = Math.min(state.index, Math.max(steps.length - 1, 0));
+  if (state.decision === "rejected") {
+    let limit = 0;
+    steps.forEach((item, stepIndex) => {
+      if (chapterOf(scenario.id, item.id) <= 1) limit = stepIndex;
+    });
+    index = Math.min(index, limit);
+  }
   return { ...state, index };
+}
+
+export function reconcileState(state: DemoState, scenarios: readonly Scenario[]): DemoState {
+  const scenario = scenarios.find((item) => item.id === state.scenarioId) ?? scenarios[0];
+  if (!scenario) return state;
+  let decision = state.decision;
+  let missingInfo = state.missingInfo;
+  let syncProblem = state.syncProblem;
+  if (decision === "approved" || decision === "rejected") missingInfo = false;
+  if (missingInfo) {
+    decision = "pending";
+    syncProblem = false;
+  }
+  if (decision !== "approved") syncProblem = false;
+  return clamp({
+    ...state,
+    scenarioId: scenario.id,
+    playing: false,
+    decision,
+    missingInfo,
+    syncProblem,
+  }, scenario);
 }
 
 export function reduceDemo(state: DemoState, action: DemoAction, scenarios: readonly Scenario[]): DemoState {
@@ -51,31 +81,41 @@ export function reduceDemo(state: DemoState, action: DemoAction, scenarios: read
       return { ...state, playing: true };
     case "tick": {
       const count = visibleSteps(current, state).length;
-      if (state.index >= count - 1) return { ...state, playing: false };
-      return { ...state, index: state.index + 1 };
+      if (state.index >= count - 1) return clamp({ ...state, playing: false }, current);
+      return clamp({ ...state, index: state.index + 1 }, current);
     }
     case "next": {
       const count = visibleSteps(current, state).length;
-      return { ...state, index: Math.min(state.index + 1, Math.max(count - 1, 0)), playing: false };
+      return clamp({ ...state, index: Math.min(state.index + 1, Math.max(count - 1, 0)), playing: false }, current);
     }
     case "prev":
       return { ...state, index: Math.max(state.index - 1, 0), playing: false };
     case "reset":
       return { ...initialState(state.scenarioId), view: state.view };
     case "missing": {
-      const next = clamp({ ...state, missingInfo: action.value, playing: false, index: action.value ? 0 : state.index }, current);
       if (action.value) {
+        const next = clamp({
+          ...state,
+          missingInfo: true,
+          decision: "pending",
+          syncProblem: false,
+          playing: false,
+          index: 0,
+        }, current);
         const steps = visibleSteps(current, next);
         const gap = steps.findIndex((step) => step.gate === "gap");
         return { ...next, index: gap >= 0 ? gap : next.index };
       }
-      return next;
+      return clamp({ ...state, missingInfo: false, playing: false }, current);
     }
     case "approve":
-      return clamp({ ...state, decision: "approved", playing: false }, current);
+      return clamp({ ...state, decision: "approved", missingInfo: false, playing: false }, current);
     case "reject":
-      return clamp({ ...state, decision: "rejected", playing: false }, current);
+      return clamp({ ...state, decision: "rejected", missingInfo: false, syncProblem: false, playing: false }, current);
     case "sync":
+      if (state.decision !== "approved" || state.missingInfo) {
+        return { ...state, syncProblem: false, playing: false };
+      }
       return clamp({ ...state, syncProblem: action.value, playing: false }, current);
     case "view":
       return { ...state, view: action.view };
@@ -95,17 +135,17 @@ export function stateFromSearch(params: URLSearchParams, scenarios: readonly Sce
   const base = initialState(scenarios.some((item) => item.id === requested) ? requested : scenarios[0]?.id ?? "inspection");
   const decision = params.get("decision");
   const view = params.get("view");
-  const next = reduceDemo(
+  const requestedIndex = Number(params.get("step") ?? "0") || 0;
+  const reconciled = reconcileState(
     {
       ...base,
       missingInfo: params.get("gap") === "1",
       decision: decision === "approved" || decision === "rejected" ? decision : "pending",
       syncProblem: params.get("sync") === "1",
       view: view === "review" || view === "customer" || view === "internal" ? view : "internal",
-      index: Number(params.get("step") ?? "0") || 0,
+      index: requestedIndex,
     },
-    { type: "goto", index: Number(params.get("step") ?? "0") || 0 },
     scenarios,
   );
-  return next;
+  return reduceDemo(reconciled, { type: "goto", index: requestedIndex }, scenarios);
 }

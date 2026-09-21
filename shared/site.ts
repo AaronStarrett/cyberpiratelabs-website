@@ -117,19 +117,19 @@ export const useCases = [
 
 export const faqs = [
   {
-    q: "What is Command Center?",
-    a: "One early-access workflow product for service companies. This website is a preview of that product. It is not the application, and it is not generally available.",
+    q: "What work does it coordinate?",
+    a: "The path from a request to the outcome: intake, a missing detail, a proposal, a person’s approval, the visit, and a report. The preview uses sample jobs for inspection, field service, and recurring property care.",
   },
   {
-    q: "Is the preview the shipping app?",
-    a: "No. The scene is an interactive product preview with sample data. Office, field, and customer angles are illustrative. They are not screenshots of a hosted product.",
+    q: "Does it fit the tools you already use?",
+    a: "It is meant to sit beside the inbox, calendar, and files a service company already uses. This preview does not connect to those systems.",
   },
   {
-    q: "Does sample approval mean the customer accepted?",
-    a: "No. Approve sample is an internal review of invented work. It does not record a customer yes, send a message, or create an invoice.",
+    q: "Where does a person approve?",
+    a: "Before the sample becomes an assignment. Watch the story shows a simulated internal approval, then a separate customer acceptance. Interactive mode lets you choose approve, needs changes, or missing info.",
   },
   {
-    q: "What does sending the form do?",
-    a: "It stores an inquiry when verification and the database are configured. It does not book a meeting. If storage is not configured, nothing is saved.",
+    q: "How do I explore it?",
+    a: "Watch the story is the default. Play, pause, next, and replay move the same sample job. Office, Field, and Customer change the record, not only the camera. The three businesses change the request and the outcome.",
   },
 ] as const;

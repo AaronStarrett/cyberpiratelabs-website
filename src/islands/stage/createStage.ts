@@ -48,7 +48,7 @@ const CAM: Record<Seat, Array<{ pos: [number, number, number]; look: [number, nu
 
 export async function mountStage(
   canvas: HTMLCanvasElement,
-  options: { intro: boolean; onReady: () => void; onLost: () => void },
+  options: { intro: boolean; reduced?: boolean; onReady: () => void; onLost: () => void },
 ): Promise<StageController> {
   const THREE = await import("three");
   const renderer = new THREE.WebGLRenderer({
@@ -271,7 +271,8 @@ export async function mountStage(
   let running = false;
   let raf = 0;
   let last = performance.now();
-  let intro = options.intro ? 1 : 0;
+  const reducedMotion = options.reduced === true;
+  let intro = options.intro && !reducedMotion ? 1 : 0;
   let pointerX = 0;
   let pointerY = 0;
   let pointerTargetX = 0;
@@ -392,8 +393,10 @@ export async function mountStage(
     pointerTargetY = 0;
     kick();
   }
-  canvas.addEventListener("pointermove", onPointerMove);
-  canvas.addEventListener("pointerleave", onPointerLeave);
+  if (!reducedMotion) {
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerleave", onPointerLeave);
+  }
 
   function onLost(event: Event) {
     event.preventDefault();
@@ -411,12 +414,20 @@ export async function mountStage(
     }
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (intro > 0) intro = Math.max(0, intro - dt / 1.15);
-    pointerX += (pointerTargetX - pointerX) * (1 - Math.exp(-3.2 * dt));
-    pointerY += (pointerTargetY - pointerY) * (1 - Math.exp(-3.2 * dt));
+    if (reducedMotion) {
+      intro = 0;
+      pointerX = 0;
+      pointerY = 0;
+      pointerTargetX = 0;
+      pointerTargetY = 0;
+    } else if (intro > 0) intro = Math.max(0, intro - dt / 1.15);
+    if (!reducedMotion) {
+      pointerX += (pointerTargetX - pointerX) * (1 - Math.exp(-3.2 * dt));
+      pointerY += (pointerTargetY - pointerY) * (1 - Math.exp(-3.2 * dt));
+    }
 
     let settled = intro === 0 && Math.abs(pointerX - pointerTargetX) < 0.01 && Math.abs(pointerY - pointerTargetY) < 0.01;
-    const lambda = 1 - Math.exp(-4.8 * dt);
+    const lambda = reducedMotion ? 1 : 1 - Math.exp(-4.8 * dt);
     for (const { object, rig } of rigs.values()) {
       object.visible = rig.show || object.scale.x > 0.02;
       object.position.x += (rig.x - object.position.x) * lambda;
@@ -432,14 +443,16 @@ export async function mountStage(
 
     const shot = CAM[desired.seat][desired.chapter]!;
     const pull = intro;
-    const tx = shot.pos[0] + pointerX * 0.16;
-    const ty = shot.pos[1] + pull * 0.38 - pointerY * 0.08;
+    const sway = reducedMotion ? 0 : 1;
+    const tx = shot.pos[0] + pointerX * 0.16 * sway;
+    const ty = shot.pos[1] + pull * 0.38 - pointerY * 0.08 * sway;
     const tz = shot.pos[2] + pull * 0.85;
-    camPos.x += (tx - camPos.x) * (1 - Math.exp(-3 * dt));
-    camPos.y += (ty - camPos.y) * (1 - Math.exp(-3 * dt));
-    camPos.z += (tz - camPos.z) * (1 - Math.exp(-3 * dt));
+    const camLerp = reducedMotion ? 1 : 1 - Math.exp(-3 * dt);
+    camPos.x += (tx - camPos.x) * camLerp;
+    camPos.y += (ty - camPos.y) * camLerp;
+    camPos.z += (tz - camPos.z) * camLerp;
     lookTarget.set(shot.look[0], shot.look[1], shot.look[2]);
-    look.lerp(lookTarget, 1 - Math.exp(-3 * dt));
+    look.lerp(lookTarget, camLerp);
     camera.position.copy(camPos);
     camera.lookAt(look);
     if (camPos.distanceTo(new THREE.Vector3(tx, ty, tz)) > 0.02) settled = false;
@@ -484,8 +497,10 @@ export async function mountStage(
       lost = true;
       cancelAnimationFrame(raf);
       resizeObserver.disconnect();
-      canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerleave", onPointerLeave);
+      if (!reducedMotion) {
+        canvas.removeEventListener("pointermove", onPointerMove);
+        canvas.removeEventListener("pointerleave", onPointerLeave);
+      }
       canvas.removeEventListener("webglcontextlost", onLost);
       for (const item of disposables) item.dispose();
       renderer.dispose();

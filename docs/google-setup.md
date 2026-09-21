@@ -1,6 +1,8 @@
 # Google archive setup
 
-This path is optional. The site stores inquiries in D1 without it. Do not claim the Sheet, Drive copy, or owner email works until a synthetic end-to-end test succeeds. That test was not run in this build.
+This path is optional. The site stores inquiries in D1 without it. Do not claim the Sheet, Drive copy, or owner email works until a synthetic end-to-end test succeeds.
+
+Smallest next step: in the owner Google account, create one private Sheet and one private Drive folder, paste `google/apps-script/Code.gs`, set the script properties, deploy the web app, then set the Worker secrets `GOOGLE_HMAC_SECRET` and `GOOGLE_APPS_SCRIPT_URL`.
 
 ## Apps Script
 
