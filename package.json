@@ -1,0 +1,38 @@
+{
+  "name": "cyberpiratelabs-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1 --port 43123",
+    "build": "node scripts/generate-icons.mjs && astro build && node scripts/write-csp.mjs",
+    "preview": "astro preview --host 127.0.0.1 --port 43123",
+    "typecheck": "astro check && tsc --noEmit -p tsconfig.worker.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "cf:dev": "wrangler dev --ip 127.0.0.1 --port 43123",
+    "cf:deploy": "npm run build && wrangler deploy",
+    "cf:deploy:production": "npm run build && wrangler deploy --env production",
+    "scan:secrets": "node scripts/scan-secrets.mjs"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/react": "^4.4.2",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "@fontsource-variable/source-sans-3": "^5.3.0",
+    "astro": "^5.18.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260921.1",
+    "eslint": "^9.39.5",
+    "eslint-plugin-astro": "^1.7.0",
+    "globals": "^16.5.0",
+    "sharp": "^0.34.5",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^3.2.7",
+    "wrangler": "^4.136.1"
+  }
+}

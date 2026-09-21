@@ -1,0 +1,25 @@
+---
+const path = Astro.url.pathname;
+const current = (href: string) => (path === href ? "page" : undefined);
+---
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/">
+      <img src="/brand/cpl-logo.png" width="1254" height="1254" alt="" />
+      <span>Cyber Pirate Labs</span>
+    </a>
+    <input class="nav-toggle" id="nav-toggle" type="checkbox" />
+    <label class="nav-toggle-label" for="nav-toggle">
+      <span class="when-closed">Menu</span>
+      <span class="when-open">Close</span>
+    </label>
+    <nav class="nav" id="site-nav" aria-label="Primary">
+      <a href="/#product" aria-current={current("/")}>Product</a>
+      <a href="/#how-it-works">How It Works</a>
+      <a href="/#use-cases">Use Cases</a>
+      <a href="/#faq">FAQ</a>
+      <a href="/demo/" aria-current={current("/demo/")}>Interactive demo</a>
+      <a class="button" href="/contact/?interest=demonstration">Request a Demo</a>
+    </nav>
+  </div>
+</header>

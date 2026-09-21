@@ -1,0 +1,34 @@
+---
+import DemoApp from "../islands/DemoApp";
+import Base from "../layouts/Base.astro";
+import { scenarios } from "../../shared/demo/scenarios";
+---
+<Base
+  title="Interactive walkthrough | CPL Command Center"
+  description="Run a sample Command Center workflow with invented companies. No account, no email gate, and no live customer system."
+>
+  <section class="page-intro">
+    <div class="wrap">
+      <p class="eyebrow">CPL Command Center</p>
+      <h1>Interactive walkthrough</h1>
+      <p>Choose a sample company, step through the work, and open the record. Missing information, a rejected review, and a failed handoff change what happens next. Discussing a workflow opens the contact form with that interest only. It does not copy the sample into a lead.</p>
+      <DemoApp client:load />
+      <div class="transcript">
+        <h2>Text transcript</h2>
+        <p>The same sample paths are written out here for anyone not running the stepper.</p>
+        {scenarios.map((scenario) => (
+          <article>
+            <h3>{scenario.title}</h3>
+            <p>{scenario.summary}</p>
+            <p>{scenario.evidenceNote}</p>
+            <ol>
+              {scenario.steps.map((step) => (
+                <li><strong>{step.title}.</strong> {step.narration} <span class="evidence">({step.evidence})</span></li>
+              ))}
+            </ol>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

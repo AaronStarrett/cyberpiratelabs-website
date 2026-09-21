@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+screenshots/
+.playwright-mcp/
+.dev.vars
+.env
+.env.*
+!.env.example
+!.dev.vars.example
+*.log
+agent-tools/
+.DS_Store

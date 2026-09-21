@@ -1,0 +1,151 @@
+export const workflowStages = [
+  {
+    id: "inquiry",
+    title: "Inquiry",
+    input: "A request arrives by phone, email, or a form.",
+    organized: "The ask, the site, and the requested timing land on one record.",
+    human: "Someone confirms this is work the company should take.",
+    outcome: "A visible request, not a buried message.",
+    evidence: "The public development source includes lead intake. Production use is not activated.",
+  },
+  {
+    id: "qualification",
+    title: "Qualification",
+    input: "The intake record and whatever was missing from the request.",
+    organized: "Required details are checked. Gaps stay on the record.",
+    human: "A person supplies or accepts a missing fact. The sample will not invent it.",
+    outcome: "The work either moves or it is clearly on hold.",
+    evidence: "Information check is in the development source. This page is a sample.",
+  },
+  {
+    id: "proposal",
+    title: "Proposal",
+    input: "A complete enough request.",
+    organized: "Scope and assumptions are gathered into a draft.",
+    human: "Nobody has approved it yet.",
+    outcome: "A draft is ready for review. It is not sent.",
+    evidence: "Proposal drafting exists in the development source. The production catalog is unconfigured.",
+  },
+  {
+    id: "approval",
+    title: "Approval",
+    input: "The draft.",
+    organized: "The decision and the reason sit with the draft.",
+    human: "A person approves it or sends it back.",
+    outcome: "The record shows the decision. Customer acceptance is still planned, not connected.",
+    evidence: "Internal review states exist. Client acceptance is not connected in the source.",
+  },
+  {
+    id: "setup",
+    title: "Project setup",
+    input: "An approved scope.",
+    organized: "A job shell, checklist, or visit can be prepared.",
+    human: "A coordinator confirms the job is real.",
+    outcome: "The next operational record exists in the sample. Automatic award-to-project setup is planned.",
+    evidence: "Project setup is marked deferred in the public guided scenario.",
+  },
+  {
+    id: "scheduling",
+    title: "Scheduling",
+    input: "The job and the constraints.",
+    organized: "A task and a window are named.",
+    human: "A person still owns the real calendar.",
+    outcome: "The sample shows who would go, without booking a meeting.",
+    evidence: "Scheduler screens exist in the source and were not treated as production behavior.",
+  },
+  {
+    id: "field",
+    title: "Field work",
+    input: "The assigned task.",
+    organized: "Notes, exceptions, and synthetic evidence attach to the job.",
+    human: "The person in the field, or a reviewer, confirms what was found.",
+    outcome: "The office can see the update without hunting through a thread.",
+    evidence: "Inspection capture is in the development source. The website sketch is sample-only.",
+  },
+  {
+    id: "reporting",
+    title: "Reporting",
+    input: "Field notes and the job.",
+    organized: "A report draft is assembled and held for review.",
+    human: "Technical review stays with a person.",
+    outcome: "A report can be inspected. It is not delivered from this site.",
+    evidence: "Report assembly and review are in the development source. Live delivery is a local test adapter there, and absent here.",
+  },
+  {
+    id: "invoice",
+    title: "Invoice readiness",
+    input: "A reviewed job.",
+    organized: "A handoff packet lists what would be billed.",
+    human: "Accounting stays with a person or that company's own system.",
+    outcome: "Ready does not mean invoiced. No invoice is created.",
+    evidence: "Billing is a demonstration stage in the source and is not connected.",
+  },
+  {
+    id: "follow-up",
+    title: "Follow-up",
+    input: "The closed sample step.",
+    organized: "The next action is written down.",
+    human: "Someone chooses whether to call, return, or wait.",
+    outcome: "The operation has a next action instead of a vague done.",
+    evidence: "Illustrative on this website.",
+  },
+] as const;
+
+export const useCases = [
+  {
+    href: "/demo/?scenario=inspection",
+    title: "Inspection and assessment",
+    problem: "A request names the building and the date, then leaves out the access notes. Photos and the approval live somewhere else.",
+    workflow: "Intake, a visible gap, a sample proposal, a human review, then a sample visit, report, and invoicing handoff.",
+    outcome: "The blocker and the next task are on one record. Nothing is emailed and no invoice is created.",
+  },
+  {
+    href: "/demo/?scenario=field-service",
+    title: "Field service",
+    problem: "The dispatcher, the technician, and the customer each retell the same repair.",
+    workflow: "Structure the request, hold scheduling if a fact is missing, assign a sample visit, record the update, draft a status.",
+    outcome: "One status, with the unsent customer note sitting beside it.",
+  },
+  {
+    href: "/demo/?scenario=recurring",
+    title: "Recurring property care",
+    problem: "A routine visit finds an exception, and the customer update depends on someone remembering to approve it.",
+    workflow: "A recurring task, a checklist, an on-site issue, an approval, then a reviewed update and the next action.",
+    outcome: "The exception stays visible until a person decides. The update is not sent by the sample.",
+  },
+] as const;
+
+export const faqs = [
+  {
+    q: "What is CPL Command Center?",
+    a: "It is one configurable platform for service companies. The aim is to connect requests, information, documents, tasks, approvals, and customer updates in a workflow the company can follow. It is in early access. This website explains it and includes a sample walkthrough. It is not the application, and it is not generally available.",
+  },
+  {
+    q: "Who is it for?",
+    a: "Service companies whose work starts with a request and then has to move through qualification, a proposal or approval, scheduling, field work, and a report or follow-up. The patterns described here are inspection and assessment, field service, and recurring property care.",
+  },
+  {
+    q: "Does it replace the software we already use?",
+    a: "No. Command Center is not a replacement CRM, accounting system, or field tool. Connections are configured for a company when they are actually available. Live connections are not activated in the current development source.",
+  },
+  {
+    q: "Can the workflow be configured?",
+    a: "That is the model: one platform, with steps, catalogs, and templates set up for the company. Not every company needs every step. Self-serve configuration and customer onboarding are not open. The sequence on this site is a sample.",
+  },
+  {
+    q: "What still needs a person?",
+    a: "Missing information, proposal review, technical review, and any step marked as a decision. Customer acceptance, external messages, and invoices stay with a person. Several of those handoffs are still planned rather than connected.",
+  },
+  {
+    q: "What is available today?",
+    a: "This website, and a sample walkthrough you can run without an account. The Command Center application in the public source is a development checkpoint. Hosted customer use, live connectors, and production deployment are not activated. The capability list on this page is the boundary.",
+  },
+  {
+    q: "How does onboarding work?",
+    a: "Understand the workflow, configure the steps, test them with the team, then launch and improve. That is company-specific configuration of the same platform, plus an ongoing subscription. It is not a new application built from scratch for each company. Onboarding is a discussion, not a checkout.",
+  },
+  {
+    q: "How do we talk about pricing or see it work?",
+    a: "Use the request form and say whether you want a demonstration, early access, or an implementation discussion. Sending the form stores an inquiry when this deployment is fully configured. It does not book a time, and this site does not list prices.",
+  },
+] as const;

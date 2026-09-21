@@ -1,0 +1,10 @@
+# Local `wrangler dev` only. Copy to .dev.vars. Never commit .dev.vars.
+# Replace every value. These placeholders are not production secrets.
+ENVIRONMENT=development
+RATE_LIMIT_SALT=local-only-change-this-salt
+OPERATOR_TOKEN=
+TURNSTILE_SECRET=
+GOOGLE_APPS_SCRIPT_URL=
+GOOGLE_HMAC_SECRET=
+# Optional extra origins. The request's own origin is always allowed.
+ALLOWED_ORIGINS=

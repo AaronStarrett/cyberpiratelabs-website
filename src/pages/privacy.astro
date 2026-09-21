@@ -1,0 +1,28 @@
+---
+import Base from "../layouts/Base.astro";
+---
+<Base
+  title="Privacy | Cyber Pirate Labs"
+  description="How the Cyber Pirate Labs website stores demo inquiries. Owner review required."
+>
+  <section class="page-intro">
+    <div class="wrap">
+      <p class="flag"><strong>Owner review required.</strong> This page describes the inquiry system in this repository. Confirm it before treating it as the company’s privacy notice.</p>
+      <h1>Privacy</h1>
+      <p>Cyber Pirate Labs, LLC operates this website for CPL Command Center. The only personal information the site is built to collect is what you type into the inquiry form.</p>
+      <h2>What the form stores</h2>
+      <p>Required: name, email, and a description of the workflow. Optional: company, service category, phone, current tools, team size, interest, and a separate marketing-consent checkbox. The checkbox is off unless you turn it on. A sample-workflow label may be included when you follow “Discuss this workflow.” The walkthrough itself does not create an inquiry.</p>
+      <p>The site also stores a submission id, a reference id, the time, a hash of the network address, a shortened browser string, and the status of later delivery steps. It does not store the raw network address. There is no account, no payment, and no file upload.</p>
+      <h2>Where it goes</h2>
+      <p>A valid inquiry is saved in a private Cloudflare D1 database for this website. That save is what “saved” means. A later step can copy the inquiry into a private Google Sheet and Drive folder and notify a business inbox. Those steps are tracked separately. If they are not configured, or if they fail, the inquiry remains stored and a scheduled job retries delivery with a limited backoff. Success on the form is not a claim that every later step already finished.</p>
+      <p>Google and notification delivery are not active until the owner adds those credentials. This deployment may therefore save an inquiry locally to the site database only.</p>
+      <h2>Verification and abuse controls</h2>
+      <p>Production uses Cloudflare Turnstile. There is no bypass that skips verification. The form also uses rate limits, a hidden field that should stay empty, and same-origin checks. Operators can review pending delivery, retry it, export a private CSV, confirm that a Google copy arrived, or delete a record. There is no public list of inquiries.</p>
+      <h2>What this site does not do</h2>
+      <p>No advertising pixels. No session replay. No sale of inquiry data. No certification is claimed for SOC 2, HIPAA, or GDPR. The marketing checkbox does not enroll you in anything else. Deletion removes the inquiry row and keeps a short deletion note with the reference id and time, not the message.</p>
+      <h2>How long it is kept</h2>
+      <p>Until an authorized operator deletes it. This page does not invent a retention period.</p>
+      <p>Questions about a stored inquiry can be sent through the same form. Include the reference id if you have one.</p>
+    </div>
+  </section>
+</Base>
