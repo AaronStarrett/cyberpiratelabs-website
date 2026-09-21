@@ -34,7 +34,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   <input type="hidden" name="scenarioInterest" id="scenarioInterest" value="" />
   <input type="hidden" name="sourcePath" value={sourcePath} />
   <input type="hidden" name="submissionId" id="submissionId" value="" />
-  <div id="turnstile"></div>
+  <div id="inquiry-turnstile"></div>
   <p id="turnstile-error" class="error" hidden></p>
   <button type="submit" id="submit-inquiry">Send message</button>
 </form>
@@ -91,7 +91,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     const mountTurnstile = () => {
       const turnstile = turnstileApi();
       if (!turnstile || widgetId) return Boolean(widgetId);
-      widgetId = turnstile.render("#turnstile", {
+      widgetId = turnstile.render("#inquiry-turnstile", {
         sitekey: siteKey,
         callback: (value) => { token = value; },
         "expired-callback": () => {
