@@ -117,35 +117,19 @@ export const useCases = [
 
 export const faqs = [
   {
-    q: "What is CPL Command Center?",
-    a: "It is one configurable platform for service companies. The aim is to connect requests, information, documents, tasks, approvals, and customer updates in a workflow the company can follow. It is in early access. This website explains it and includes a sample walkthrough. It is not the application, and it is not generally available.",
+    q: "What is Command Center?",
+    a: "One early-access workflow product for service companies. This website is a preview of that product. It is not the application, and it is not generally available.",
   },
   {
-    q: "Who is it for?",
-    a: "Service companies whose work starts with a request and then has to move through qualification, a proposal or approval, scheduling, field work, and a report or follow-up. The patterns described here are inspection and assessment, field service, and recurring property care.",
+    q: "Is the preview the shipping app?",
+    a: "No. The scene is an interactive product preview with sample data. Office, field, and customer angles are illustrative. They are not screenshots of a hosted product.",
   },
   {
-    q: "Does it replace the software we already use?",
-    a: "No. Command Center is not a replacement CRM, accounting system, or field tool. Connections are configured for a company when they are actually available. Live connections are not activated in the current development source.",
+    q: "Does sample approval mean the customer accepted?",
+    a: "No. Approve sample is an internal review of invented work. It does not record a customer yes, send a message, or create an invoice.",
   },
   {
-    q: "Can the workflow be configured?",
-    a: "That is the model: one platform, with steps, catalogs, and templates set up for the company. Not every company needs every step. Self-serve configuration and customer onboarding are not open. The sequence on this site is a sample.",
-  },
-  {
-    q: "What still needs a person?",
-    a: "Missing information, proposal review, technical review, and any step marked as a decision. Customer acceptance, external messages, and invoices stay with a person. Several of those handoffs are still planned rather than connected.",
-  },
-  {
-    q: "What is available today?",
-    a: "This website, and a sample walkthrough you can run without an account. The Command Center application in the public source is a development checkpoint. Hosted customer use, live connectors, and production deployment are not activated. The capability list on this page is the boundary.",
-  },
-  {
-    q: "How does onboarding work?",
-    a: "Understand the workflow, configure the steps, test them with the team, then launch and improve. That is company-specific configuration of the same platform, plus an ongoing subscription. It is not a new application built from scratch for each company. Onboarding is a discussion, not a checkout.",
-  },
-  {
-    q: "How do we talk about pricing or see it work?",
-    a: "Use the request form and say whether you want a demonstration, early access, or an implementation discussion. Sending the form stores an inquiry when this deployment is fully configured. It does not book a time, and this site does not list prices.",
+    q: "What does sending the form do?",
+    a: "It stores an inquiry when verification and the database are configured. It does not book a meeting. If storage is not configured, nothing is saved.",
   },
 ] as const;

@@ -14,12 +14,9 @@ const current = (href: string) => (path === href ? "page" : undefined);
       <span class="when-open">Close</span>
     </label>
     <nav class="nav" id="site-nav" aria-label="Primary">
-      <a href="/#product" aria-current={current("/")}>Product</a>
-      <a href="/#how-it-works">How It Works</a>
-      <a href="/#use-cases">Use Cases</a>
-      <a href="/#faq">FAQ</a>
-      <a href="/demo/" aria-current={current("/demo/")}>Interactive demo</a>
-      <a class="button" href="/contact/?interest=demonstration">Request a Demo</a>
+      <a href="/#see-it-work">See it work</a>
+      <a href="/#use-cases">Use cases</a>
+      <a href="/contact/" aria-current={current("/contact/")}>Contact</a>
     </nav>
   </div>
 </header>

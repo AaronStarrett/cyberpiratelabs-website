@@ -22,7 +22,7 @@
     {
       "binding": "DB",
       "database_name": "cpl-website-inquiries-preview",
-      "database_id": "00000000-0000-4000-8000-000000000001",
+      "database_id": "5bf0d631-d3ee-452c-9ed7-bf516229080b",
       "migrations_dir": "migrations"
     }
   ],

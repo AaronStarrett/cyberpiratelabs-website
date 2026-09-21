@@ -2,7 +2,7 @@
 
 Public site for CPL Command Center, the early-access workflow platform from Cyber Pirate Labs, LLC.
 
-The site explains the product, runs a labeled sample walkthrough, and accepts inquiries. It is not the Command Center application and it does not claim general availability.
+The site is a visual preview of that one product: a sample job you can play, with an inquiry form. It is not the Command Center application and it does not claim general availability.
 
 ## Run locally
 

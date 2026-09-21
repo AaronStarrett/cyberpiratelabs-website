@@ -2,16 +2,17 @@
 
 ## Pages
 
-- Homepage: `src/pages/index.astro`, with workflow, use cases, and FAQ copy in `shared/site.ts`.
-- Walkthrough shell: `src/pages/demo.astro`. Step text: `shared/demo/scenarios.ts`.
-- Contact labels: `src/pages/contact.astro`. Field rules: `shared/inquiry/validate.ts`.
+- Homepage scene and controls: `src/islands/ProductStage.tsx`. Chapter captions: `shared/demo/chapters.ts`.
+- Homepage contact and FAQ: `src/pages/index.astro`. FAQ copy: `shared/site.ts`.
+- Demo page: `src/pages/demo.astro`. Step text: `shared/demo/scenarios.ts`. Capability notes render here.
+- Contact form: `src/components/InquiryForm.astro`. Field rules: `shared/inquiry/validate.ts`.
 - Privacy and terms: `src/pages/privacy.astro` and `src/pages/terms.astro`. Both are flagged for owner review. If storage behavior changes, update privacy in the same change.
 
 ## Capability claims
 
-`shared/capability.ts` is the public boundary. Homepage status labels are rendered from it. Do not describe a feature as available unless its status is `on-this-website`.
+`shared/capability.ts` is the public boundary. The demo page renders it. Do not describe a feature as available unless its status is `on-this-website`.
 
-The walkthrough must keep the banner “Interactive walkthrough · Sample data”. Evidence on each step is `development-source`, `illustrative`, or `planned`.
+The stage keeps the line “Interactive product preview · Sample data”. Evidence on each step is `development-source`, `illustrative`, or `planned`.
 
 ## Logo
 

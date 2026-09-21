@@ -1,7 +1,8 @@
 ---
 import Base from "../layouts/Base.astro";
-import { capabilities, integrations, statusLabel } from "../../shared/capability";
-import { faqs, useCases, workflowStages } from "../../shared/site";
+import InquiryForm from "../components/InquiryForm.astro";
+import ProductStage from "../islands/ProductStage";
+import { faqs } from "../../shared/site";
 
 const jsonLd = [
   {
@@ -18,221 +19,35 @@ const jsonLd = [
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     creativeWorkStatus: "Early access. In development.",
-    description: "Configurable workflow software for service companies. Early access, not generally available.",
+    description: "Early-access workflow software for service companies. This website is an interactive preview with sample data.",
     provider: { "@type": "Organization", name: "Cyber Pirate Labs, LLC" },
   },
 ];
 ---
 <Base
   title="CPL Command Center | Cyber Pirate Labs"
-  description="CPL Command Center connects requests, proposals, scheduling, field updates, and reporting for service companies. Early access. Not generally available."
+  description="CPL Command Center connects a service business from the request to the outcome. Early access. This site is an interactive preview with sample data."
   jsonLd={jsonLd}
 >
-  <section class="hero" id="product">
-    <div class="wrap hero-grid">
+  <ProductStage client:load />
+  <noscript>
+    <p class="wrap noscript-note">The sample opens on a roof assessment for 18 Cedar Wharf. Access notes are missing. The story controls need JavaScript.</p>
+  </noscript>
+  <section class="sheet contact-sheet" id="contact" aria-labelledby="contact-title">
+    <div class="wrap contact-grid">
       <div>
-        <p class="eyebrow">CPL Command Center</p>
-        <h1>Turn scattered work into a connected operation.</h1>
-        <p class="lede">Requests, proposals, scheduling, field updates, and reporting can live in one workflow. Command Center is configurable for a service company. It is in early access, not a finished hosted product.</p>
-        <div class="hero-actions">
-          <a class="button light" href="/contact/?interest=demonstration">Request a Demo</a>
-          <a class="button light secondary" href="/demo/">Explore the Interactive Demo</a>
-        </div>
-        <p class="notice">The picture on the right is a product story with legible steps. It is not a live customer system, and it does not require an account.</p>
-      </div>
-      <div class="flow-card" aria-label="Sample path from request to clear status">
-        <ol>
-          <li><span class="step-index">1</span><div><strong>Request arrives</strong><span>Roof assessment, 18 Cedar Wharf, requested 18 April.</span></div></li>
-          <li><span class="step-index">2</span><div><strong>Information organized</strong><span>Site, scope, and date sit on one intake record.</span></div></li>
-          <li><span class="step-index">3</span><div><strong>Gap surfaced</strong><span>Access notes are missing. A person has to supply them.</span></div></li>
-          <li><span class="step-index">4</span><div><strong>Next task prepared</strong><span>A sample proposal is waiting for review.</span></div></li>
-          <li><span class="step-index">5</span><div><strong>Status clear</strong><span>The record says what is blocked, and what happens next.</span></div></li>
-        </ol>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <p class="kicker">The operational problem</p>
-      <h2>Work is already happening. It is just not connected.</h2>
-      <div class="split">
-        <article class="panel-block">
-          <h3>Before</h3>
-          <p>The request is in a mailbox. The photos are in a thread. The approval is in someone’s head. The schedule is on a board. The customer asks for a status that nobody can answer from one place.</p>
-        </article>
-        <article class="panel-block">
-          <h3>After</h3>
-          <p>The request becomes a record. Missing information stays visible. A person approves the next step. The following task is prepared. The status is something the team can point to.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section-muted" id="how-it-works">
-    <div class="wrap">
-      <p class="kicker">A connected workflow</p>
-      <h2>Select a step. See what moves, and what waits for a person.</h2>
-      <p>The sequence is configurable. A company does not have to use every step. Labels below separate the development source from this sample.</p>
-      <div class="explorer">
-        {workflowStages.map((stage, index) => (
-          <>
-            <input class="stage-input" type="radio" name="stage" id={`stage-${stage.id}`} checked={index === 0} />
-            <label class="stage-label" for={`stage-${stage.id}`}>{stage.title}</label>
-          </>
-        ))}
-        {workflowStages.map((stage) => (
-          <article class={`stage-panel panel-${stage.id}`}>
-            <h3>{stage.title}</h3>
-            <dl class="facts">
-              <dt>Input</dt><dd>{stage.input}</dd>
-              <dt>Organized</dt><dd>{stage.organized}</dd>
-              <dt>A person</dt><dd>{stage.human}</dd>
-              <dt>Outcome</dt><dd>{stage.outcome}</dd>
-            </dl>
-            <p class="evidence">{stage.evidence}</p>
-          </article>
+        <p class="kicker">Contact</p>
+        <h2 id="contact-title">Where does work get stuck?</h2>
+        <p>Name the workflow. An inquiry is not a booked meeting. Prices and timing stay in the conversation, not on this page.</p>
+        <h3>Questions</h3>
+        {faqs.map((item) => (
+          <details>
+            <summary>{item.q}</summary>
+            <p>{item.a}</p>
+          </details>
         ))}
       </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <p class="kicker">Hands-on preview</p>
-      <h2>Run a sample. No email gate.</h2>
-      <p>The interactive walkthrough uses invented companies and deterministic rules. It is labeled sample data. It does not read a mailbox or call a model.</p>
-      <p><a class="button" href="/demo/">Open the interactive demo</a></p>
-    </div>
-  </section>
-
-  <section class="section-muted" id="use-cases">
-    <div class="wrap">
-      <p class="kicker">Use cases</p>
-      <h2>Three ways work gets stuck.</h2>
-      {useCases.map((item) => (
-        <article class="case">
-          <p class="kicker">{item.title}</p>
-          <div>
-            <h3>{item.problem}</h3>
-            <p><strong>Workflow. </strong>{item.workflow}</p>
-            <p><strong>Outcome. </strong>{item.outcome}</p>
-          </div>
-          <a class="button secondary" href={item.href}>Try this scenario</a>
-        </article>
-      ))}
-      <p class="evidence">Field service and recurring property care are illustrative scenarios on this website. The inspection path is aligned to stage shapes in the public development source, and it is still a sample.</p>
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <p class="kicker">Views</p>
-      <h2>The same job, from three seats.</h2>
-      <p class="evidence">Illustrative. These panels are a website composition, not screenshots of a hosted product.</p>
-      <div class="views">
-        <article>
-          <h3>Internal operating view</h3>
-          <p>The record shows the request, the gap, and the next task. A coordinator can see what is unassigned.</p>
-        </article>
-        <article>
-          <h3>Review queue</h3>
-          <p>Approvals sit in a queue. A proposal or an exception waits until a person decides. The queue does not decide for them.</p>
-        </article>
-        <article>
-          <h3>Customer status</h3>
-          <p>The customer-facing line says what is known and what is not released. The sample does not send it.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section-muted" id="integrations">
-    <div class="wrap">
-      <p class="kicker">Integrations</p>
-      <h2>Configured per company. Not a wall of connected badges.</h2>
-      <p>Nothing in this list is live on this website. Command Center does not replace every CRM, accounting package, or field tool.</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>System</th><th>State</th><th>What that means</th></tr></thead>
-          <tbody>
-            {integrations.map((item) => (
-              <tr><td>{item.name}</td><td>{item.state}</td><td>{item.note}</td></tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section id="implementation">
-    <div class="wrap">
-      <p class="kicker">Implementation</p>
-      <h2>Configure the platform. Do not rebuild it for every company.</h2>
-      <div class="split">
-        <article class="panel-block">
-          <h3>How a company starts</h3>
-          <ol>
-            <li>Understand the workflow that is actually stuck.</li>
-            <li>Configure the steps the company needs.</li>
-            <li>Test that path with the team.</li>
-            <li>Launch, then improve the configuration.</li>
-          </ol>
-        </article>
-        <article class="panel-block">
-          <h3>Commercial shape</h3>
-          <p>One reusable platform. Company-specific onboarding, workflow configuration, and integrations. Implementation and configuration fees, plus an ongoing subscription.</p>
-          <p>Prices, dates, and contract terms are not listed here. They are part of a discussion.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section-muted" id="availability">
-    <div class="wrap">
-      <p class="kicker">What is available today</p>
-      <h2>Early access. The boundary is written down.</h2>
-      <p>Public copy on this site follows this list. The notes refer to the public Command Center source reviewed on 2026-09-21. They do not claim a hosted production service.</p>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Capability</th><th>Status</th><th>Plain meaning</th></tr></thead>
-          <tbody>
-            {capabilities.map((item) => (
-              <tr>
-                <td>{item.name}</td>
-                <td>{statusLabel(item.status)}</td>
-                <td>{item.publicMeaning}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section id="faq">
-    <div class="wrap">
-      <p class="kicker">FAQ</p>
-      <h2>Straight answers.</h2>
-      {faqs.map((item) => (
-        <details>
-          <summary>{item.q}</summary>
-          <p>{item.a}</p>
-        </details>
-      ))}
-    </div>
-  </section>
-
-  <section>
-    <div class="wrap">
-      <div class="final">
-        <div>
-          <p class="eyebrow">Next step</p>
-          <h2>Show us where work gets stuck.</h2>
-          <p>Tell us the workflow. Requesting a demo does not book a time.</p>
-        </div>
-        <a class="button light" href="/contact/?interest=implementation">Request a Demo</a>
-      </div>
+      <InquiryForm sourcePath="/" showLead={false} />
     </div>
   </section>
 </Base>

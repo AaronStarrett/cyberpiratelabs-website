@@ -1,0 +1,174 @@
+---
+import { INTERESTS, SERVICE_CATEGORIES, TEAM_SIZES, interestLabel, serviceLabel } from "../../shared/inquiry/validate";
+
+interface Props {
+  sourcePath: string;
+  showLead?: boolean;
+}
+
+const { sourcePath, showLead = true } = Astro.props;
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+---
+{showLead && <p>Required: your name, email, and a short description of the workflow. Sending this form does not reserve a time and does not promise how quickly someone will reply.</p>}
+{!siteKey && <p class="status" role="status">Verification is not configured on this deployment. A submission cannot be saved until Turnstile is set. You can still review the form.</p>}
+<form id="inquiry" class="form" method="post" action="/api/inquiries" novalidate data-turnstile-site-key={siteKey}>
+  <div id="form-status" class="status" hidden></div>
+  <div class="hp" aria-hidden="true">
+    <label for="cpl_leave_blank">Leave blank</label>
+    <input id="cpl_leave_blank" name="cpl_leave_blank" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+  <label>Name
+    <input name="name" autocomplete="name" required maxlength="120" aria-describedby="name-error" />
+  </label>
+  <p id="name-error" class="error" hidden></p>
+  <label>Email
+    <input name="email" type="email" autocomplete="email" required maxlength="254" aria-describedby="email-error" />
+  </label>
+  <p id="email-error" class="error" hidden></p>
+  <label>Where work gets stuck
+    <textarea name="workflowProblem" required minlength="20" maxlength="2000" aria-describedby="workflow-error"></textarea>
+  </label>
+  <p id="workflow-error" class="error" hidden></p>
+  <label>Company <span class="evidence">(optional)</span>
+    <input name="company" autocomplete="organization" maxlength="160" />
+  </label>
+  <label>Service category <span class="evidence">(optional)</span>
+    <select name="serviceCategory">
+      <option value="">Choose one</option>
+      {SERVICE_CATEGORIES.map((value) => <option value={value}>{serviceLabel(value)}</option>)}
+    </select>
+  </label>
+  <label>Phone <span class="evidence">(optional)</span>
+    <input name="phone" type="tel" autocomplete="tel" maxlength="40" />
+  </label>
+  <label>Current tools <span class="evidence">(optional)</span>
+    <input name="currentTools" maxlength="300" />
+  </label>
+  <label>Team size <span class="evidence">(optional)</span>
+    <select name="teamSize">
+      <option value="">Choose one</option>
+      {TEAM_SIZES.map((value) => <option value={value}>{value}</option>)}
+    </select>
+  </label>
+  <label>Interest <span class="evidence">(optional)</span>
+    <select name="interest" id="interest">
+      <option value="">Choose one</option>
+      {INTERESTS.map((value) => <option value={value}>{interestLabel(value)}</option>)}
+    </select>
+  </label>
+  <p id="scenario-note" hidden></p>
+  <input type="hidden" name="scenarioInterest" id="scenarioInterest" value="" />
+  <input type="hidden" name="sourcePath" value={sourcePath} />
+  <input type="hidden" name="submissionId" id="submissionId" value="" />
+  <label class="check">
+    <input name="marketingConsent" type="checkbox" value="yes" />
+    <span>Send occasional product notes. This is separate from the inquiry and is off unless you check it.</span>
+  </label>
+  <div id="turnstile"></div>
+  <p id="turnstile-error" class="error" hidden></p>
+  <button type="submit" id="submit-inquiry">Save inquiry</button>
+</form>
+<noscript><p>JavaScript is off. The form still posts to the server, which checks the same rules. Verification must be configured or the server will refuse the save.</p></noscript>
+<script>
+  import { validateInquiry, scenarioLabel, type ScenarioInterest } from "../../shared/inquiry/validate";
+
+  const form = document.querySelector<HTMLFormElement>("#inquiry");
+  if (form) {
+    const status = document.querySelector<HTMLElement>("#form-status");
+    const scenarioNote = document.querySelector<HTMLElement>("#scenario-note");
+    const scenarioInput = document.querySelector<HTMLInputElement>("#scenarioInterest");
+    const interest = document.querySelector<HTMLSelectElement>("#interest");
+    const submission = document.querySelector<HTMLInputElement>("#submissionId");
+    const button = document.querySelector<HTMLButtonElement>("#submit-inquiry");
+    const params = new URLSearchParams(window.location.search);
+    const interestValue = params.get("interest") ?? "";
+    if (interest && ["demonstration", "early-access", "implementation", "partnership"].includes(interestValue)) {
+      interest.value = interestValue;
+    }
+    const scenarioValue = params.get("scenario") ?? "";
+    if (scenarioInput && scenarioNote && ["inspection", "field-service", "recurring"].includes(scenarioValue)) {
+      scenarioInput.value = scenarioValue;
+      scenarioNote.hidden = false;
+      scenarioNote.textContent = `Workflow of interest: ${scenarioLabel(scenarioValue as ScenarioInterest)}. No personal details were added.`;
+    }
+
+    const siteKey = form.dataset.turnstileSiteKey ?? "";
+    let token = "";
+    if (siteKey) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.onload = () => {
+        const turnstile = (window as unknown as { turnstile?: { render: (el: string, opts: { sitekey: string; callback: (value: string) => void }) => void } }).turnstile;
+        turnstile?.render("#turnstile", { sitekey: siteKey, callback: (value) => { token = value; } });
+      };
+      document.head.append(script);
+    }
+
+    const show = (id: string, message: string) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.hidden = !message;
+      el.textContent = message;
+    };
+
+    form.addEventListener("input", () => {
+      if (button && !button.disabled && submission) submission.value = "";
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!button || !status) return;
+      const data = new FormData(form);
+      const raw = Object.fromEntries(data.entries());
+      const validated = validateInquiry(raw);
+      show("name-error", validated.errors.name ?? "");
+      show("email-error", validated.errors.email ?? "");
+      show("workflow-error", validated.errors.workflowProblem ?? "");
+      if (!validated.ok) {
+        status.hidden = false;
+        status.textContent = "Check the highlighted fields. Nothing was saved.";
+        document.getElementById("name-error")?.focus();
+        return;
+      }
+      if (!siteKey) {
+        status.hidden = false;
+        status.textContent = "Verification is not configured on this deployment. Nothing was saved.";
+        return;
+      }
+      if (!token) {
+        show("turnstile-error", "Complete verification, then save again.");
+        return;
+      }
+      show("turnstile-error", "");
+      if (!submission?.value) submission!.value = crypto.randomUUID();
+      button.disabled = true;
+      button.textContent = "Saving…";
+      status.hidden = false;
+      status.textContent = "Saving the inquiry.";
+      try {
+        const response = await fetch("/api/inquiries", {
+          method: "POST",
+          headers: { "content-type": "application/json", accept: "application/json" },
+          body: JSON.stringify({ ...raw, submissionId: submission?.value, turnstileToken: token, marketingConsent: data.get("marketingConsent") === "yes" }),
+        });
+        const payload = await response.json() as { ok?: boolean; message?: string; reference?: string; errors?: Record<string, string> };
+        status.textContent = payload.message ?? "The inquiry could not be saved.";
+        if (payload.errors?.name) show("name-error", payload.errors.name);
+        if (payload.errors?.email) show("email-error", payload.errors.email);
+        if (payload.errors?.workflowProblem) show("workflow-error", payload.errors.workflowProblem);
+        if (payload.errors?.turnstile) show("turnstile-error", payload.errors.turnstile);
+        if (response.ok && payload.reference) {
+          form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLButtonElement>("input, textarea, select, button").forEach((el) => { el.disabled = true; });
+          status.textContent = `${payload.message ?? "Saved."} Reference ${payload.reference}.`;
+          return;
+        }
+        if (response.status === 409 && submission) submission.value = "";
+      } catch {
+        status.textContent = "The inquiry was not confirmed. Retry with the same form. If it was saved, the same submission id will return the original reference.";
+      }
+      button.disabled = false;
+      button.textContent = "Save inquiry";
+    });
+  }
+</script>

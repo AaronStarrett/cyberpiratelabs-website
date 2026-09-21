@@ -1,21 +1,42 @@
 ---
-import DemoApp from "../islands/DemoApp";
+import ProductStage from "../islands/ProductStage";
 import Base from "../layouts/Base.astro";
+import { capabilities, statusLabel } from "../../shared/capability";
 import { scenarios } from "../../shared/demo/scenarios";
 ---
 <Base
-  title="Interactive walkthrough | CPL Command Center"
-  description="Run a sample Command Center workflow with invented companies. No account, no email gate, and no live customer system."
+  title="See it work | CPL Command Center"
+  description="Run the Command Center sample. Invented companies, no account, and no live customer system."
 >
+  <section class="demo-lead">
+    <div class="wrap">
+      <p class="eyebrow">CPL COMMAND CENTER</p>
+      <h1>See the sample job move.</h1>
+      <p>The same preview as the homepage, with the written path underneath. Sample data only.</p>
+    </div>
+  </section>
+  <ProductStage client:load variant="focus" />
   <section class="page-intro">
     <div class="wrap">
-      <p class="eyebrow">CPL Command Center</p>
-      <h1>Interactive walkthrough</h1>
-      <p>Choose a sample company, step through the work, and open the record. Missing information, a rejected review, and a failed handoff change what happens next. Discussing a workflow opens the contact form with that interest only. It does not copy the sample into a lead.</p>
-      <DemoApp client:load />
+      <h2>What the preview is allowed to claim</h2>
+      <p>These notes follow the public Command Center source reviewed on 2026-09-21. They are not a launch announcement.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Capability</th><th>Status</th><th>Plain meaning</th></tr></thead>
+          <tbody>
+            {capabilities.map((item) => (
+              <tr>
+                <td>{item.name}</td>
+                <td>{statusLabel(item.status)}</td>
+                <td>{item.publicMeaning}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <div class="transcript">
         <h2>Text transcript</h2>
-        <p>The same sample paths are written out here for anyone not running the stepper.</p>
+        <p>The same sample paths, written out for anyone not running the scene.</p>
         {scenarios.map((scenario) => (
           <article>
             <h3>{scenario.title}</h3>
@@ -23,7 +44,7 @@ import { scenarios } from "../../shared/demo/scenarios";
             <p>{scenario.evidenceNote}</p>
             <ol>
               {scenario.steps.map((step) => (
-                <li><strong>{step.title}.</strong> {step.narration} <span class="evidence">({step.evidence})</span></li>
+                <li><strong>{step.title}.</strong> {step.narration}</li>
               ))}
             </ol>
           </article>

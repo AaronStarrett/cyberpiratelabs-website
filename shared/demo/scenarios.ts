@@ -105,7 +105,7 @@ const inspection: Scenario = {
       id: "proposal",
       phase: "Proposal",
       title: "Sample proposal",
-      narration: "Once the note is present, the sample prepares a proposal for internal review. It is not a price quote and it is not sent.",
+      narration: "The sample prepares a proposal for internal review while the access notes stay missing. It is not a price quote and it is not sent.",
       evidence: "development-source",
       evidenceNote: "Proposal drafting and review states exist in the public source. The production catalog is unconfigured. Figures here are not prices.",
       gate: "ready",

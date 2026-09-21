@@ -15,7 +15,7 @@ const logo = await sharp(source).resize(520, 520, { fit: "inside" }).png().toBuf
 const caption = Buffer.from(`<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
   <rect width="1200" height="630" fill="#f4f7f6"/>
   <text x="620" y="250" font-family="Georgia, serif" font-size="64" fill="#071c27">CPL Command Center</text>
-  <text x="620" y="330" font-family="Georgia, serif" font-size="28" fill="#314854">Turn scattered work into a connected operation.</text>
+  <text x="620" y="330" font-family="Georgia, serif" font-size="28" fill="#314854">Your service business. Finally connected.</text>
 </svg>`);
 await sharp(caption)
   .composite([{ input: logo, left: 48, top: 55 }])
