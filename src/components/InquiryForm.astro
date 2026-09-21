@@ -69,46 +69,57 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
       }) => string;
       reset: (id?: string) => void;
     };
-    const turnstileApi = () => (window as unknown as { turnstile?: TurnstileApi }).turnstile;
+    const turnstileApi = () => {
+      const api = (window as unknown as { turnstile?: TurnstileApi }).turnstile;
+      return api && typeof api.render === "function" ? api : undefined;
+    };
 
     const clearToken = () => {
       token = "";
     };
     const resetWidget = () => {
       clearToken();
-      if (widgetId) turnstileApi()?.reset(widgetId);
+      const api = turnstileApi();
+      if (widgetId && api) api.reset(widgetId);
+    };
+    const showTurnstileError = (message: string) => {
+      const error = document.getElementById("turnstile-error");
+      if (!error) return;
+      error.hidden = false;
+      error.textContent = message;
+    };
+    const mountTurnstile = () => {
+      const turnstile = turnstileApi();
+      if (!turnstile || widgetId) return Boolean(widgetId);
+      widgetId = turnstile.render("#turnstile", {
+        sitekey: siteKey,
+        callback: (value) => { token = value; },
+        "expired-callback": () => {
+          clearToken();
+          showTurnstileError("Verification expired. Complete it again, then send the same message.");
+          turnstile.reset(widgetId);
+        },
+        "error-callback": () => {
+          clearToken();
+          showTurnstileError("Verification could not load. Retry the check, then send again.");
+        },
+      });
+      return true;
     };
 
     if (siteKey) {
-      const script = document.createElement("script");
-      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-      script.async = true;
-      script.onload = () => {
-        const turnstile = turnstileApi();
-        if (!turnstile) return;
-        widgetId = turnstile.render("#turnstile", {
-          sitekey: siteKey,
-          callback: (value) => { token = value; },
-          "expired-callback": () => {
-            clearToken();
-            const error = document.getElementById("turnstile-error");
-            if (error) {
-              error.hidden = false;
-              error.textContent = "Verification expired. Complete it again, then send the same message.";
-            }
-            turnstile.reset(widgetId);
-          },
-          "error-callback": () => {
-            clearToken();
-            const error = document.getElementById("turnstile-error");
-            if (error) {
-              error.hidden = false;
-              error.textContent = "Verification could not load. Retry the check, then send again.";
-            }
-          },
-        });
-      };
-      document.head.append(script);
+      const readyName = "cplTurnstileReady";
+      (window as unknown as Record<string, () => void>)[readyName] = () => { mountTurnstile(); };
+      if (!document.getElementById("cf-turnstile-script")) {
+        const script = document.createElement("script");
+        script.id = "cf-turnstile-script";
+        script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=${readyName}`;
+        script.async = true;
+        script.defer = true;
+        document.head.append(script);
+      } else {
+        mountTurnstile();
+      }
     }
 
     const show = (id: string, message: string) => {
