@@ -1,9 +1,11 @@
 ---
-import "@fontsource-variable/newsreader/wght.css";
-import "@fontsource-variable/source-sans-3/wght.css";
+import "@fontsource-variable/ibm-plex-sans/wght.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/600.css";
 import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import { brand, brandCss } from "../../shared/brand";
 
 interface Props {
   title: string;
@@ -31,7 +33,8 @@ const image = new URL("/og.png", Astro.site);
     <meta property="og:url" content={canonical.href} />
     <meta property="og:image" content={image.href} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#071c27" />
+    <meta name="theme-color" content={brand.shadow} />
+    <style is:inline set:html={brandCss()}></style>
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" href="/icons/icon-180.png" />

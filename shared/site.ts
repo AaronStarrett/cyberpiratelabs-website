@@ -118,7 +118,7 @@ export const useCases = [
 export const faqs = [
   {
     q: "What work does it coordinate?",
-    a: "The path from a request to the outcome: intake, a missing detail, a proposal, a person’s approval, the visit, and a report. The preview uses sample jobs for inspection, field service, and recurring property care.",
+    a: "The path from an incoming request to an organized record, a proposal, field notes, and a reviewable report. The preview uses sample jobs for inspection, field service, and recurring property care.",
   },
   {
     q: "Does it fit the tools you already use?",
@@ -126,10 +126,10 @@ export const faqs = [
   },
   {
     q: "Where does a person approve?",
-    a: "Before the sample becomes an assignment. Watch the story shows a simulated internal approval, then a separate customer acceptance. Interactive mode lets you choose approve, needs changes, or missing info.",
+    a: "The default story is the useful path, with the proposal ready and the report held for review. Make a decision is optional: approve, needs changes, or missing info.",
   },
   {
     q: "How do I explore it?",
-    a: "Watch the story is the default. Play, pause, next, and replay move the same sample job. Office, Field, and Customer change the record, not only the camera. The three businesses change the request and the outcome.",
+    a: "Play, pause, step, and replay move the same sample job. Office, Field, and Customer change the record, not only the camera. The three businesses change the request and the outcome.",
   },
 ] as const;

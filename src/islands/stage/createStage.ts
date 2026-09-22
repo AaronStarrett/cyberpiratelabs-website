@@ -1,3 +1,5 @@
+import { brand } from "../../../shared/brand";
+
 export type Seat = "office" | "field" | "customer";
 export type StagePose = {
   chapter: 0 | 1 | 2 | 3;
@@ -58,20 +60,20 @@ export async function mountStage(
     powerPreference: "default",
     failIfMajorPerformanceCaveat: false,
   });
-  renderer.setClearColor(0x071c27, 1);
+  renderer.setClearColor(brand.shadow, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.08;
+  renderer.toneMapping = THREE.NoToneMapping;
+  renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#071c27");
+  scene.background = new THREE.Color(brand.shadow);
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 40);
 
-  const hemi = new THREE.HemisphereLight(0xd7f4ff, 0x1a3340, 0.72);
+  const hemi = new THREE.HemisphereLight(brand.highlight, brand.shadow, 0.85);
   scene.add(hemi);
-  const key = new THREE.DirectionalLight(0xfff3e4, 2.35);
+  const key = new THREE.DirectionalLight(brand.highlight, 1.35);
   key.position.set(4.2, 7.2, 3.4);
   key.castShadow = true;
   key.shadow.mapSize.set(1024, 1024);
@@ -83,15 +85,12 @@ export async function mountStage(
   key.shadow.camera.bottom = -6;
   key.shadow.bias = -0.00035;
   scene.add(key);
-  const fill = new THREE.DirectionalLight(0x7ee7ff, 0.42);
+  const fill = new THREE.DirectionalLight(brand.teal, 0.42);
   fill.position.set(-4.5, 2.4, 2);
   scene.add(fill);
-  const warm = new THREE.DirectionalLight(0xffb088, 0.32);
-  warm.position.set(1.5, 2.2, -4.2);
-  scene.add(warm);
-  const violet = new THREE.DirectionalLight(0x9a8cff, 0.16);
-  violet.position.set(-3.2, 2.4, 1.2);
-  scene.add(violet);
+  const rim = new THREE.DirectionalLight(brand.signal, 0.22);
+  rim.position.set(-3.2, 2.6, -2.2);
+  scene.add(rim);
 
   const disposables: Array<{ dispose: () => void }> = [];
   const track = <T extends { dispose: () => void }>(value: T): T => {
@@ -113,13 +112,13 @@ export async function mountStage(
 
   const table = new THREE.Mesh(
     track(new THREE.BoxGeometry(8.4, 0.22, 5.1)),
-    satin("#0c3142", 0.42, 0.18, { roughnessMap: grainTex }),
+    satin(brand.navy, 0.42, 0.18, { roughnessMap: grainTex }),
   );
   table.position.y = -0.11;
   table.receiveShadow = true;
   scene.add(table);
 
-  const mat = new THREE.Mesh(track(new THREE.BoxGeometry(6.3, 0.03, 3.35)), satin("#145860", 0.58, 0.06));
+  const mat = new THREE.Mesh(track(new THREE.BoxGeometry(6.3, 0.03, 3.35)), satin(brand.teal, 0.58, 0.06));
   mat.position.y = 0.012;
   mat.receiveShadow = true;
   scene.add(mat);
@@ -164,7 +163,7 @@ export async function mountStage(
   }
 
   const cardGeo = cardGeometry(0.78, 1.02);
-  const cardColors = ["#f4ecdf", "#f7f1e6", "#efe4d4", "#f3e7d8"];
+  const cardColors = [brand.plate, brand.highlight, brand.plate, brand.highlight];
   const rigs = new Map<string, { object: import("three").Object3D; rig: Rig }>();
 
   function addRig(name: string, object: import("three").Object3D, rig: Rig) {
@@ -180,7 +179,7 @@ export async function mountStage(
     mesh.receiveShadow = true;
     group.add(mesh);
     if (index === 1) {
-      const chip = new THREE.Mesh(track(new THREE.BoxGeometry(0.22, 0.03, 0.12)), matte("#ff6b57", 0.45));
+      const chip = new THREE.Mesh(track(new THREE.BoxGeometry(0.22, 0.03, 0.12)), matte(brand.signal, 0.45));
       chip.position.set(0.2, 0.045, -0.34);
       chip.castShadow = true;
       group.add(chip);
@@ -189,30 +188,30 @@ export async function mountStage(
     addRig(`card${index}`, group, { x: 0, y: 0, z: 0, rx: 0, ry: 0, rz: 0, s: 1, show: true });
   });
 
-  const tray = new THREE.Mesh(track(new THREE.BoxGeometry(3.15, 0.06, 1.28)), satin("#0f6e6a", 0.42, 0.12));
+  const tray = new THREE.Mesh(track(new THREE.BoxGeometry(3.15, 0.06, 1.28)), satin(brand.teal, 0.42, 0.12));
   tray.castShadow = true;
   tray.receiveShadow = true;
   addRig("tray", tray, { x: 0, y: 0.03, z: 0.08, rx: 0, ry: 0, rz: 0, s: 1, show: true });
 
-  const rail = new THREE.Mesh(track(new THREE.BoxGeometry(3.4, 0.035, 0.08)), satin("#3ad7ea", 0.32, 0.18, { emissive: new THREE.Color("#08343a"), emissiveIntensity: 0.18 }));
+  const rail = new THREE.Mesh(track(new THREE.BoxGeometry(3.4, 0.035, 0.08)), satin(brand.signal, 0.32, 0.18, { emissive: new THREE.Color(brand.teal), emissiveIntensity: 0.18 }));
   rail.castShadow = true;
   addRig("rail", rail, { x: 0, y: 0.05, z: 0.82, rx: 0, ry: 0, rz: 0, s: 1, show: true });
 
   const folder = new THREE.Group();
-  const folderBody = new THREE.Mesh(track(new THREE.BoxGeometry(1.15, 0.08, 0.82)), satin("#e39b2b", 0.46, 0.08));
+  const folderBody = new THREE.Mesh(track(new THREE.BoxGeometry(1.15, 0.08, 0.82)), satin(brand.teal, 0.46, 0.08));
   folderBody.castShadow = true;
   folderBody.receiveShadow = true;
   folder.add(folderBody);
-  const tab = new THREE.Mesh(track(new THREE.BoxGeometry(0.34, 0.05, 0.16)), satin("#f0a202", 0.4, 0.06));
+  const tab = new THREE.Mesh(track(new THREE.BoxGeometry(0.34, 0.05, 0.16)), satin(brand.signal, 0.4, 0.06));
   tab.position.set(-0.28, 0.05, -0.34);
   folder.add(tab);
-  const stamp = new THREE.Mesh(track(new THREE.CylinderGeometry(0.16, 0.16, 0.05, 24)), satin("#f0a202", 0.38, 0.12));
+  const stamp = new THREE.Mesh(track(new THREE.CylinderGeometry(0.16, 0.16, 0.05, 24)), satin(brand.teal, 0.38, 0.12));
   stamp.position.set(0.22, 0.1, 0.05);
   stamp.castShadow = true;
   folder.add(stamp);
   addRig("folder", folder, { x: 0.2, y: 0.04, z: -0.95, rx: 0, ry: -0.08, rz: 0, s: 1, show: true });
 
-  const latch = new THREE.Mesh(track(new THREE.BoxGeometry(0.18, 0.18, 1.15)), satin("#ff6b57", 0.4, 0.08));
+  const latch = new THREE.Mesh(track(new THREE.BoxGeometry(0.18, 0.18, 1.15)), satin(brand.danger, 0.4, 0.08));
   latch.castShadow = true;
   addRig("latch", latch, { x: 0.95, y: 0.16, z: -0.15, rx: 0, ry: 0.2, rz: 0, s: 0, show: false });
 
@@ -231,7 +230,7 @@ export async function mountStage(
   for (const tex of Object.values(sketches)) tex.colorSpace = THREE.SRGBColorSpace;
   const sketchMat = track(new THREE.MeshStandardMaterial({ map: sketches.inspection, roughness: 0.72 }));
   const sketch = new THREE.Group();
-  const sketchFrame = new THREE.Mesh(track(new THREE.BoxGeometry(0.92, 0.04, 0.72)), satin("#1c3340", 0.5, 0.1));
+  const sketchFrame = new THREE.Mesh(track(new THREE.BoxGeometry(0.92, 0.04, 0.72)), satin(brand.navy, 0.5, 0.1));
   const plate = new THREE.Mesh(track(new THREE.PlaneGeometry(0.78, 0.58)), sketchMat);
   plate.rotation.x = -Math.PI / 2;
   plate.position.y = 0.03;
@@ -239,9 +238,9 @@ export async function mountStage(
   addRig("sketch", sketch, { x: 0.1, y: 0.02, z: 0.9, rx: 0, ry: 0.15, rz: 0, s: 0, show: false });
 
   const booklet = new THREE.Group();
-  const cover = new THREE.Mesh(track(new THREE.BoxGeometry(0.95, 0.07, 1.2)), matte("#f7f3ea", 0.7));
+  const cover = new THREE.Mesh(track(new THREE.BoxGeometry(0.95, 0.07, 1.2)), matte(brand.plate, 0.7));
   cover.castShadow = true;
-  const spine = new THREE.Mesh(track(new THREE.BoxGeometry(0.08, 0.09, 1.2)), satin("#0f6e6a", 0.4, 0.1));
+  const spine = new THREE.Mesh(track(new THREE.BoxGeometry(0.08, 0.09, 1.2)), satin(brand.teal, 0.4, 0.1));
   spine.position.x = -0.46;
   const pageTex = track(new THREE.CanvasTexture(paintPages()));
   pageTex.colorSpace = THREE.SRGBColorSpace;
@@ -251,12 +250,12 @@ export async function mountStage(
   );
   page.rotation.x = -Math.PI / 2;
   page.position.y = 0.05;
-  const violetEdge = new THREE.Mesh(
+  const signalEdge = new THREE.Mesh(
     track(new THREE.BoxGeometry(0.04, 0.1, 1.2)),
-    track(new THREE.MeshStandardMaterial({ color: "#7c6cff", emissive: "#3a2d88", emissiveIntensity: 0.2, roughness: 0.45 })),
+    track(new THREE.MeshStandardMaterial({ color: brand.signal, emissive: brand.teal, emissiveIntensity: 0.2, roughness: 0.45 })),
   );
-  violetEdge.position.x = 0.48;
-  booklet.add(cover, spine, page, violetEdge);
+  signalEdge.position.x = 0.48;
+  booklet.add(cover, spine, page, signalEdge);
   addRig("booklet", booklet, { x: -0.2, y: 0.04, z: 0.15, rx: 0, ry: 0.2, rz: 0, s: 0.8, show: true });
 
   let desired: StagePose = {
@@ -311,7 +310,7 @@ export async function mountStage(
       3: { x: -1.85, y: 0.04, z: -0.45, rx: 0, ry: 0.25, rz: 0, s: 0.84, show: true },
     };
     setRig("folder", folderPose[pose.chapter]!);
-    const stampColor = pose.decision === "approved" ? "#1f8a84" : pose.decision === "rejected" ? "#ff6b57" : "#f0a202";
+    const stampColor = pose.decision === "approved" ? brand.signal : pose.decision === "rejected" ? brand.danger : brand.teal;
     (stamp.material as import("three").MeshStandardMaterial).color.set(stampColor);
     stamp.position.y = pose.decision === "pending" ? 0.16 : 0.09;
 
@@ -355,8 +354,8 @@ export async function mountStage(
       s: pose.chapter >= 3 ? 1 : 0.72,
       show: true,
     });
-    violet.intensity = pose.seat === "customer" ? 0.72 : 0.14;
-    const edge = violetEdge.material as import("three").MeshStandardMaterial;
+    rim.intensity = pose.seat === "customer" ? 0.48 : 0.22;
+    const edge = signalEdge.material as import("three").MeshStandardMaterial;
     edge.emissiveIntensity = pose.seat === "customer" ? 0.55 : 0.12;
   }
 
@@ -535,9 +534,9 @@ function paintBackdrop() {
   const ctx = canvas.getContext("2d");
   if (!ctx) return canvas;
   const gradient = ctx.createLinearGradient(0, 0, 0, 64);
-  gradient.addColorStop(0, "#12384a");
-  gradient.addColorStop(0.55, "#071c27");
-  gradient.addColorStop(1, "#0c2f33");
+  gradient.addColorStop(0, brand.teal);
+  gradient.addColorStop(0.55, brand.shadow);
+  gradient.addColorStop(1, brand.navy);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 64, 64);
   return canvas;
@@ -549,9 +548,9 @@ function paintPages() {
   canvas.height = 320;
   const ctx = canvas.getContext("2d");
   if (!ctx) return canvas;
-  ctx.fillStyle = "#fbf7ef";
+  ctx.fillStyle = brand.plate;
   ctx.fillRect(0, 0, 256, 320);
-  ctx.strokeStyle = "#d5c7b4";
+  ctx.strokeStyle = brand.teal;
   ctx.lineWidth = 3;
   for (let y = 36; y < 290; y += 22) {
     ctx.beginPath();
@@ -559,7 +558,7 @@ function paintPages() {
     ctx.lineTo(228, y);
     ctx.stroke();
   }
-  ctx.strokeStyle = "#7c6cff";
+  ctx.strokeStyle = brand.signal;
   ctx.lineWidth = 6;
   ctx.beginPath();
   ctx.moveTo(28, 28);
@@ -574,9 +573,9 @@ function paintSketch(kind: "roof" | "mech" | "lot") {
   canvas.height = 512;
   const ctx = canvas.getContext("2d");
   if (!ctx) return canvas;
-  ctx.fillStyle = "#f4ecdf";
+  ctx.fillStyle = brand.plate;
   ctx.fillRect(0, 0, 512, 512);
-  ctx.strokeStyle = "#1d3a4a";
+  ctx.strokeStyle = brand.navy;
   ctx.lineWidth = 8;
   ctx.lineJoin = "round";
   if (kind === "roof") {
@@ -604,7 +603,7 @@ function paintSketch(kind: "roof" | "mech" | "lot") {
     ctx.lineTo(430, 280);
     ctx.stroke();
   }
-  ctx.strokeStyle = "#e25b4a";
+  ctx.strokeStyle = brand.signal;
   ctx.lineWidth = 10;
   ctx.beginPath();
   ctx.arc(kind === "mech" ? 250 : 320, kind === "lot" ? 220 : 210, 34, 0, Math.PI * 2);
@@ -619,17 +618,17 @@ function buildHouse(
   track: <T extends { dispose: () => void }>(value: T) => T,
 ) {
   const group = new THREE.Group();
-  const walls = new THREE.Mesh(track(new THREE.BoxGeometry(1.15, 0.72, 0.86)), matte("#e7d5c0", 0.84));
+  const walls = new THREE.Mesh(track(new THREE.BoxGeometry(1.15, 0.72, 0.86)), matte(brand.highlight, 0.84));
   walls.position.y = 0.36;
   walls.castShadow = true;
   walls.receiveShadow = true;
-  const roof = new THREE.Mesh(track(new THREE.BoxGeometry(1.28, 0.12, 0.98)), satin("#16344a", 0.4, 0.16));
+  const roof = new THREE.Mesh(track(new THREE.BoxGeometry(1.28, 0.12, 0.98)), satin(brand.navy, 0.4, 0.16));
   roof.position.y = 0.78;
   roof.castShadow = true;
-  const glass = track(new THREE.MeshStandardMaterial({ color: "#9ee7f2", roughness: 0.18, metalness: 0.04, transparent: true, opacity: 0.62 }));
+  const glass = track(new THREE.MeshStandardMaterial({ color: brand.highlight, roughness: 0.18, metalness: 0.04, transparent: true, opacity: 0.62 }));
   const windowMesh = new THREE.Mesh(track(new THREE.BoxGeometry(0.28, 0.22, 0.04)), glass);
   windowMesh.position.set(-0.22, 0.42, 0.44);
-  const door = new THREE.Mesh(track(new THREE.BoxGeometry(0.22, 0.36, 0.04)), matte("#8d3d32", 0.7));
+  const door = new THREE.Mesh(track(new THREE.BoxGeometry(0.22, 0.36, 0.04)), matte(brand.navy, 0.7));
   door.position.set(0.22, 0.2, 0.44);
   group.add(walls, roof, windowMesh, door);
   return group;
@@ -642,17 +641,17 @@ function buildVan(
   track: <T extends { dispose: () => void }>(value: T) => T,
 ) {
   const group = new THREE.Group();
-  const body = new THREE.Mesh(track(new THREE.BoxGeometry(1.45, 0.48, 0.7)), satin("#143846", 0.42, 0.2));
+  const body = new THREE.Mesh(track(new THREE.BoxGeometry(1.45, 0.48, 0.7)), satin(brand.navy, 0.42, 0.2));
   body.position.y = 0.42;
   body.castShadow = true;
-  const cabin = new THREE.Mesh(track(new THREE.BoxGeometry(0.48, 0.38, 0.66)), satin("#1d5160", 0.38, 0.16));
+  const cabin = new THREE.Mesh(track(new THREE.BoxGeometry(0.48, 0.38, 0.66)), satin(brand.teal, 0.38, 0.16));
   cabin.position.set(-0.48, 0.68, 0);
   cabin.castShadow = true;
-  const beacon = new THREE.Mesh(track(new THREE.BoxGeometry(0.12, 0.08, 0.12)), matte("#f0a202", 0.35));
+  const beacon = new THREE.Mesh(track(new THREE.BoxGeometry(0.12, 0.08, 0.12)), matte(brand.signal, 0.35));
   beacon.position.set(0.2, 0.72, 0);
   const wheelGeo = track(new THREE.CylinderGeometry(0.14, 0.14, 0.1, 16));
   wheelGeo.rotateZ(Math.PI / 2);
-  const wheelMat = matte("#1a1d20", 0.7);
+  const wheelMat = matte(brand.shadow, 0.7);
   for (const x of [-0.42, 0.46]) {
     const wheel = new THREE.Mesh(wheelGeo, wheelMat);
     wheel.position.set(x, 0.14, 0.32);
@@ -669,10 +668,10 @@ function buildShops(
   track: <T extends { dispose: () => void }>(value: T) => T,
 ) {
   const group = new THREE.Group();
-  const block = new THREE.Mesh(track(new THREE.BoxGeometry(1.7, 0.55, 0.7)), matte("#e4d3bf", 0.8));
+  const block = new THREE.Mesh(track(new THREE.BoxGeometry(1.7, 0.55, 0.7)), matte(brand.highlight, 0.8));
   block.position.y = 0.28;
   block.castShadow = true;
-  const colors = ["#3ad7ea", "#ff6b57", "#f0a202"];
+  const colors = [brand.teal, brand.signal, brand.navy];
   colors.forEach((color, index) => {
     const awning = new THREE.Mesh(track(new THREE.BoxGeometry(0.42, 0.08, 0.28)), satin(color, 0.4, 0.08));
     awning.position.set(-0.52 + index * 0.52, 0.5, 0.32);

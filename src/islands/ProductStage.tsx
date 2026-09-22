@@ -13,9 +13,9 @@ const seats: Array<{ id: StorySeat; label: string }> = [
 ];
 
 const blurbs: Record<string, string> = {
-  inspection: "Harborline asks for a roof assessment. The outcome is a report that was not sent.",
-  "field-service": "North Pier calls about no heat. The outcome is an unsent repair status.",
-  recurring: "Lumen has a drain check due. The outcome is an exception that waits for a person.",
+  inspection: "Sample job HA-1044. Harborline’s roof assessment runs from the request to a reviewable report.",
+  "field-service": "Sample job NP-220. North Pier’s no-heat call runs from the request to a reviewable status.",
+  recurring: "Sample job LP-77. Lumen’s drain check runs from the request to a reviewable update.",
 };
 
 type BlockReason = "motion" | "save-data" | "memory" | "cores" | "webgl" | "lost" | null;
@@ -246,12 +246,12 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
     : interactiveSurface(scenario, step, seat, state);
   const illustrated = engine !== "webgl" || !ready;
 
-  function keepSceneVisible() {
+  function seeHow() {
     frameRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    play();
   }
 
   function play() {
-    keepSceneVisible();
     if (watchMode) {
       if (reduced) {
         setWatchPlaying(false);
@@ -325,7 +325,6 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
   function replay() {
     setArrangement("auto");
     setClosedNote(false);
-    keepSceneVisible();
     if (watchMode) {
       setBeat(0);
       setWatchPlaying(!reduced);
@@ -359,12 +358,12 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
       {variant === "home" && (
         <div className="hero-copy">
           <p className="eyebrow">CPL COMMAND CENTER</p>
-          <h1 id={`${baseId}-title`}>Less chasing. <span>More work moving.</span></h1>
-          <p className="lede">A request becomes one record. A missing detail stays visible. A person approves it, then the visit and the report move with the same job.</p>
-          <p className="fine">Early access. Command Center is in development.</p>
+          <h1 id={`${baseId}-title`}>Your business. <span>Under command.</span></h1>
+          <p className="lede">Inquiries, proposals, field work, and customer updates stay on one workflow.</p>
+          <p className="fine">Early access. Command Center is in development. The scene below is sample data.</p>
           <div className="hero-actions">
-            <button type="button" className="button light" onClick={play}>Watch the story</button>
-            <a className="button light secondary" href="#contact">Talk to Aaron</a>
+            <button type="button" className="button light" onClick={seeHow}>See how it works</button>
+            <a className="button light secondary" href="#contact">Request a demo</a>
           </div>
         </div>
       )}
@@ -424,7 +423,7 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
             ) : (
               <button type="button" onClick={play}>Play</button>
             )}
-            <button type="button" onClick={next}>Next</button>
+            <button type="button" onClick={next}>Step</button>
             <button type="button" className="secondary" onClick={replay}>Replay</button>
           </div>
         </div>
@@ -453,7 +452,7 @@ export default function ProductStage({ variant = "home" }: { variant?: "home" | 
       </div>
       <div className="story-controls">
         {variant === "focus" ? <h2 id={`${baseId}-title`}>Sample job {surface.jobId}</h2> : <h2>The job</h2>}
-        <p>Watch the story plays REQUEST, PLAN, WORK, and WRAP UP. A simulated customer reply fills the gap, then a simulated internal approval, then a separate customer acceptance.</p>
+        <p>Sample data. Job {surface.jobId} moves from the incoming request to an organized record, a proposal, field notes, and a reviewable report. Missing information is optional under Make a decision.</p>
         {closedNote && <p className="stage-note" role="status">That chapter stays closed while this sample is blocked.</p>}
         {!watchMode && (
           <div className="decision-row">
