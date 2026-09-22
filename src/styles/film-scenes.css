@@ -485,3 +485,36 @@
   .film-scene-field .field-image-row img { display: block; width: 60px; height: 40px; }
   .film-scene-field .field-image-row > span { display: none; }
 }
+
+/* Keep proposal context and its real sample award controls in the same phone view. */
+@media (max-width: 600px) {
+  .film-scene-proposal .proposal-workspace { gap: .55rem; }
+  .film-scene-proposal .proposal-paper { min-height: 0; padding: .7rem .85rem; }
+  .film-scene-proposal .film-paper-heading { gap: .6rem; margin-bottom: .55rem; padding-bottom: .45rem; }
+  .film-scene-proposal .film-paper-mark { width: 22px; height: 25px; flex-basis: 22px; font-size: .8rem; }
+  .film-scene-proposal .film-paper-brand { gap: .35rem; font-size: .59rem; }
+  .film-scene-proposal .film-paper-brand small { margin-top: .12rem; font-size: .46rem; }
+  .film-scene-proposal .proposal-paper > .film-eyebrow,
+  .film-scene-proposal .proposal-paper > .film-paper-rule,
+  .film-scene-proposal .proposal-paper > h4 + p,
+  .film-scene-proposal .proposal-paper > .film-paper-footer { display: none; }
+  .film-scene-proposal .proposal-paper > h3 { margin: 0; font-size: 1rem; line-height: 1.25; }
+  .film-scene-proposal .proposal-paper > .proposal-site { margin: .2rem 0 .4rem; font-size: .75rem; line-height: 1.4; }
+  .film-scene-proposal .proposal-paper > h4 { margin: 0; font-size: .85rem; line-height: 1.3; }
+  .film-scene-proposal .proposal-access { margin-top: .55rem; padding: .45rem .6rem; }
+  .film-scene-proposal .proposal-access .film-eyebrow { font-size: .5rem; }
+  .film-scene-proposal .proposal-access p { margin: .2rem 0 0; font-size: .74rem; line-height: 1.4; }
+  .film-scene-proposal .proposal-review { padding: .15rem .15rem 0; }
+  .film-scene-proposal .proposal-review > .film-eyebrow { margin-bottom: .4rem; font-size: .56rem; }
+  .film-scene-proposal .proposal-review > h3,
+  .film-scene-proposal .proposal-review > .film-helper,
+  .film-scene-proposal .proposal-review > .award-confirmation { display: none; }
+  .film-scene-proposal .proposal-scope-label { margin-bottom: .25rem; font-size: .71rem; line-height: 1.3; }
+  .film-scene-proposal .proposal-scope { height: 44px; min-height: 44px; padding: .45rem .6rem; font-size: .78rem; line-height: 1.4; }
+  .film-scene-proposal .award-flow { gap: .55rem; padding: .55rem 0; }
+  .film-scene-proposal .award-flow > div { gap: .4rem; }
+  .film-scene-proposal .award-flow > div > span { font-size: .61rem; }
+  .film-scene-proposal .award-flow strong { margin-top: .1rem; font-size: .6rem; }
+  .film-scene-proposal .proposal-review > .film-action { min-height: 44px; padding: .55rem .75rem; font-size: .75rem; }
+  .film-scene-proposal .proposal-review > .film-disclosure { margin-top: .4rem; font-size: .58rem; line-height: 1.45; }
+}
