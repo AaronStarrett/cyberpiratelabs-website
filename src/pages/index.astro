@@ -2,7 +2,6 @@
 import Base from "../layouts/Base.astro";
 import InquiryForm from "../components/InquiryForm.astro";
 import ProductStage from "../islands/ProductStage";
-import { faqs } from "../../shared/site";
 
 const jsonLd = [
   {
@@ -33,20 +32,65 @@ const jsonLd = [
   <noscript>
     <p class="wrap noscript-note">Sample job HA-1044 is a roof assessment for 18 Cedar Wharf. The illustrated scene and the story controls need JavaScript.</p>
   </noscript>
+  <section class="workflow-fit wrap" id="use-cases" aria-labelledby="fit-title">
+    <div class="section-heading">
+      <div>
+        <p class="kicker">Different work. Same continuity.</p>
+        <h2 id="fit-title">Built around the way<br />your business moves.</h2>
+      </div>
+      <p>The details change. The principle stays: give every request a clear path, keep the context, and make the next step visible.</p>
+    </div>
+    <div class="fit-grid">
+      <article class="fit-card">
+        <span class="fit-number" aria-hidden="true">01 / ASSESS</span>
+        <svg class="fit-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M8 39V16L24 7l16 9v23H8Z M17 39V27h14v12 M16 19h4 M28 19h4" /></svg>
+        <h3>Inspection &amp; assessment</h3>
+        <p>Bring the request, site context, field observations, and reviewed report into one traceable story.</p>
+        <div class="fit-path"><span>Site request</span><span aria-hidden="true">→</span><span>Reviewable report</span></div>
+        <a href="/contact/?scenario=inspection">Discuss this workflow <span aria-hidden="true">↗</span></a>
+      </article>
+      <article class="fit-card">
+        <span class="fit-number" aria-hidden="true">02 / SERVICE</span>
+        <svg class="fit-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M8 16h23v22H8V16Z M31 23h6l5 7v8H31 M14 16v-5h11v5 M8 30h23 M16 22v4 M13 24h6" /><circle cx="15" cy="38" r="4" /><circle cx="35" cy="38" r="4" /></svg>
+        <h3>Field service</h3>
+        <p>Give the field team the location, scope, and access details. Bring their observations back to the office.</p>
+        <div class="fit-path"><span>Service request</span><span aria-hidden="true">→</span><span>Documented work</span></div>
+        <a href="/contact/?scenario=field-service">Discuss this workflow <span aria-hidden="true">↗</span></a>
+      </article>
+      <article class="fit-card">
+        <span class="fit-number" aria-hidden="true">03 / MAINTAIN</span>
+        <svg class="fit-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M9 16a17 17 0 0 1 29-4l3 4 M41 6v10H31 M39 32a17 17 0 0 1-29 4l-3-4 M7 42V32h10 M18 24l4 4 9-10" /></svg>
+        <h3>Recurring property care</h3>
+        <p>Keep visit context, new exceptions, and follow-up together, so the next visit starts with the right information.</p>
+        <div class="fit-path"><span>Planned visit</span><span aria-hidden="true">→</span><span>Clear next action</span></div>
+        <a href="/contact/?scenario=recurring">Discuss this workflow <span aria-hidden="true">↗</span></a>
+      </article>
+    </div>
+    <p class="section-note">Illustrative business fits for an early-access product. Your workflow and requirements shape the configuration.</p>
+  </section>
+  <section class="configuration wrap" id="configuration" aria-labelledby="configuration-title">
+    <div class="configuration-copy">
+      <p class="kicker">Your operation, connected</p>
+      <h2 id="configuration-title">A command center.<br />In your business language.</h2>
+      <p>Start with the work your team already does. Configure the fields, steps, and review points around it.</p>
+      <p class="configuration-detail">Inbox, calendar, files, and business-system connections are scoped with you. Available integrations depend on the implementation; the preview uses sample data.</p>
+      <a class="text-link" href="/contact/">Map your workflow with Aaron <span aria-hidden="true">↗</span></a>
+    </div>
+    <ol class="configuration-steps">
+      <li><span class="step-index" aria-hidden="true">01</span><div><h3>Define the work</h3><p>Your services, required details, and the information a useful handoff needs.</p></div></li>
+      <li><span class="step-index" aria-hidden="true">02</span><div><h3>Keep people in control</h3><p>Clear responsibilities and review points for scope, field information, and customer-facing output.</p></div></li>
+      <li><span class="step-index" aria-hidden="true">03</span><div><h3>Connect the right tools</h3><p>Plan the account connections and implementation that fit your operation.</p></div></li>
+    </ol>
+  </section>
   <section class="sheet contact-sheet" id="contact" aria-labelledby="contact-title">
     <div class="wrap contact-grid">
-      <div>
-        <p class="kicker">Contact</p>
-        <h2 id="contact-title">Request a demo</h2>
-        <p>Name the workflow. An inquiry is not a booked meeting. Prices and timing stay in the conversation, not on this page.</p>
-        <p class="contact-mail">Or write <a href="mailto:AStarrett@cyberpiratelabs.com">AStarrett@cyberpiratelabs.com</a>.</p>
-        <h3>Questions</h3>
-        {faqs.map((item) => (
-          <details>
-            <summary>{item.q}</summary>
-            <p>{item.a}</p>
-          </details>
-        ))}
+      <div class="contact-copy">
+        <p class="kicker">Let’s talk about your workflow</p>
+        <h2 id="contact-title">Put your next<br />moving part<br /><span>under command.</span></h2>
+        <p>Tell Aaron where information gets scattered or handoffs slow down. Start a conversation about what Command Center could look like for your team.</p>
+        <div class="contact-person"><span class="person-monogram" aria-hidden="true">AS</span><div><strong>Aaron Starrett</strong><span>Founder, Cyber Pirate Labs</span></div></div>
+        <p class="contact-mail"><a href="mailto:AStarrett@cyberpiratelabs.com">AStarrett@cyberpiratelabs.com <span aria-hidden="true">↗</span></a></p>
+        <p class="contact-note">Early-access conversations · Scope and timing discussed together</p>
       </div>
       <InquiryForm sourcePath="/" showLead={false} />
     </div>

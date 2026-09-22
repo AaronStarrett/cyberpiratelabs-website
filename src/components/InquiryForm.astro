@@ -7,7 +7,9 @@ interface Props {
 const { sourcePath, showLead = true } = Astro.props;
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 ---
-{showLead && <p>Name, email, and what you want to automate. Company is optional. Sending this form does not reserve a time.</p>}
+<div class="inquiry-card">
+<div class="inquiry-heading"><span class="kicker">Start a conversation</span><h3>Request a demo</h3></div>
+{showLead && <p class="inquiry-lead">A little context helps us make the conversation useful. Tell us about your team and the work you want to organize.</p>}
 {!siteKey && <p class="status" role="status">Verification is not configured on this deployment. A submission cannot be saved until Turnstile is set.</p>}
 <form id="inquiry" class="form" method="post" action="/api/inquiries" novalidate data-turnstile-site-key={siteKey}>
   <div id="form-status" class="status" role="status" hidden></div>
@@ -15,21 +17,30 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     <label for="cpl_leave_blank">Leave blank</label>
     <input id="cpl_leave_blank" name="cpl_leave_blank" type="text" tabindex="-1" autocomplete="off" />
   </div>
+  <div class="form-field">
   <label>Name
     <input name="name" autocomplete="name" required maxlength="120" aria-describedby="name-error" />
   </label>
   <p id="name-error" class="error" hidden></p>
+  </div>
+  <div class="form-field">
   <label>Email
     <input name="email" type="email" autocomplete="email" required maxlength="254" aria-describedby="email-error" />
   </label>
   <p id="email-error" class="error" hidden></p>
-  <label>What to automate
-    <textarea name="workflowProblem" required minlength="20" maxlength="2000" aria-describedby="workflow-error"></textarea>
+  </div>
+  <div class="form-field form-field-wide">
+  <label>What would you like to organize?
+    <textarea name="workflowProblem" required minlength="20" maxlength="2000" aria-describedby="workflow-hint workflow-error" placeholder="Requests in one inbox, field photos somewhere else, reports assembled by hand…"></textarea>
   </label>
+  <p id="workflow-hint" class="form-hint">A sentence or two about your workflow is a good place to start.</p>
   <p id="workflow-error" class="error" hidden></p>
+  </div>
+  <div class="form-field form-field-wide">
   <label>Company <span class="evidence">(optional)</span>
     <input name="company" autocomplete="organization" maxlength="160" />
   </label>
+  </div>
   <p id="scenario-note" hidden></p>
   <input type="hidden" name="scenarioInterest" id="scenarioInterest" value="" />
   <input type="hidden" name="sourcePath" value={sourcePath} />
@@ -37,8 +48,10 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   <div id="inquiry-turnstile"></div>
   <p id="turnstile-error" class="error" hidden></p>
   <button type="submit" id="submit-inquiry">Send message</button>
+  <p class="form-privacy">Your inquiry starts a conversation; a meeting time is arranged separately. <a href="/privacy/">Privacy details</a></p>
 </form>
 <noscript><p>JavaScript is off. The form still posts to the server, which checks the same rules. Verification must be configured or the server will refuse the save.</p></noscript>
+</div>
 <script>
   import { validateInquiry, scenarioLabel, type ScenarioInterest } from "../../shared/inquiry/validate";
 

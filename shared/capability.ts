@@ -8,7 +8,7 @@ export type Capability = {
 };
 
 export const SOURCE_REPO = "https://github.com/AaronStarrett/CPL-Command-Center-Public";
-export const SOURCE_COMMIT = "25d294c8743a938466a6b8faf769f13f3c30a700";
+export const SOURCE_COMMIT = "26e56aea4fe74cbed65bdeb3f9e7cc4f4391bf7c";
 export const SOURCE_REVIEWED = "2026-09-21";
 
 export const capabilities: Capability[] = [
@@ -21,20 +21,20 @@ export const capabilities: Capability[] = [
   {
     name: "Hosted Command Center for customers",
     status: "in-development",
-    publicMeaning: "Early access. Not generally available. The public source describes a development checkpoint whose production entry blocks customer operations.",
-    sourceNote: "Public README and docs/PUBLIC_DEPLOYMENT.md. Deployment acceptance is not claimed.",
+    publicMeaning: "Early access. A bounded hosted lead-to-proposal workflow is implemented in development source. Complete live owner acceptance remains unfinished.",
+    sourceNote: "Current README and docs/PUBLIC_DEPLOYMENT.md describe hosted identity, manually entered leads, proposal drafts, and a durable preparation job. Live owner acceptance remains blocked; general availability is not established.",
   },
   {
     name: "Lead intake and information check",
     status: "in-development",
-    publicMeaning: "The development source includes these stages. They are not a live service on this website.",
-    sourceNote: "Guided scenario marks lead intake and information check as runtime-backed. Production routes remain blocked.",
+    publicMeaning: "The development source supports manually entered leads and information checks. This website illustrates how the source details stay together.",
+    sourceNote: "The hosted repository implements tenant-scoped manual lead entry. The isolated guided scenario marks intake and information check as runtime-backed. Live mailbox or document extraction is not verified.",
   },
   {
     name: "Proposal draft and human review",
     status: "in-development",
     publicMeaning: "Review can require a person. Sample proposals on this site are invented.",
-    sourceNote: "Proposal statuses and approve or request-revision exist in the public domain model. The production catalog is unconfigured, and acceptance is not executable.",
+    sourceNote: "The hosted slice stores manually supplied, versioned proposal drafts and prepares a downloadable artifact. The isolated commercial domain has approve and request-revision states; its production catalog is unconfigured and customer acceptance is not executable.",
   },
   {
     name: "Customer acceptance and e-signature",
@@ -76,7 +76,7 @@ export const capabilities: Capability[] = [
     name: "Workflow configuration per company",
     status: "in-development",
     publicMeaning: "The intended model is one platform configured per company, not a new app each time. Configuration is not a self-serve product yet.",
-    sourceNote: "Tenant settings, catalogs, and templates exist in the public source. The foundation notes say this does not by itself adopt the commercial engine, and onboarding routes are blocked.",
+    sourceNote: "Tenant settings, catalogs, and templates persist in the public foundation. Adoption by the legacy commercial engine and complete hosted owner acceptance are not established.",
   },
   {
     name: "Live connections to other systems",
@@ -86,9 +86,9 @@ export const capabilities: Capability[] = [
   },
   {
     name: "Product login",
-    status: "planned",
-    publicMeaning: "No public sign-in is offered. Hosted authentication is unfinished in the source.",
-    sourceNote: "Public deployment notes: hosted identity adapter is a deployment blocker.",
+    status: "in-development",
+    publicMeaning: "Google identity, sessions, and passkeys are implemented in development source. This website offers a sample preview without sign-in.",
+    sourceNote: "Current README and deployment notes describe the hosted authentication implementation. Successful live owner sign-in and physical-device acceptance remain unverified; implementation is not general availability.",
   },
 ];
 

@@ -6,17 +6,34 @@ const current = (href: string) => (path === href ? "page" : undefined);
   <div class="header-inner">
     <a class="brand" href="/">
       <img src="/brand/cpl-logo.png" width="1254" height="1254" alt="" />
-      <span>Cyber Pirate Labs</span>
+      <span>Cyber Pirate Labs<small>COMMAND CENTER</small></span>
     </a>
-    <input class="nav-toggle" id="nav-toggle" type="checkbox" />
+    <input class="nav-toggle" id="nav-toggle" type="checkbox" aria-label="Open navigation menu" aria-controls="site-nav" />
     <label class="nav-toggle-label" for="nav-toggle">
       <span class="when-closed">Menu</span>
       <span class="when-open">Close</span>
     </label>
     <nav class="nav" id="site-nav" aria-label="Primary">
-      <a href="/#see-it-work">See it work</a>
-      <a href="/#use-cases">Use cases</a>
-      <a href="/contact/" aria-current={current("/contact/")}>Contact</a>
+      <a href="/#see-it-work">The workflow</a>
+      <a href="/#use-cases">Built around you</a>
+      <a class="nav-cta" href="/contact/" aria-current={current("/contact/")}>Request a demo <span aria-hidden="true">↗</span></a>
     </nav>
   </div>
 </header>
+<script>
+  const menu = document.querySelector<HTMLInputElement>("#nav-toggle");
+  const nav = document.querySelector<HTMLElement>("#site-nav");
+  const updateMenuLabel = () => menu?.setAttribute("aria-label", menu.checked ? "Close navigation menu" : "Open navigation menu");
+  menu?.addEventListener("change", updateMenuLabel);
+  nav?.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest("a") || !menu) return;
+    menu.checked = false;
+    updateMenuLabel();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !menu?.checked) return;
+    menu.checked = false;
+    updateMenuLabel();
+    menu.focus();
+  });
+</script>

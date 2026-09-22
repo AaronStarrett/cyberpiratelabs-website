@@ -1,85 +1,104 @@
-# Cloudflare deploy
+# Deploy the existing Cloudflare preview
 
-Project name: `cyberpiratelabs-website` (preview) and `cyberpiratelabs-website-production` (production).
+This repository updates the existing `cyberpiratelabs-website` Worker at [the preview origin](https://cyberpiratelabs-website.astarrett.workers.dev/). It uses Workers Static Assets, D1, Turnstile, and the existing fifteen-minute retry trigger. Deployments are manual from reviewed, committed source. Keep GitHub Actions disabled; do not add automatic Git builds or paid services.
 
-This uses Workers Static Assets, one Worker, D1, Turnstile, and a cron trigger. It does not enable R2, paid add-ons, or GitHub Actions.
+This is a release procedure, not evidence that the current redesign has been deployed. Record the actual released commit, Worker version, browser checks, and inquiry readback in the release handoff.
 
-## Auth step that is still required
+## Existing target: verify and reuse
 
-`wrangler` was not logged in during the build. Deploy is blocked until Aaron runs:
+Read-only preflight on 2026-09-21 America/New_York confirmed:
 
-```bash
-npx wrangler login
-npx wrangler whoami
+| Setting | Existing preview |
+| --- | --- |
+| Cloudflare account ID | `35c95f42dca80a711e480e086d77d410` |
+| Worker name | `cyberpiratelabs-website` |
+| Environment variable | `ENVIRONMENT=preview` |
+| Assets binding | `ASSETS`, from `dist/` |
+| D1 binding | `DB` |
+| D1 database name | `cpl-website-inquiries-preview` |
+| D1 database ID | `5bf0d631-d3ee-452c-9ed7-bf516229080b` |
+| Build-time public Turnstile key | `0x4AAAAAAE_TJqIfvVWrwNw4` |
+
+The top-level `wrangler.jsonc` configuration is this preview. Recheck the current account, deployed version, and bindings before release. The database already exists and contains saved inquiries. A frontend update does not require database creation, migration, reset, or replacement.
+
+Existing Wrangler authorization worked during preflight. Use `whoami` to check the current session; do not run login or refresh credentials merely because Wrangler lists unrelated missing scopes. The existing session successfully read deployments, Worker bindings, secret names, and D1 metadata. A successful read does not itself prove a later upload succeeded.
+
+## Windows workspace and build environment
+
+Use the verified external-SSD checkout. The owner's current workspace is `D:\CPL Website`. Verify the SSD before writing, preserve any unrelated files, and keep dependencies, caches, output, logs, screenshots, recordings, and temporary files on that drive.
+
+The following PowerShell setup uses the Node installation verified for this workspace. If that installation changes, resolve and verify the replacement on the SSD before substituting its path.
+
+```powershell
+Set-Location -LiteralPath 'D:\CPL Website'
+$nodeDir = 'D:\Cyber Pirate Labs\93_TOOLS_AND_CACHE\gods-eye-view\node-v24.14.0-win-x64'
+$node = Join-Path $nodeDir 'node.exe'
+$npmCli = Join-Path $nodeDir 'node_modules\npm\bin\npm-cli.js'
+$env:PATH = $nodeDir + ';' + $env:PATH
+$env:TEMP = 'D:\Cyber Pirate Labs\93_TOOLS_AND_CACHE\cpl-website\temp'
+$env:TMP = $env:TEMP
+$env:npm_config_cache = 'D:\Cyber Pirate Labs\93_TOOLS_AND_CACHE\cpl-website\npm-cache'
+$env:WRANGLER_LOG_PATH = 'D:\Cyber Pirate Labs\93_TOOLS_AND_CACHE\cpl-website\evidence\wrangler-release.log'
+$env:WRANGLER_SEND_METRICS = 'false'
+$env:CI = 'true'
+$env:CLOUDFLARE_ACCOUNT_ID = '35c95f42dca80a711e480e086d77d410'
+$env:PUBLIC_TURNSTILE_SITE_KEY = '0x4AAAAAAE_TJqIfvVWrwNw4'
+$env:PUBLIC_INDEXABLE = 'false'
+& $node --version
 ```
 
-Confirm the account before creating resources. Do not change billing.
+The Turnstile **site key is public** and is embedded in the form HTML. It must be present when Astro builds; preserving the Worker secret alone does not preserve a working form after a rebuild. Public build settings may be kept in an ignored local `.env`, but never put secret values in a committed example. Keep preview indexing disabled. The existing site's canonical-domain metadata is not authorization to attach a domain.
 
-## Create separate databases
+Use command-local Git trust where exFAT requires it, for example `git -c safe.directory='D:/CPL Website' status --short`. Do not change global Git trust settings.
 
-Preview:
+## Read-only release preflight
 
-```bash
-npx wrangler d1 create cpl-website-inquiries-preview
+```powershell
+& $node node_modules/wrangler/bin/wrangler.js whoami
+& $node node_modules/wrangler/bin/wrangler.js deployments list --name cyberpiratelabs-website
+& $node node_modules/wrangler/bin/wrangler.js d1 info cpl-website-inquiries-preview
+& $node node_modules/wrangler/bin/wrangler.js secret list --name cyberpiratelabs-website
 ```
 
-Production:
+Inspect the active version with `wrangler versions view <version-id> --name cyberpiratelabs-website`. Confirm `DB`, `ASSETS`, `ENVIRONMENT`, the account, and the preview Worker. `secret list` returns names, not values; keep credentials out of terminal output, source, screenshots, and release notes.
 
-```bash
-npx wrangler d1 create cpl-website-inquiries-production
+During the recorded preflight, only `RATE_LIMIT_SALT` and `TURNSTILE_SECRET` were configured. `OPERATOR_TOKEN`, `GOOGLE_HMAC_SECRET`, and `GOOGLE_APPS_SCRIPT_URL` were absent. Preserve existing deployed secrets. Do not replace, rotate, or invent them for a visual update, and do not pass a secrets file to deploy. Google archive and owner notification remain separate from D1 persistence; follow [Google setup](google-setup.md) only under its own authorized setup scope.
+
+## Verify and deploy a known commit
+
+1. Fetch the latest intended remote branch, reconcile concurrent source changes, and review the final diff. Run the repository tests, typecheck, lint, production build, and secret scan. Complete the browser checks and preserve private evidence on the SSD.
+2. Commit and publish the reviewed source to this same repository. Integrate into the default branch only when permitted by its protection rules. Record the published branch and full commit SHA; do not reset or force-push.
+3. Build the exact clean committed revision using the preview environment above. Check that generated tracked assets did not make the checkout dirty. A build of different or uncommitted source is not evidence for the recorded release.
+4. Run the dry run, inspect the target and bindings, then deploy that same build. Use a commit tag and message so the Worker version can be matched to source.
+
+```powershell
+$releaseCommit = (git -c safe.directory='D:/CPL Website' rev-parse HEAD).Trim()
+if (git -c safe.directory='D:/CPL Website' status --porcelain) {
+  throw 'Commit and review source changes before release.'
+}
+& $node $npmCli run build
+if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
+if (git -c safe.directory='D:/CPL Website' status --porcelain) {
+  throw 'Build changed tracked source; review and commit before release.'
+}
+& $node node_modules/wrangler/bin/wrangler.js deploy --dry-run --name cyberpiratelabs-website
+if ($LASTEXITCODE -ne 0) { throw 'Deployment dry run failed.' }
+& $node node_modules/wrangler/bin/wrangler.js deploy --name cyberpiratelabs-website --keep-vars --tag $releaseCommit --message "Website preview from commit $releaseCommit"
+if ($LASTEXITCODE -ne 0) { throw 'Preview deployment failed.' }
 ```
 
-Replace the placeholder `database_id` values in `wrangler.jsonc` with the ids Cloudflare prints. Keep the preview id on the top-level config and the production id under `env.production`. Choose the D1 location when prompted. This repository does not claim a region.
+The tag and message document provenance; they do not independently enforce it. Confirm the SHA is the reviewed published revision before upload. This procedure selects the existing preview and preserves existing runtime variables. Do not add `--env production`, routes, domains, database operations, or secret changes.
 
-Apply migrations to each, separately:
+After deployment, read the active deployment and version back, confirm its tag/message and bindings, and inspect the actual preview in a browser. Check the real CSP, asset requests, desktop/mobile layouts, reduced-motion/fallback states, and inquiry form. A local build or GitHub push is not a successful deployment.
 
-```bash
-npx wrangler d1 migrations apply cpl-website-inquiries-preview --local
-npx wrangler d1 migrations apply cpl-website-inquiries-preview --remote
-npx wrangler d1 migrations apply cpl-website-inquiries-production --remote --env production
-```
+## Bounded inquiry verification
 
-## Secrets
+Submit one clearly fictional inquiry through the actual preview form and normal Turnstile control. Record the submission UUID, returned public reference, and separate storage/Google/notification statuses in private evidence. Read only that test record through authenticated Wrangler D1 access or a configured operator route. Avoid exporting or displaying unrelated inquiries.
 
-Set these on preview, then again with `--env production`. Use different values.
+For duplicate verification, replay the same submission UUID and identical normalized fields with a fresh Turnstile verification. The backend checks Turnstile before duplicate lookup; a consumed token is not a valid duplicate test. Expect HTTP 200, `duplicate=true`, the same reference, and a D1 count of one row for that UUID. Preserve the test row and existing inquiries. Do not reset the database, delete rows, or use operator confirmation to manufacture delivery success.
 
-```bash
-npx wrangler secret put RATE_LIMIT_SALT
-npx wrangler secret put TURNSTILE_SECRET
-npx wrangler secret put OPERATOR_TOKEN
-npx wrangler secret put GOOGLE_HMAC_SECRET
-npx wrangler secret put GOOGLE_APPS_SCRIPT_URL
-```
+D1 readback can succeed even when `OPERATOR_TOKEN` is unset. Use a narrowly scoped SELECT for the fictional UUID and its count. Report any unavailable readback as a specific gap. `pending_unconfigured` means Google archive/notification setup is unfinished; it does not negate D1 persistence and must not be described as successful downstream delivery.
 
-`OPERATOR_TOKEN` must be at least 24 characters. `GOOGLE_HMAC_SECRET` must be at least 16 if Google is enabled. Leave the Google secrets unset until the Apps Script setup is done. Inquiries still save, with delivery marked `pending_unconfigured`.
+## Production and domain work remain separate
 
-Turnstile site keys are build-time public values, not Worker secrets:
-
-```bash
-PUBLIC_TURNSTILE_SITE_KEY=your-site-key PUBLIC_INDEXABLE=false npm run build
-npx wrangler deploy
-```
-
-Use a production Turnstile widget only for the production build. Cloudflare publishes test keys for local wrangler. Do not put an always-pass test secret in the production Worker.
-
-Preview stays `noindex` unless `PUBLIC_INDEXABLE=true` at build time. Use that only for the production domain build.
-
-## Deploy
-
-```bash
-npm run build
-npx wrangler deploy
-```
-
-Check the printed `*.workers.dev` URL before any domain change. Production:
-
-```bash
-PUBLIC_INDEXABLE=true SITE_URL=https://cyberpiratelabs.com npm run build
-npx wrangler deploy --env production
-```
-
-Do that only after the production database id and production secrets exist. `workers_dev` is false for production, so it will not be the public site until a custom domain is attached.
-
-## Native Git integration
-
-Preferred path after the public GitHub repository exists: Cloudflare dashboard, Workers, Create, connect `AaronStarrett/cyberpiratelabs-website`, production branch `main`, build command `npm run build`, no GitHub Actions. Non-production builds must keep `PUBLIC_INDEXABLE` unset. Preview and production environment variables stay separate.
+`env.production` names `cyberpiratelabs-website-production`, disables `workers.dev`, and currently contains a placeholder database ID. It is not the preview target. Do not create a production database or Worker, enable indexing, attach `cyberpiratelabs.com` or `www`, change DNS/nameservers/mail records, connect an automatic build pipeline, or activate paid services as part of this preview release. Those changes require their own concrete scope and verification.

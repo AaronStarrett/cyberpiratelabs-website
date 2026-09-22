@@ -4,13 +4,19 @@ import InquiryForm from "../components/InquiryForm.astro";
 ---
 <Base
   title="Request a demo | Cyber Pirate Labs"
-  description="Request a demo of CPL Command Center. The form stores an inquiry. It does not book a meeting."
+  description="Talk to Aaron about CPL Command Center and the workflow you want to organize. Request an early-access demo."
 >
-  <section class="page-intro">
-    <div class="wrap">
-      <p class="eyebrow">Contact</p>
-      <h1>Request a demo</h1>
-      <p class="contact-mail">Or write <a href="mailto:AStarrett@cyberpiratelabs.com">AStarrett@cyberpiratelabs.com</a>.</p>
+  <section class="page-intro contact-page">
+    <div class="wrap contact-grid">
+      <div class="contact-copy">
+        <p class="eyebrow">Cyber Pirate Labs / Contact</p>
+        <h1>Let’s put your<br />workflow<br /><span>under command.</span></h1>
+        <p>Where does information get scattered? Which handoff needs a clearer next step? Tell Aaron about the work your team does.</p>
+        <div class="contact-person"><span class="person-monogram" aria-hidden="true">AS</span><div><strong>Aaron Starrett</strong><span>Founder, Cyber Pirate Labs</span></div></div>
+        <p class="contact-mail"><a href="mailto:AStarrett@cyberpiratelabs.com">AStarrett@cyberpiratelabs.com <span aria-hidden="true">↗</span></a></p>
+        <p class="contact-note">Early access · Scope and timing discussed together</p>
+        <a class="text-link" href="/demo/">Explore the product preview <span aria-hidden="true">↗</span></a>
+      </div>
       <InquiryForm sourcePath="/contact/" />
     </div>
   </section>

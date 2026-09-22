@@ -2,24 +2,31 @@
 import ProductStage from "../islands/ProductStage";
 import Base from "../layouts/Base.astro";
 import { capabilities, statusLabel } from "../../shared/capability";
-import { scenarios } from "../../shared/demo/scenarios";
+import { filmChapters, filmSnapshot, initialFilm, sample } from "../../shared/demo/film";
+
+const transcript = filmChapters.map((chapter, index) => ({
+  ...chapter,
+  record: filmSnapshot({ ...initialFilm(), chapter: index, elapsed: chapter.duration }),
+  detail: [
+    `${sample.contact} at ${sample.customer} requests a ${sample.scope.toLowerCase()} for ${sample.site}. An email carries the request, a call note adds access information, and a site image provides context.`,
+    `The customer, site, and scope become labeled fields on request ${sample.id}. The call note supplies: “${sample.access}” The original inputs stay attached.`,
+    `Proposal ${sample.proposalId} carries forward the scope and site for review. A simulated award creates project ${sample.projectId}. Customer acceptance and automatic award-to-project setup are planned product behavior.`,
+    `The field work package includes the location, scope, and access instructions. A fictional observation is attached to the same job: “${sample.observation}” An illustrative north-roof image accompanies it.`,
+    `The observation and image appear together in report ${sample.reportId}. Site identity and scope remain visible. A simulated human review advances the sample report to ready for delivery.`,
+    `Request ${sample.id}, proposal ${sample.proposalId}, project ${sample.projectId}, field documentation, and report ${sample.reportId} remain connected. Office, field, and customer views show the status appropriate to each perspective.`,
+  ][index],
+}));
 ---
 <Base
   title="See it work | CPL Command Center"
-  description="Run the Command Center sample. Invented companies, no account, and no live customer system."
+  description="Follow one fictional service request through CPL Command Center, from scattered information to a reviewable report."
 >
-  <section class="demo-lead">
-    <div class="wrap">
-      <p class="eyebrow">CPL COMMAND CENTER</p>
-      <h1>See the sample job move.</h1>
-      <p>The same preview as the homepage, with the written path underneath. Sample data only.</p>
-    </div>
-  </section>
   <ProductStage client:load variant="focus" />
-  <section class="page-intro">
+  <section class="page-intro product-notes">
     <div class="wrap">
-      <h2>What the preview is allowed to claim</h2>
-      <p>These notes follow the public Command Center source reviewed on 2026-09-21. They are not a launch announcement.</p>
+      <p class="eyebrow">Product notes</p>
+      <h2>Where Command Center stands.</h2>
+      <p>Command Center is in early access and development. These capability notes follow the public product source reviewed on 2026-09-21.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Capability</th><th>Status</th><th>Plain meaning</th></tr></thead>
@@ -35,18 +42,13 @@ import { scenarios } from "../../shared/demo/scenarios";
         </table>
       </div>
       <div class="transcript">
-        <h2>Text transcript</h2>
-        <p>The same sample paths, written out for anyone not running the scene.</p>
-        {scenarios.map((scenario) => (
+        <h2>The story, in words.</h2>
+        <p>The same six chapters and fictional record as the interactive preview. The story can be followed here with JavaScript turned off.</p>
+        {transcript.map((chapter, index) => (
           <article>
-            <h3>{scenario.title}</h3>
-            <p>{scenario.summary}</p>
-            <p>{scenario.evidenceNote}</p>
-            <ol>
-              {scenario.steps.map((step) => (
-                <li><strong>{step.title}.</strong> {step.narration}</li>
-              ))}
-            </ol>
+            <h3>{String(index + 1).padStart(2, "0")} / {chapter.title}</h3>
+            <p>{chapter.detail}</p>
+            <p><strong>Next action:</strong> {chapter.record.next}.</p>
           </article>
         ))}
       </div>
