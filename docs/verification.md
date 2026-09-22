@@ -6,7 +6,7 @@ Verification recorded on 2026-09-21 (America/New_York) / 2026-09-22 UTC for the 
 
 | Check | Result |
 | --- | --- |
-| Unit tests | PASS — 52/52: 29 film tests and 23 existing tests. |
+| Unit tests | PASS — 53/53: 30 film tests and 23 existing tests. |
 | Astro and Worker type checks | PASS — Astro reported 0 errors, 0 warnings, and 0 hints; Worker TypeScript passed. |
 | ESLint | PASS |
 | Production build | PASS |
@@ -47,7 +47,7 @@ Live Google Sheets/Drive delivery and owner email delivery are **NOT VERIFIED**.
 - [x] The preview deployment was tagged with its exact Git commit. Homepage, demo, contact, privacy, and terms returned 200; an unknown route returned the designed 404. The inspected live film logged no application errors or CSP violations. The final version and SHA are recorded in the private release handoff.
 - [x] One bounded fictional inquiry and same-identity replay passed, with authenticated D1 readback. The successful form button was temporarily re-enabled for the replay; validation, Turnstile, and the normal Worker path remained intact.
 - [x] Google archive and owner notification both remain pending_unconfigured. They are not claimed delivered.
-- [ ] Complete and retain the default-story and mobile-emulation recordings, matching before/after screenshots, silent and caption-hidden design reviews, and measured browser performance. Restore captions after review.
+- [x] Complete default-story and mobile-emulation recordings, before/after comparisons at matching requested CSS viewports, internal silent and caption-hidden design reviews, and one measured browser-performance sample are retained in private evidence. Native screenshot pixel dimensions can differ; identical pixel dimensions are not claimed. Captions were restored after review. The private handoff tracks the exact released SHA and the final media refresh.
 - [x] WebKit and physical-device testing remain NOT RUN. No external user research or owner design acceptance is claimed.
 
 Screenshots, recordings, and private test evidence are kept on the verified external SSD outside the public repository. Do not commit inquiry contact data, operator responses, credentials, or private recovery material.

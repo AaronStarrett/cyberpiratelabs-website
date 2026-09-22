@@ -86,7 +86,7 @@ export function filmSnapshot(state: FilmState) {
 
 export function filmPerspective(state: FilmState) {
   const record = filmSnapshot(state);
-  if (state.seat === "field") return { title: record.awarded ? "Your work package" : "Before the visit", status: record.awarded ? record.fieldAttached ? "Observation attached" : "Ready for field work" : "Awaiting an awarded job", next: record.awarded ? record.fieldAttached ? "Office review is next" : record.next : "Office is preparing the request", detail: record.awarded ? record.access : "Site and scope stay with the request." };
+  if (state.seat === "field") return { title: record.awarded ? "Your work package" : "Before the visit", status: record.reportReady ? "Field work documented" : record.awarded ? record.fieldAttached ? "Observation attached" : "Ready for field work" : "Awaiting an awarded job", next: record.reportReady ? "Office review complete" : record.awarded ? record.fieldAttached ? "Office review is next" : record.next : "Office is preparing the request", detail: record.awarded ? record.access : "Site and scope stay with the request." };
   if (state.seat === "customer") return { title: "Your request", status: state.chapter < 2 ? "Request received" : !record.awarded ? "Proposal in review" : !record.fieldAttached ? "Visit prepared · simulated" : !record.reportReady ? "Assessment in review" : "Report ready · sample", next: record.reportReady ? "View the sample report" : "Your project contact owns the next update", detail: state.scope };
   return { title: record.kind + " workspace", status: record.status, next: record.next, detail: record.fieldAttached ? sample.observation : record.access };
 }

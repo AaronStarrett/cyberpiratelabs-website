@@ -98,6 +98,22 @@ describe("the continuous HA-1044 product film", () => {
     expect(perspectives.size).toBe(3);
   });
 
+  it("shows completed office review to the field team after the report is reviewed", () => {
+    const attached = run({ type: "chapter", chapter: 3 }, { type: "attach" }, { type: "seat", seat: "field" });
+    expect(filmPerspective(attached)).toMatchObject({
+      status: "Observation attached", next: "Office review is next",
+    });
+    const inReview = filmReducer(attached, { type: "chapter", chapter: 4 });
+    expect(filmPerspective(inReview).next).toBe("Office review is next");
+    const reviewed = filmReducer(inReview, { type: "review" });
+    expect(filmPerspective(reviewed)).toMatchObject({
+      status: "Field work documented", next: "Office review complete",
+    });
+    expect(filmPerspective(filmReducer(reviewed, { type: "chapter", chapter: 5 }))).toMatchObject({
+      status: "Field work documented", next: "Office review complete",
+    });
+  });
+
   it("retains source identity, location and access throughout every chapter", () => {
     for (let chapter = 0; chapter < filmChapters.length; chapter += 1) {
       const record = filmSnapshot(run({ type: "chapter", chapter }));
