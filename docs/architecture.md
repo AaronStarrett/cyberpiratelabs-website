@@ -1,57 +1,56 @@
 # Architecture
 
-The site is a static Astro build plus a small Cloudflare Worker.
+The marketing site keeps the existing static Astro build, React islands, npm lockfile, and Cloudflare Worker/D1 inquiry backend.
 
-## Public experience
+## Public rendering
 
-Pages are prerendered HTML and CSS, with a React island for the product film. The homepage and `/demo/` mount the same `ProductStage`; the demo page adds capability notes and a static transcript. Each page has one primary heading from the film. Homepage business-fit and configuration sections are ordinary Astro content, followed by the inquiry form.
+`src/pages/` defines the homepage, voice and chat service pages, request page, existing contact route, legal routes, and 404. `Base.astro` supplies metadata, bundled fonts, navigation, footer, and shared `agent-site.css`. The approved CPL logo is unchanged; the build derives icons and voice/chat social artwork.
 
-| File | Responsibility |
+The homepage’s initial `HeroStage.astro` composition is lightweight HTML/CSS. Core offer text and the request CTA are prerendered. The homepage and both service pages mount `AgentExperience` with `client:visible`; the request form is a separate component on `/demo/`.
+
+## Local Agent Experience
+
+| Source | Responsibility |
 | --- | --- |
-| `shared/demo/film.ts` | Sample identity, six chapter definitions and durations, `filmReducer`, `filmSnapshot`, and `filmPerspective`. |
-| `src/islands/ProductStage.tsx` | Hero, chapter and playback controls, visibility/motion preferences, HTML shared-element transitions, and optional scene loading. |
-| `src/islands/FilmScenes.tsx` | Source inputs, organized record, proposal review, field/office handoff, report, overview, alternate perspectives, and modal content. |
-| `src/styles/film.css` | Film framing, hero, navigation, transport, and responsive layout. |
-| `src/styles/film-scenes.css` | Product interfaces, documents, mobile field view, source mapping, and dialogs. |
-| `src/islands/stage/createStage.ts` | Three.js environment, derived camera/lighting poses, on-demand rendering, context handling, and cleanup. |
-| `src/styles/site-finish.css` | Header/footer, business-fit and configuration sections, contact form presentation, and supporting pages. |
+| `shared/agents/fixtures.ts` | Four fictional business scenarios, approved information, voice/chat messages, timings, and sample captures |
+| `shared/agents/experience.ts` | One reducer for mode, scenario, elapsed time, and playback; derives transcript progress and result fields |
+| `src/islands/AgentExperience.tsx` | Mode/scenario selection, playback, transcript, HTML result, motion preferences, and lazy scene mounting |
+| `src/styles/agent-experience.css` | Dimensional HTML composition and responsive/static presentation |
+| `src/islands/stage/createAgentStage.ts` | Optional Three.js phone, conversation, and inquiry geometry, lighting, perspective, and pose transitions |
 
-The film follows fictional request `HA-1044` through six connected chapters: request, organized record, proposal/award, field work, report, and overview. Their durations total 54 seconds. The user starts guided playback; the opening does not autoplay.
+The reducer’s snapshot reveals complete messages and collects only their explicitly supplied fields. Mode/scenario changes restart the sample; play, pause, replay, and skip-to-result use the same state. The complete selected transcript is rendered in semantic HTML. A billing scenario illustrates a simulated person-needed boundary.
 
-One reducer owns `chapter`, `elapsed`, `playing`, `seat`, `missing`, `scope`, and `modal`. `filmSnapshot` derives lifecycle status and linked artifacts from that state. A request remains a request until the simulated award point. Field evidence becomes report content only after the field-attachment point. `filmPerspective` derives each audience's status and next action from the same record. Chapter navigation selects a point in this deterministic narrative; it is not a live application's persistent event history.
+These fixed stories exist in browser memory. They do not request microphone access, play audio, invoke an LLM or Stammer API, create an appointment, or submit a real inquiry. No visitor scenario choice is transmitted as a lead. Stammer AI is the selected platform for separately scoped CPL services; the marketing implementation does not establish a live platform account or deployment.
 
-Inputs and interactions have bounded effects:
+## Motion and fallback
 
-- Source dialogs show the fictional email, call note, or image beside the fields that source contributes.
-- Editing the proposal scope updates the same sample scope in later chapters and perspectives.
-- Award, field-attachment, and review buttons advance the corresponding sample transition. Guided playback reaches those same transition points.
-- Chapter changes, perspective changes, source/report dialogs, scope editing, and lifecycle actions pause guided playback. Closing a dialog does not restart it.
-- The optional access-detail exception returns to the organized record and holds later chapters until the call-note detail is restored. The visitor can then resume.
-- Replay resets the sample and leaves it paused, retaining the selected perspective. Watch the workflow starts again from the opening and plays when reduced motion is not requested.
+HTML carries the readable conversation and result; the decorative canvas is hidden from the accessibility tree. Three.js loads progressively after the island is visible and the stage approaches the viewport. Narrow layouts and reduced-motion preferences use the HTML composition without mounting the 3D scene.
 
-All story state is in browser memory. It does not call product APIs, use model keys, upload files, save customer jobs, or send reports. The three business-fit examples below the film do not change its scenario. The older `shared/demo/{engine,scenarios,watch,chapters}` modules are retained legacy modules; the rendered homepage/demo film does not import them.
+The renderer caps pixel ratio at 1.5. It renders bounded pose transitions and changes on demand, pauses offscreen or while the document is hidden, and disposes observers, listeners, geometry, materials, and GPU resources. WebGL failure or context loss leaves the HTML story available. Playback also stops advancing while hidden or offscreen.
 
-## Rendering and accessibility
+Reduced motion shows a completed stable sample and uses immediate state changes. A separate motion control governs visual interpolation; playback has its own pause control. These are source-level behavior descriptions. Browser and measured performance outcomes belong in `docs/verification.md`.
 
-Essential business text, images, controls, and dialogs are HTML. The prerendered opening is meaningful before hydration or WebGL loading; without JavaScript, the static transcript on `/demo/` provides the complete written story. After hydration, the same HTML interactions work when WebGL cannot initialize.
+## Real inquiry path
 
-Three.js is loaded progressively for the environment. Its pose is derived from the reducer state, rather than a second narrative timeline. Shared `data-flow` identities support HTML source-to-field movement through the Web Animations API. The renderer caps device pixel ratio at 1.5, renders on pose/viewport changes instead of an idle loop, stops while hidden or offscreen, and disposes listeners, observers, geometry, materials, and the renderer on teardown. Context loss leaves the HTML story available; context restoration requests another render.
+`InquiryForm.astro` posts to `POST /api/inquiries`. Shared `validateInquiry` rules run in the browser and Worker. New agent interests (`voice`, `chat`, `both`, `not-sure`) require name, email, and company. Phone, website, and problem text are optional and bounded. The website is represented by the existing `currentTools` column; omitted problem text becomes an explicit request stating that additional details were not provided. Existing legacy interest values and their required-description rules remain supported.
 
-Reduced motion uses still chapter states and manual Next navigation. The film avoids mounting WebGL for reduced motion, data-saving preference, or a reported device memory of 2 GB or less. The narrative clock also stops while the stage is offscreen or the document is hidden. Native dialogs include focus containment, Escape/close behavior, and focus restoration. These are implementation descriptions; actual browser and performance results belong in `docs/verification.md`.
+`worker/index.ts` routes inquiry and protected operator requests; static assets are served from `dist/` through the existing asset configuration. The backend retains:
 
-Brand values come from `shared/brand.ts` for CSS and Three.js. The approved `public/brand/cpl-logo.png` remains the source for icons and the generated social card. Supporting illustrations under `public/sample/` are labeled sample evidence.
+- Same-origin checks, Turnstile verification, honeypot rejection, bounded field validation, and hashed rate-limit identifiers.
+- Stable submission UUIDs, canonical payload hashing, duplicate detection, durable D1 insertion, and readback.
+- Separate Google archive and business notification status, delivery attempts, and bounded retry/backoff behavior.
+- Private operator routes requiring an appropriately configured bearer token.
 
-## Inquiry backend
+The browser only treats a response as saved when it confirms `ok`, `saved`, `storage: "saved"`, and a reference. An unchanged retry keeps its submission id; changed form content gets a new identity. Personal request data is not kept in browser local storage. The public email fallback is `AStarrett@cyberpiratelabs.com`.
 
-- `worker/index.ts` handles `POST /api/inquiries`, operator routes under `/api/operator`, and a 15-minute scheduled retry.
-- Cloudflare serves `dist/` as static assets. Only `/api/*` runs the Worker first. Unknown pages use `404.html` with a 404 status.
-- Inquiry rows live in D1. Preview and production are different Worker names and different databases.
-- Google Sheets, Drive, and owner email are a later delivery step. The browser never receives Google tokens, the HMAC secret, or the script URL.
-- The HMAC envelope is `{ timestamp, submissionId, signature, payload }`. `signature` is hex HMAC-SHA256 over `timestamp.submissionId.sha256(payload)` using `GOOGLE_HMAC_SECRET`.
-- “Saved” means the D1 insert succeeded. Google sync and notification have their own statuses: `pending`, `pending_unconfigured`, `synced` or `sent`, and `failed`.
-- Turnstile is required whenever a secret is configured, and submissions are rejected when it is not configured. There is no bypass flag.
-- Operator routes require `Authorization: Bearer` matching `OPERATOR_TOKEN` (at least 24 characters). There is no public inquiry list.
+## Downstream delivery
 
-Scheduled retries select rows that are still pending or whose backoff time has arrived, up to 8 attempts. Backoff is 1 minute, 5 minutes, 15 minutes, 1 hour, 6 hours, then 24 hours.
+A D1 save establishes website storage. It does not establish arrival in a Google Sheet, Drive folder, or inbox. A configured later step sends a signed payload to the existing Google endpoint; credentials remain server-side.
 
-The presentation update retains the inquiry form's field names, validation contract, submission identity, duplicate prevention, and retry behavior. A successful D1 save and a successful Google/email delivery remain separate outcomes. The marketing film never invokes this backend; only a visitor's form submission does.
+Archive status is `pending`, `pending_unconfigured`, `synced`, or `failed`. Notification status is `pending`, `pending_unconfigured`, `sent`, or `failed`. The form reports the recorded state. Unconfigured delivery has no live acceptance claim; configured failures can be retried on the existing 15-minute schedule, subject to backoff and an eight-attempt limit.
+
+No new schema migration, database, platform account, resource binding, or environment secret is required by this presentation update. Use the existing verified release target and process documented in `docs/cloudflare-deploy.md`.
+
+## Retained history
+
+`ProductStage.tsx`, `FilmScenes.tsx`, their styles, `shared/demo/`, and the old `shared/capability.ts` remain as historical source. Current routes do not import the retired Command Center marketing experience. Its tests preserve past source invariants; they do not establish active website or customer-product behavior.

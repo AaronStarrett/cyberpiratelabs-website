@@ -1,66 +1,81 @@
 # Cyber Pirate Labs website
 
-Public site for CPL Command Center, the early-access workflow platform from Cyber Pirate Labs, LLC.
+The official marketing website for **CPL AI Voice Agents** and **CPL AI Chat Agents**. Cyber Pirate Labs configures, implements, connects, tests, and manages agents around agreed business information and workflows, using Stammer AI as the underlying service platform.
 
-The site explains that product through one interactive film: fictional request `HA-1044` moves from an email, call note, and site image into an organized record, a proposal and simulated award, field documentation, a reviewable report, and a connected overview. Optional guided playback lasts 54 seconds. Visitors can also explore chapters and perspectives at their own pace.
+This repository contains a static Astro website, a local React/Three.js conversation walkthrough, and the existing Cloudflare Worker/D1 inquiry system. It does not contain a live Stammer agent, a customer portal, or the separate Command Center application.
 
-The preview runs locally in the browser with sample data. The inquiry form is a separate, real Worker/D1 workflow. This repository is the public website, not the Command Center application, and it does not establish the application's general availability.
+## Routes
 
-## Run locally
+| Route | Purpose |
+| --- | --- |
+| `/` | Main offer, interactive experience, service explanations, examples, implementation sequence, and FAQ |
+| `/voice-agents/` | Inbound voice service and setup boundaries |
+| `/chat-agents/` | Website chat service and setup boundaries |
+| `/demo/` | Real demonstration request form |
+| `/contact/` | Existing business email and access to the request form |
+| `/privacy/`, `/terms/` | Existing legal routes with owner-review notices |
 
-```bash
+## Local development
+
+Use Node 24 with support for the test suite’s `node:sqlite` module and the committed npm lockfile:
+
+~~~powershell
 npm ci
 npm run dev
-```
+~~~
 
-The Astro dev server listens on http://127.0.0.1:43123. Inquiry storage is served by the Worker, so use this when you also want the form API and the real 404:
+The Astro server listens at `http://127.0.0.1:43123`. It previews the static site; the inquiry API requires the Worker.
 
-```bash
+On the owner’s Windows workspace, select the existing SSD Node 24 toolchain for the current terminal and keep task-controlled source, dependencies, npm cache, TEMP/TMP, build output, and screenshots on the verified external SSD. Do not relocate global tools.
+
+For a local Worker preview with the existing schema:
+
+~~~powershell
 npm run build
 npx wrangler d1 migrations apply cpl-website-inquiries-preview --local
-cp .dev.vars.example .dev.vars
+Copy-Item .dev.vars.example .dev.vars
 npm run cf:dev
-```
+~~~
 
-Configure `.dev.vars` for local testing and do not commit it. Turnstile is required for inquiry submission; arbitrary placeholder values do not make verification work. Production Turnstile, Google, and operator secrets are not in the repository. For the owner's Windows workspace, source, dependencies, caches, build output, and test artifacts stay on the verified external SSD.
+Configure ignored local environment files for your test environment. `PUBLIC_TURNSTILE_SITE_KEY` must be present when Astro builds; it is public configuration. Server verification requires its matching Turnstile configuration. Placeholder tokens do not pass verification. Never commit `.dev.vars`, secret values, or inquiry data. See [deployment documentation](docs/cloudflare-deploy.md) for the established environment and release procedure.
 
-## Product film
+## Source map
 
-- `shared/demo/film.ts`: fictional sample data, six chapter definitions, durations, reducer, derived record, and Office/Field/Customer perspectives.
-- `src/islands/ProductStage.tsx`: hero, transport, chapter navigation, source-to-field motion, reduced-motion handling, and progressive Three.js loading.
-- `src/islands/FilmScenes.tsx`: readable business interfaces, input/source dialogs, editable proposal scope, field evidence, sample report, and perspective views.
-- `src/styles/film.css` and `src/styles/film-scenes.css`: film layout, responsive product surfaces, and transitions.
-- `src/islands/stage/createStage.ts`: optional Three.js environment; essential text and controls remain HTML.
-- `src/pages/index.astro` and `src/styles/site-finish.css`: three illustrative business fits, configuration explanation, contact presentation, and branded site shell.
+- Page copy: `src/pages/`; FAQ: `shared/site.ts`.
+- Navigation, hero composition, and final CTA: `src/components/{Header,HeroStage,ClosingCTA}.astro`.
+- Signature walkthrough: `src/islands/AgentExperience.tsx`, `shared/agents/fixtures.ts`, and `shared/agents/experience.ts`.
+- Optional 3D scene: `src/islands/stage/createAgentStage.ts`.
+- Presentation: `src/styles/agent-site.css` and `src/styles/agent-experience.css`.
+- Request form and shared validation: `src/components/InquiryForm.astro` and `shared/inquiry/validate.ts`.
+- Backend: `worker/index.ts` and `shared/inquiry/`.
+- Approved logo: `public/brand/cpl-logo.png`; derived icons/social artwork: `scripts/generate-icons.mjs`.
 
-Opening a source or report, changing perspective or chapter, editing scope, simulating an award, attaching field evidence, and reviewing the report pause guided playback. An optional missing-access-detail example holds the same request until the existing call note supplies the detail. These actions change deterministic sample state; they do not parse a live inbox, create a customer job, or send a report.
+Retired Command Center marketing components, styles, and `shared/demo/` modules remain as source history. Current public pages do not import that experience. Retained historical source is not deployed marketing or proof of a live product.
 
-The homepage and `/demo/` share this film. `/demo/` also provides capability notes and a static six-chapter transcript. The lower homepage examples cover inspection, field service, and recurring care; the film does not have an industry-template switch. Older `shared/demo/{engine,scenarios,watch,chapters}` modules remain in the repository but are not the rendered film's state or content source.
+## Demonstration and inquiry boundaries
 
-## Checks
+The walkthrough offers voice/chat selection, four fictional scenarios, playback controls, an accessible complete transcript, and an organized sample result. It is transcript-only: no audio, microphone, live AI request, Stammer connection, or real lead transmission. The billing example shows a simulated human follow-up boundary.
 
-```bash
+The separate form sends to `POST /api/inquiries`. Name, email, and company are required for new agent-demo requests; phone, website, interest, and problem details are optional. The existing payload and D1 schema are preserved. Legacy inquiry interests retain their earlier validation rules.
+
+A confirmed save means the D1 record was inserted and read back. Google archive and business notification use separate statuses, including `pending_unconfigured`; a saved request does not establish final notification delivery. The form keeps a stable submission id for unchanged retries. The verified public email fallback is **AStarrett@cyberpiratelabs.com**. No meeting is automatically booked and no newsletter consent is bundled into an inquiry.
+
+## Checks and release
+
+~~~powershell
 npm test
 npm run typecheck
 npm run lint
 npm run build
 npm run scan:secrets
-```
+~~~
 
-## Edit and redeploy
+Inspect rendered desktop, mobile, keyboard, reduced-motion, and WebGL fallback behavior as well as request validation and failure states. [Verification](docs/verification.md) records actual results; commands here are instructions, not a claim that checks or deployment have passed.
 
-Page copy lives in `src/pages`; film content and lifecycle state live in `shared/demo/film.ts`. The public capability list lives in `shared/capability.ts`. See `docs/content-editing.md` before changing story identity, transition timing, or product claims.
+Review and commit the intended website changes, push to the existing repository, and use the established verified Worker release procedure in [deployment documentation](docs/cloudflare-deploy.md). Preserve existing infrastructure, deployed secrets, bindings, and workflow configuration. A Git push, Worker deployment, public-page verification, and downstream notification acceptance are separate states. [Rollback notes](docs/rollback.md) describe recovery through the existing release mechanism.
 
-Run the checks above and review the rendered desktop, mobile, reduced-motion, and HTML fallback experiences. For an authorized preview release, confirm the existing Cloudflare account, Worker, database binding, and secrets, then deploy the reviewed committed revision:
-
-```bash
-npm run cf:deploy
-```
-
-This script builds the website and publishes the existing preview Worker, `cyberpiratelabs-website`. The separate production environment and official-domain cutover require their own authorization and configuration. Preserve deployed secrets and inquiry records; a UI update does not require a new database. Keep GitHub Actions disabled. See `docs/cloudflare-deploy.md` for configuration details and `docs/verification.md` for recorded checks. Commands in this README are instructions, not evidence that a build, browser check, or deployment has succeeded.
+See [content editing](docs/content-editing.md), [architecture](docs/architecture.md), and [capability boundaries](docs/capability-matrix.md).
 
 ## Rights
 
 All rights reserved. No open-source license is granted.
-
-Product behavior notes cite the public repository [CPL-Command-Center-Public](https://github.com/AaronStarrett/CPL-Command-Center-Public/tree/26e56aea4fe74cbed65bdeb3f9e7cc4f4391bf7c) at commit `26e56aea4fe74cbed65bdeb3f9e7cc4f4391bf7c`, reviewed on 2026-09-21. That repository is a read-only product reference. See `docs/capability-matrix.md` for the distinction between website sample behavior, development source, and planned features.

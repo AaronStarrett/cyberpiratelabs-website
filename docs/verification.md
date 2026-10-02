@@ -1,53 +1,30 @@
-# Verification
+# Voice and chat website verification
 
-Verification recorded on 2026-09-21 (America/New_York) / 2026-09-22 UTC for the six-chapter HA-1044 product film. Local checks were followed by a deployment and inspection of the existing preview. A subsequent mobile CSS refinement keeps proposal context and the simulated award in the same phone view.
+This repository is the CPL marketing website. Checks below describe this revision and do not establish a deployed customer agent, Stammer account, or customer acceptance.
 
-## Automated checks
+## Recorded implementation checks
 
-| Check | Result |
-| --- | --- |
-| Unit tests | PASS — 53/53: 30 film tests and 23 existing tests. |
-| Astro and Worker type checks | PASS — Astro reported 0 errors, 0 warnings, and 0 hints; Worker TypeScript passed. |
-| ESLint | PASS |
-| Production build | PASS |
-| Secret scan | PASS |
+- Existing Node 24.14.0 on the Extreme SSD; npm ci completed against the unchanged package-lock.json (607 packages).
+- Vitest: 86/86 tests across six files passed.
+- Astro: 38 files, zero errors, warnings, or hints. Worker TypeScript passed.
+- ESLint, production build, source secret scan, and git diff whitespace checks passed.
+- Existing Worker deployment dry run passed: correct documented Worker and original ASSETS/DB/ENVIRONMENT bindings. Framework, dependencies, lockfile, Wrangler settings, migrations, Worker entry, origin/verification controls, and delivery adapters remain unchanged.
+- The native sample progress element avoids inline style attributes blocked by the existing CSP. Generated CSP hashes change with the content; policy permissions remain unchanged.
 
-These checks cover sample-state and existing backend regressions. They do not establish a live inquiry save, downstream delivery, or a deployed revision.
+## Browser review
 
-## Chromium browser checks
+Actual Chromium in-app browser checks covered responsive homepage layouts at 360, 390, 768, 1440, and 1920 pixels, plus voice, chat, demo request, contact, privacy, terms, and error-page content. Desktop and mobile screenshots were captured on the SSD and inspected. Meaningful refinement included mobile hero sizing/disclosure, form focus and input readability, result containment, tablet stacking, genuine 3D shell alignment, native progress, and static navigation fallback.
 
-The production build was inspected through the local Worker in Chromium.
+Verified interactions: voice/chat and scenario switching; remodeling, cleaning, and simulated billing results; play/pause/replay and transcript access; mobile menu and Escape behavior; direct route refresh; form required-field validation and focus; reserved example contacts in demo data. No horizontal document overflow was observed at the tested widths. The core HTML and CTA render before the optional Three.js chunk.
 
-| Viewport | Result |
-| --- | --- |
-| Wide desktop, 1440 × 1000 | PASS — inspected; no horizontal overflow. |
-| Laptop, 1280 × 800 | PASS — inspected; no horizontal overflow. |
-| Mobile emulation, 390 × 844 | PASS — no horizontal overflow across all six chapters. |
-| Small mobile emulation, 360 × 800 | PASS — no horizontal overflow across all six chapters. |
+Browser emulation permission was declined, so reduced-motion and deliberately disabled-WebGL/browser-JavaScript tests are NOT RUN in the final browser pass. Corresponding fallback paths were reviewed in source; this is not equivalent to browser verification. Physical devices, WebKit, and real-user performance were not tested. LCP, CLS, and INP were not measured; no performance-target claim is made. The existing Three.js dependency remains a deferred 177.02 kB gzip chunk. The application scene chunk is approximately 2.80 kB gzip.
 
-- An edited proposal scope remained visible after the simulated award and in Field and Customer perspectives.
-- The missing-access example paused playback and disabled later chapters; restoring the access detail cleared the hold.
-- Escape closed the sample report dialog and returned focus to its trigger.
-- Reduced motion used the HTML presentation and manual Next navigation.
-- Deliberate WebGL context loss retained the usable report dialog. Restoration was observed returning the environment to WebGL.
-- Scrolling the stage offscreen paused the narrative; it remained on the same chapter.
+## Conversion
 
-These are browser checks with desktop and mobile emulation, not physical-device tests. WebKit: **NOT RUN**. Physical devices: **NOT RUN**.
+The request form uses the original /api/inquiries Worker/D1 path. A real local Worker with the existing migrations and Cloudflare's documented dummy Turnstile verification passed six HTTP checks: modern minimal request saved, identical retry deduplicated, missing company rejected, invalid website rejected, cross-origin rejected, and missing verification rejected. Local D1 readback confirmed one synthetic row. These are local tests, not production notification proof. See https://developers.cloudflare.com/turnstile/troubleshooting/testing/ for the documented dummy keys; they are never used in the released build.
 
-## Inquiry and live-environment limits
-
-The live Turnstile widget could not complete verification on the local domain and reported `300030`. The deployed preview completed genuine Turnstile verification. One fictional inquiry returned HTTP 201 and was read back from D1. Replaying the same UUID and unchanged fields with a fresh challenge returned HTTP 200, duplicate=true, and the same reference. A second D1 read found exactly one matching row; the earlier owner-reported reference remained present. Private evidence records the UUID and reference.
-
-Live Google Sheets/Drive delivery and owner email delivery are **NOT VERIFIED**. Their statuses are separate from a durable D1 inquiry save. The official-domain cutover and deployment of the Command Center application are outside this website release.
+Only actual backend confirmation produces the saved state. Delivery and storage remain separate. Current release preflight found existing Turnstile and rate-limit secrets, with Google archive/owner notification unconfigured. The verified existing AStarrett@cyberpiratelabs.com inbox is visible as an honest direct-contact fallback. No personal form data is persisted in browser storage or included in public source or screenshots.
 
 ## Release evidence
 
-- [x] The focused branch was published and fast-forwarded into main in the existing public repository. Actions remained disabled.
-- [x] The existing account, preview Worker, D1 binding, and secret names were verified. No migration, database reset, or secret replacement was performed.
-- [x] The preview deployment was tagged with its exact Git commit. Homepage, demo, contact, privacy, and terms returned 200; an unknown route returned the designed 404. The inspected live film logged no application errors or CSP violations. The final version and SHA are recorded in the private release handoff.
-- [x] One bounded fictional inquiry and same-identity replay passed, with authenticated D1 readback. The successful form button was temporarily re-enabled for the replay; validation, Turnstile, and the normal Worker path remained intact.
-- [x] Google archive and owner notification both remain pending_unconfigured. They are not claimed delivered.
-- [x] Complete default-story and mobile-emulation recordings, before/after comparisons at matching requested CSS viewports, internal silent and caption-hidden design reviews, and one measured browser-performance sample are retained in private evidence. Native screenshot pixel dimensions can differ; identical pixel dimensions are not claimed. Captions were restored after review. The private handoff tracks the exact released SHA and the final media refresh.
-- [x] WebKit and physical-device testing remain NOT RUN. No external user research or owner design acceptance is claimed.
-
-Screenshots, recordings, and private test evidence are kept on the verified external SSD outside the public repository. Do not commit inquiry contact data, operator responses, credentials, or private recovery material.
+Baseline b8e0a3b1e9f7b6da7e23d3cd8f8b05c0dbaadd33 matched the existing active Worker version e4a4dd76-400c-4197-8aab-8791d1635ed8. Official-domain and workers.dev baseline HTML and social preview bytes matched exactly; www redirected to apex. The existing GitHub main branch permits publication. Actions is disabled and no Actions workflow exists; use the documented manual release process without changing those settings. Final commit/deployed-version/public-website readback is recorded in the private release handoff, not inferred from these checks.

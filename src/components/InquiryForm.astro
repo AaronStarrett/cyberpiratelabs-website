@@ -8,71 +8,117 @@ const { sourcePath, showLead = true } = Astro.props;
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 ---
 <div class="inquiry-card">
-<div class="inquiry-heading"><span class="kicker">Start a conversation</span><h3>Request a demo</h3></div>
-{showLead && <p class="inquiry-lead">A little context helps us make the conversation useful. Tell us about your team and the work you want to organize.</p>}
-{!siteKey && <p class="status" role="status">Verification is not configured on this deployment. A submission cannot be saved until Turnstile is set.</p>}
-<form id="inquiry" class="form" method="post" action="/api/inquiries" novalidate data-turnstile-site-key={siteKey}>
-  <div id="form-status" class="status" role="status" hidden></div>
-  <div class="hp" aria-hidden="true">
-    <label for="cpl_leave_blank">Leave blank</label>
-    <input id="cpl_leave_blank" name="cpl_leave_blank" type="text" tabindex="-1" autocomplete="off" />
+  <div class="inquiry-heading">
+    <span class="kicker">Let’s talk about your business</span>
+    <h2>Request a CPL Demo</h2>
   </div>
-  <div class="form-field">
-  <label>Name
-    <input name="name" autocomplete="name" required maxlength="120" aria-describedby="name-error" />
-  </label>
-  <p id="name-error" class="error" hidden></p>
-  </div>
-  <div class="form-field">
-  <label>Email
-    <input name="email" type="email" autocomplete="email" required maxlength="254" aria-describedby="email-error" />
-  </label>
-  <p id="email-error" class="error" hidden></p>
-  </div>
-  <div class="form-field form-field-wide">
-  <label>What would you like to organize?
-    <textarea name="workflowProblem" required minlength="20" maxlength="2000" aria-describedby="workflow-hint workflow-error" placeholder="Requests in one inbox, field photos somewhere else, reports assembled by hand…"></textarea>
-  </label>
-  <p id="workflow-hint" class="form-hint">A sentence or two about your workflow is a good place to start.</p>
-  <p id="workflow-error" class="error" hidden></p>
-  </div>
-  <div class="form-field form-field-wide">
-  <label>Company <span class="evidence">(optional)</span>
-    <input name="company" autocomplete="organization" maxlength="160" />
-  </label>
-  </div>
-  <p id="scenario-note" hidden></p>
-  <input type="hidden" name="scenarioInterest" id="scenarioInterest" value="" />
-  <input type="hidden" name="sourcePath" value={sourcePath} />
-  <input type="hidden" name="submissionId" id="submissionId" value="" />
-  <div id="inquiry-turnstile"></div>
-  <p id="turnstile-error" class="error" hidden></p>
-  <button type="submit" id="submit-inquiry">Send message</button>
-  <p class="form-privacy">Your inquiry starts a conversation; a meeting time is arranged separately. <a href="/privacy/">Privacy details</a></p>
-</form>
-<noscript><p>JavaScript is off. The form still posts to the server, which checks the same rules. Verification must be configured or the server will refuse the save.</p></noscript>
+  {showLead && <p class="inquiry-lead">See how voice and chat agents could fit the conversations your business handles. Start with three details; everything else is optional.</p>}
+  {!siteKey && <p class="status verification-notice" role="status">The form’s verification is unavailable on this deployment. Please use the email option below.</p>}
+  <form id="inquiry" class="form" method="post" action="/api/inquiries" novalidate data-turnstile-site-key={siteKey}>
+    <div id="form-status" class="status form-field-wide" role="status" aria-live="polite" tabindex="-1" hidden></div>
+    <div class="hp" aria-hidden="true">
+      <label for="cpl_leave_blank">Leave blank</label>
+      <input id="cpl_leave_blank" name="cpl_leave_blank" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+    <div class="form-field">
+      <label for="inquiry-name">Name <span class="required-label">Required</span></label>
+      <input id="inquiry-name" name="name" autocomplete="name" required maxlength="120" aria-describedby="name-error" />
+      <p id="name-error" class="error" hidden></p>
+    </div>
+    <div class="form-field">
+      <label for="inquiry-email">Email <span class="required-label">Required</span></label>
+      <input id="inquiry-email" name="email" type="email" autocomplete="email" required maxlength="254" aria-describedby="email-error" />
+      <p id="email-error" class="error" hidden></p>
+    </div>
+    <div class="form-field form-field-wide">
+      <label for="inquiry-company">Business / company <span class="required-label">Required</span></label>
+      <input id="inquiry-company" name="company" autocomplete="organization" required maxlength="160" aria-describedby="company-error" />
+      <p id="company-error" class="error" hidden></p>
+    </div>
+    <div class="form-field">
+      <label for="inquiry-phone">Phone <span class="optional-label">Optional</span></label>
+      <input id="inquiry-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" aria-describedby="phone-error" />
+      <p id="phone-error" class="error" hidden></p>
+    </div>
+    <div class="form-field">
+      <label for="inquiry-website">Business website <span class="optional-label">Optional</span></label>
+      <input id="inquiry-website" name="currentTools" type="url" autocomplete="url" inputmode="url" maxlength="300" placeholder="https://example.com" aria-describedby="website-error" />
+      <p id="website-error" class="error" hidden></p>
+    </div>
+    <div class="form-field form-field-wide">
+      <label for="inquiry-interest">What interests you? <span class="optional-label">Optional</span></label>
+      <select id="inquiry-interest" name="interest" aria-describedby="interest-error">
+        <option value="not-sure">Not sure yet</option>
+        <option value="voice">CPL AI Voice Agents</option>
+        <option value="chat">CPL AI Chat Agents</option>
+        <option value="both">Voice + Chat</option>
+      </select>
+      <p id="interest-error" class="error" hidden></p>
+    </div>
+    <div class="form-field form-field-wide">
+      <label for="inquiry-problem">What would you like help handling? <span class="optional-label">Optional</span></label>
+      <textarea id="inquiry-problem" name="workflowProblem" maxlength="2000" aria-describedby="workflow-hint workflow-error" placeholder="Routine questions, after-hours inquiries, lead details, requests that need a person…"></textarea>
+      <p id="workflow-hint" class="form-hint">A little context is welcome. Please leave out sensitive customer records, payment details, passwords, and credentials.</p>
+      <p id="workflow-error" class="error" hidden></p>
+    </div>
+    <input type="hidden" name="sourcePath" value={sourcePath} />
+    <input type="hidden" name="submissionId" id="submissionId" value="" />
+    <div id="inquiry-turnstile" class="form-field-wide"></div>
+    <p id="turnstile-error" class="error form-field-wide" hidden></p>
+    <button type="submit" id="submit-inquiry" class="inquiry-submit">Request a CPL Demo <span aria-hidden="true">↗</span></button>
+    <p class="form-privacy form-field-wide">We use these details to handle your inquiry. This does not book a meeting or subscribe you to a newsletter. <a href="/privacy/">Privacy details</a></p>
+  </form>
+  <p class="inquiry-fallback">Prefer email, or having trouble with the form? <a href="mailto:AStarrett@cyberpiratelabs.com?subject=CPL%20Demo%20Request">AStarrett@cyberpiratelabs.com</a></p>
+  <noscript><p class="status">The verification check needs JavaScript. Please request your demonstration using the email link above.</p></noscript>
 </div>
+
 <script>
-  import { validateInquiry, scenarioLabel, type ScenarioInterest } from "../../shared/inquiry/validate";
+  import { AGENT_INTERESTS, validateInquiry, type FieldErrors } from "../../shared/inquiry/validate";
 
   const form = document.querySelector<HTMLFormElement>("#inquiry");
   if (form) {
-    const status = document.querySelector<HTMLElement>("#form-status");
-    const scenarioNote = document.querySelector<HTMLElement>("#scenario-note");
-    const scenarioInput = document.querySelector<HTMLInputElement>("#scenarioInterest");
-    const submission = document.querySelector<HTMLInputElement>("#submissionId");
-    const button = document.querySelector<HTMLButtonElement>("#submit-inquiry");
+    const status = form.querySelector<HTMLElement>("#form-status");
+    const submission = form.querySelector<HTMLInputElement>("#submissionId");
+    const button = form.querySelector<HTMLButtonElement>("#submit-inquiry");
+    const interest = form.querySelector<HTMLSelectElement>("#inquiry-interest");
     const params = new URLSearchParams(window.location.search);
-    const scenarioValue = params.get("scenario") ?? "";
-    if (scenarioInput && scenarioNote && ["inspection", "field-service", "recurring"].includes(scenarioValue)) {
-      scenarioInput.value = scenarioValue;
-      scenarioNote.hidden = false;
-      scenarioNote.textContent = `Workflow of interest: ${scenarioLabel(scenarioValue as ScenarioInterest)}. No personal details were added.`;
-    }
+    const interestValue = params.get("interest") ?? "";
+    if (interest && (AGENT_INTERESTS as readonly string[]).includes(interestValue)) interest.value = interestValue;
+
+    const fieldErrors = [
+      ["name", "name-error"],
+      ["email", "email-error"],
+      ["company", "company-error"],
+      ["phone", "phone-error"],
+      ["currentTools", "website-error"],
+      ["interest", "interest-error"],
+      ["workflowProblem", "workflow-error"],
+    ] as const;
+    const show = (id: string, message: string) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.hidden = !message;
+      el.textContent = message;
+    };
+    const displayErrors = (errors: FieldErrors, focusFirst = false) => {
+      let first: HTMLElement | undefined;
+      for (const [name, id] of fieldErrors) {
+        const message = errors[name] ?? "";
+        show(id, message);
+        const field = form.elements.namedItem(name);
+        if (field instanceof HTMLElement) {
+          field.setAttribute("aria-invalid", message ? "true" : "false");
+          if (message && !first) first = field;
+        }
+      }
+      if (focusFirst) first?.focus();
+    };
 
     const siteKey = form.dataset.turnstileSiteKey ?? "";
     let token = "";
     let widgetId = "";
+    let submitting = false;
+    let confirmed = false;
     type TurnstileApi = {
       render: (el: string, opts: {
         sitekey: string;
@@ -86,35 +132,28 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
       const api = (window as unknown as { turnstile?: TurnstileApi }).turnstile;
       return api && typeof api.render === "function" ? api : undefined;
     };
-
-    const clearToken = () => {
-      token = "";
-    };
     const resetWidget = () => {
-      clearToken();
+      token = "";
       const api = turnstileApi();
       if (widgetId && api) api.reset(widgetId);
-    };
-    const showTurnstileError = (message: string) => {
-      const error = document.getElementById("turnstile-error");
-      if (!error) return;
-      error.hidden = false;
-      error.textContent = message;
     };
     const mountTurnstile = () => {
       const turnstile = turnstileApi();
       if (!turnstile || widgetId) return Boolean(widgetId);
       widgetId = turnstile.render("#inquiry-turnstile", {
         sitekey: siteKey,
-        callback: (value) => { token = value; },
+        callback: (value) => {
+          token = value;
+          show("turnstile-error", "");
+        },
         "expired-callback": () => {
-          clearToken();
-          showTurnstileError("Verification expired. Complete it again, then send the same message.");
+          token = "";
+          if (!confirmed) show("turnstile-error", "Verification expired. Complete it again, then retry.");
           turnstile.reset(widgetId);
         },
         "error-callback": () => {
-          clearToken();
-          showTurnstileError("Verification could not load. Retry the check, then send again.");
+          token = "";
+          if (!confirmed) show("turnstile-error", "Verification could not load. Retry the check or use the email option below.");
         },
       });
       return true;
@@ -126,61 +165,59 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
       if (!document.getElementById("cf-turnstile-script")) {
         const script = document.createElement("script");
         script.id = "cf-turnstile-script";
-        script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=${readyName}`;
+        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=" + readyName;
         script.async = true;
         script.defer = true;
+        script.onerror = () => show("turnstile-error", "Verification could not load. Please use the email option below or try again later.");
         document.head.append(script);
       } else {
         mountTurnstile();
       }
     }
 
-    const show = (id: string, message: string) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.hidden = !message;
-      el.textContent = message;
+    const invalidateSubmission = (event: Event) => {
+      const target = event.target as HTMLInputElement | HTMLSelectElement | null;
+      if (!submission || submitting || confirmed || !target) return;
+      if (fieldErrors.some(([name]) => name === target.name)) submission.value = "";
     };
-
-    const payloadFields = () => ["name", "email", "workflowProblem", "company"];
-    form.addEventListener("input", (event) => {
-      const target = event.target as HTMLElement | null;
-      if (!button || button.disabled || !submission) return;
-      if (target && payloadFields().includes((target as HTMLInputElement).name)) submission.value = "";
-    });
+    form.addEventListener("input", invalidateSubmission);
+    form.addEventListener("change", invalidateSubmission);
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      if (!button || !status || !submission) return;
-      const data = new FormData(form);
-      const raw = Object.fromEntries(data.entries());
+      if (submitting || confirmed || !button || !status || !submission) return;
+      const raw = Object.fromEntries(new FormData(form).entries());
       const validated = validateInquiry(raw);
-      show("name-error", validated.errors.name ?? "");
-      show("email-error", validated.errors.email ?? "");
-      show("workflow-error", validated.errors.workflowProblem ?? "");
+      displayErrors(validated.errors, !validated.ok);
+      status.hidden = false;
       if (!validated.ok) {
-        status.hidden = false;
         status.textContent = "Check the highlighted fields. Nothing was saved.";
         return;
       }
       if (!siteKey) {
-        status.hidden = false;
-        status.textContent = "Verification is not configured on this deployment. Nothing was saved.";
+        status.textContent = "Verification is unavailable. Nothing was saved. Please use the email option below.";
+        status.focus();
         return;
       }
       if (!token) {
-        show("turnstile-error", "Complete verification, then send again.");
-        status.hidden = false;
+        show("turnstile-error", "Complete verification, then retry.");
         status.textContent = "Verification is missing or expired. Nothing was saved.";
+        status.focus();
         return;
       }
       show("turnstile-error", "");
       if (!submission.value) submission.value = crypto.randomUUID();
       const submissionId = submission.value;
+      submitting = true;
+      form.setAttribute("aria-busy", "true");
       button.disabled = true;
-      button.textContent = "Sending…";
-      status.hidden = false;
-      status.textContent = "Sending the message.";
+      for (const [name] of fieldErrors) {
+        const field = form.elements.namedItem(name);
+        if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) field.disabled = true;
+      }
+      button.textContent = "Saving your request…";
+      status.textContent = "Saving your demo request.";
+
       try {
         const response = await fetch("/api/inquiries", {
           method: "POST",
@@ -192,25 +229,82 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
             marketingConsent: false,
           }),
         });
-        const payload = await response.json() as { ok?: boolean; message?: string; reference?: string; errors?: Record<string, string> };
-        if (payload.errors?.name) show("name-error", payload.errors.name);
-        if (payload.errors?.email) show("email-error", payload.errors.email);
-        if (payload.errors?.workflowProblem) show("workflow-error", payload.errors.workflowProblem);
-        if (payload.errors?.turnstile) show("turnstile-error", payload.errors.turnstile);
-        if (response.ok && payload.reference) {
-          status.textContent = payload.message ?? `Saved. Reference ${payload.reference}. This does not reserve a meeting.`;
-          button.textContent = "Sent";
+        const payload = await response.json() as {
+          ok?: boolean;
+          saved?: boolean;
+          storage?: string;
+          duplicate?: boolean;
+          message?: string;
+          reference?: string;
+          errors?: FieldErrors;
+        };
+        if (payload.errors) {
+          displayErrors(payload.errors, true);
+          show("turnstile-error", payload.errors.turnstile ?? "");
+        }
+        if (response.ok && payload.ok === true && payload.saved === true && payload.storage === "saved" && payload.reference) {
+          confirmed = true;
+          status.classList.add("is-saved");
+          status.textContent = payload.message ?? "Saved. Reference " + payload.reference + ". A meeting is arranged separately; notification delivery has not been confirmed.";
+          button.textContent = "Request saved";
+
+          status.focus();
           return;
         }
         if (response.status === 409) submission.value = "";
-        status.textContent = payload.message ?? "The message was not saved. You can retry.";
+        status.textContent = response.status >= 500
+          ? "We could not confirm the save. Retry with this same form, or email us. If the request was saved, an unchanged retry returns the original reference."
+          : payload.message ?? "Your request was not saved. Retry below, or use the email option.";
         resetWidget();
       } catch {
-        status.textContent = "The message was not confirmed. Retry with the same form. If it was saved, the same submission id returns the original reference.";
+        status.textContent = "We could not confirm the save. Retry with this same form, or email us. If the request was saved, an unchanged retry returns the original reference.";
         resetWidget();
+      } finally {
+        submitting = false;
+        form.setAttribute("aria-busy", "false");
+        if (!confirmed) {
+          for (const [name] of fieldErrors) {
+            const field = form.elements.namedItem(name);
+            if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) field.disabled = false;
+          }
+          button.disabled = false;
+          button.textContent = "Retry demo request";
+        }
       }
-      button.disabled = false;
-      button.textContent = "Send message";
     });
   }
 </script>
+
+<style>
+  .inquiry-card { position: relative; padding: clamp(1.5rem, 4vw, 3rem); color: #102d43; background: linear-gradient(145deg, #fff, #eefafa); border: 1px solid rgba(25, 100, 115, .16); border-radius: 1.8rem; box-shadow: 0 25px 70px rgba(7, 53, 72, .11), inset 0 1px 0 #fff; }
+  .inquiry-card [hidden] { display: none !important; }
+  .inquiry-heading { margin-bottom: 1rem; }
+  .inquiry-heading .kicker { color: #156c77; font-size: .75rem; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; }
+  .inquiry-heading h2 { margin: .65rem 0 0; color: #0a2b43; font-size: clamp(1.65rem, 3vw, 2.4rem); line-height: 1.1; letter-spacing: -.04em; }
+  .inquiry-lead { max-width: 42rem; margin: 0 0 1.7rem; color: #496675; line-height: 1.6; }
+  .form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.3rem 1rem; }
+  .form-field { min-width: 0; }
+  .form-field-wide { grid-column: 1 / -1; }
+  .form label { display: flex; justify-content: space-between; gap: .5rem; margin-bottom: .55rem; font-size: .88rem; font-weight: 650; }
+  .required-label, .optional-label { color: #617682; font-size: .78rem; font-weight: 400; }
+  .form input, .form textarea, .form select { box-sizing: border-box; width: 100%; padding: .9rem 1rem; color: #102d43; background: rgba(255, 255, 255, .87); border: 1px solid #b5ced2; border-radius: .65rem; font: inherit; font-size: 1rem; }
+  .form input::placeholder, .form textarea::placeholder { color: #617a86; }
+  .form textarea { min-height: 8rem; resize: vertical; line-height: 1.5; }
+  .form input:focus-visible, .form textarea:focus-visible, .form select:focus-visible, .inquiry-submit:focus-visible, .inquiry-card a:focus-visible { outline: 3px solid #13858f; outline-offset: 3px; }
+  .form [aria-invalid="true"] { border-color: #a8393c; }
+  .form-hint, .form-privacy, .inquiry-fallback { color: #496675; font-size: .8rem; line-height: 1.6; }
+  .form-hint, .error { margin: .5rem 0 0; }
+  .error { color: #973b3f; font-size: .8rem; }
+  .status { margin: 0; padding: 1rem 1.15rem; color: #183c51; background: #e0f2f3; border: 1px solid #94c4ca; border-radius: .65rem; font-size: .88rem; line-height: 1.6; }
+  .status.is-saved { background: #d9f5ec; border-color: #80bca6; }
+  .verification-notice { margin-bottom: 1.5rem; }
+  .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .inquiry-submit { display: flex; align-items: center; justify-content: space-between; gap: 2rem; grid-column: 1 / -1; min-height: 3.45rem; padding: .95rem 1.2rem; color: #f1ffff; background: #0c394c; border: 1px solid #0c394c; border-radius: .65rem; cursor: pointer; font: inherit; font-size: 1rem; font-weight: 650; transition: background .2s; }
+  .inquiry-submit:hover { background: #14576a; }
+  .inquiry-submit:disabled { opacity: .75; cursor: default; }
+  .form-privacy { margin: -.2rem 0 0; }
+  .inquiry-card a { color: #0a6371; text-decoration: underline; text-underline-offset: .2em; }
+  .inquiry-fallback { margin: 1.6rem 0 0; padding-top: 1.3rem; border-top: 1px solid #c9dde0; overflow-wrap: anywhere; }
+  @media (max-width: 560px) { .form { grid-template-columns: minmax(0, 1fr); gap: 1.15rem; } .inquiry-card { border-radius: 1.2rem; } }
+  @media (prefers-reduced-motion: reduce) { .inquiry-submit { transition: none; } }
+</style>

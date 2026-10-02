@@ -1,47 +1,54 @@
 # Content editing
 
-## Pages
+## Active content
 
-- Film hero, playback, chapters, and perspective controls: `src/islands/ProductStage.tsx`. Film framing and responsive controls: `src/styles/film.css`.
-- Film interfaces and dialogs: `src/islands/FilmScenes.tsx`. Product surface styling: `src/styles/film-scenes.css`.
-- Film chapter labels, captions, durations, sample content, and state transitions: `shared/demo/film.ts`.
-- Homepage business-fit examples, configuration explanation, and contact copy: `src/pages/index.astro`. Shared site finish: `src/styles/site-finish.css`.
-- Demo page: `src/pages/demo.astro`. It mounts the same film and renders capability notes plus a static transcript built from `filmChapters`, `sample`, and `filmSnapshot`. Keep the transcript prose aligned with scene behavior. `ProductStage` supplies the page's sole `h1`.
-- Contact form: `src/components/InquiryForm.astro`. Field rules: `shared/inquiry/validate.ts`.
-- Privacy and terms: `src/pages/privacy.astro` and `src/pages/terms.astro`. Both are flagged for owner review. If storage behavior changes, update privacy in the same change.
+| Source | Edit here |
+| --- | --- |
+| `src/pages/index.astro` | Homepage offer, service sections, use cases, implementation sequence, connections, and closing flow |
+| `src/pages/voice-agents.astro`, `chat-agents.astro` | Focused service explanations and scoped setup details |
+| `src/pages/demo.astro`, `contact.astro` | Demonstration request context and existing contact route |
+| `shared/site.ts` | Shared FAQ answers |
+| `src/components/Header.astro`, `Footer.astro`, `HeroStage.astro`, `ClosingCTA.astro` | Shared navigation, brand composition, and calls to action |
+| `src/layouts/Base.astro` | Shared metadata, canonical URLs, social image, fonts, and page shell |
+| `src/styles/agent-site.css` | Shared marketing layout and responsive styling |
+| `shared/agents/fixtures.ts` | Fictional businesses, approved information, voice/chat scripts, timings, and captured sample fields |
+| `shared/agents/experience.ts` | Playback state and transcript/result derivation |
+| `src/islands/AgentExperience.tsx`, `src/styles/agent-experience.css` | Walkthrough controls, transcript, result, responsive composition, and motion preferences |
+| `src/islands/stage/createAgentStage.ts` | Optional Three.js geometry, camera poses, lighting, and cleanup |
+| `src/components/InquiryForm.astro`, `shared/inquiry/validate.ts` | Real request form and shared client/server validation |
 
-The homepage and demo no longer use `shared/demo/scenarios.ts`, `chapters.ts`, `watch.ts`, or `engine.ts` for the visible story. Those retained modules are not the place to edit the new film. There is no current industry-template switch: inspection, field service, and recurring care are illustrative fit examples below the homepage film.
+Old `ProductStage`, `FilmScenes`, film styles, `shared/demo/`, and `shared/capability.ts` are retained historical source. Current public pages do not render them. Editing those files does not update the voice/chat experience.
 
-## Story continuity and interaction
+## Truthful service copy
 
-Keep `HA-1044`, its related proposal/project/report IDs, customer, site, access note, and field observation consistent across the original sources, record, proposal, field view, report, overview, and transcript. The current fictional scenario is Harborline Assessment's roof and envelope assessment for Cedar Wharf Property Co. at 18 Cedar Wharf, Port Merrow.
+Use Cyber Pirate Labs, CPL AI Voice Agents, and CPL AI Chat Agents without unsupported trademark marks. Describe the agents as configured around business information and workflows, with CPL handling implementation and ongoing management. Stammer AI is the underlying service platform; the website does not imply an active account, number, customer deployment, or proprietary foundation model.
 
-The six durations in `filmChapters` total 54 seconds. Changes to timing must preserve readable holds and the award, field-attachment, and review thresholds in `filmReducer`/`filmSnapshot`. Update the duration shown by `ProductStage` if the total changes. Keep the Three.js pose derived from this state; do not add a separate timer that can contradict the HTML record.
+Keep phone setup, transfers, recording, connections, usage, and human follow-up scoped. Distinguish an approved booking link from a confirmed appointment created through a supported integration. Pricing, allowances, timelines, and support commitments require an agreed scope. Do not add invented customers, testimonials, metrics, certifications, universal compatibility, or guaranteed outcomes.
 
-Manual chapter and perspective changes, opening/closing a source or report, scope edits, simulated award, field attachment, review, and access-detail actions pause guided playback. The optional missing-detail example holds the request until the existing access note is supplied. Preserve this behavior so a timer cannot undo a visitor's inspection. Proposal scope edits should flow through `state.scope`, not mutate the immutable original email. Replay restores the initial sample while retaining the chosen perspective.
+## Sample continuity
 
-Matching `data-flow` attributes identify customer, site, scope, access, observation, and image elements for shared-element motion. Keep those identities on the actual readable content. Prefer short field values and complete observations to placeholder lines. Use the same sample image and observation in the field and report.
+The selectable examples are bathroom remodeling, recurring cleaning, routine home maintenance, and a billing question that needs a person. Each offers voice and chat scripts. Keep the fictional business’s approved information consistent with its answers.
 
-## Capability claims
+Add captured fields only to messages that supply them. The result derives from the messages already reached; it must not invent contact details, timing, a quote, availability, or a booking. Use reserved example contact data. The billing result is a simulated follow-up request, not evidence that a human joined.
 
-`shared/capability.ts` is the public boundary and the demo page renders it. `on-this-website` describes an implemented website feature; it does not mean the customer application is generally available. Product capabilities remain in development, planned, or subject to discussion according to their source notes.
+Keep the visible “Illustrative demo · Fictional business · Sample data” disclosure, transcript access, no-audio wording, and local-only result notice. The walkthrough must not call the inquiry endpoint or a model/platform API. Play, pause, replay, skip, mode/scenario changes, reduced motion, and hidden/offscreen behavior share one playback state; keep the 3D pose derived from it.
 
-The current product reference is `CPL-Command-Center-Public` at `26e56aea4fe74cbed65bdeb3f9e7cc4f4391bf7c`, reviewed on 2026-09-21. Keep source changes and claim changes together with `docs/capability-matrix.md`.
+## Brand and discovery
 
-Retain “Interactive product preview · Sample data” and early-access/development status. Keep planned behavior labeled where it is shown, particularly customer acceptance and award-to-project setup. Sample awards, field handoffs, review states, and report readiness are deterministic demonstrations. They do not establish live source extraction, connected customer systems, external delivery, or automatic technical diagnosis. Do not introduce live badges, verified integration logos, invented testimonials, or measured savings without corresponding evidence.
+Preserve the original `public/brand/cpl-logo.png` bytes and proportions. `scripts/generate-icons.mjs` derives icons and locally authored social-preview artwork; the social composition is illustrative. Typography uses bundled IBM Plex Sans Variable and IBM Plex Mono. Keep readable navy/teal contrast and dimensional light surfaces.
 
-## Logo
+Update titles, descriptions, social-preview copy, structured data, and relevant sitemap routes alongside page changes. `SITE_URL` supplies the canonical base, with the existing apex URL as default. `PUBLIC_INDEXABLE` controls indexing. Do not add fabricated ratings, prices, locations, or certifications.
 
-`public/brand/cpl-logo.png` is the approved mark. Do not redraw, recolor, distort, or recompress it. `scripts/generate-icons.mjs` derives icon sizes and composes the social card from that mark, brand tokens, and a readable sample-report graphic. The social card is an illustration, not a website screenshot. The source mark stays unchanged.
+## Real request form
 
-Use the existing tokens in `shared/brand.ts` for CSS, SVG, and Three.js. Typography uses the bundled IBM Plex Sans Variable and IBM Plex Mono fonts. Preserve the navy/teal/green identity, readable contrast, and light product surfaces within the dark film environment.
+Keep `/api/inquiries`, existing payload names, submission identity, Turnstile, honeypot, same-origin protection, and genuine error/save states. New `voice`, `chat`, `both`, and `not-sure` interests require company and permit optional problem text. An omitted problem is stored as an explicit request with no additional details. The optional website uses the existing `currentTools` field; legacy callers keep their former meanings and validation.
 
-## Sample data
+Name, email, and company are required. Optional fields remain bounded. No customer files, credentials, payment information, or newsletter consent should be added. Keep **AStarrett@cyberpiratelabs.com** visible as the direct fallback.
 
-Companies, people, sites, notes, and images in the film are synthetic or illustrative. Do not replace them with customer records. The source and field SVG illustrations are under `public/sample/`. Keep descriptive alternative text and visible illustrative-image captions.
+A saved D1 reference and a delivered notification are different outcomes. Never replace backend confirmation with a timer or a simulated success. An unchanged retry must reuse its submission id. Update factual privacy content alongside collection or processing changes; retain the existing owner-review notices on privacy and terms.
 
-## Form and verification
+## Verification
 
-Layout and surrounding copy can be edited in `InquiryForm.astro`, but preserve `name`, `email`, `workflowProblem`, `company`, `scenarioInterest`, `sourcePath`, `submissionId`, the honeypot, Turnstile container, error/status IDs, and the `/api/inquiries` endpoint. Do not replace the real save with a sample success state. Keep `AStarrett@cyberpiratelabs.com` next to the form. Preserve the distinction between inquiry storage and downstream Google/email delivery.
+Run the tests, type check, lint, build, and secret scan. `tests/agent-experience.test.ts` checks the active narrative; `tests/inquiry.test.ts` checks validation and synthetic persistence/delivery behavior. Older film tests preserve historical source invariants.
 
-After a change, run the repository tests, type check, lint, production build, and secret scan. `tests/film.test.ts` covers reducer transitions, identity continuity, replay, perspective changes, sample edits, source dialogs, missing-detail recovery, and report data. Browser review is still required for rendered motion, focus, mobile layouts, reduced motion, WebGL fallback/context handling, and form interactions. Record results and limits in `docs/verification.md`; passing source checks alone is not visual or deployment acceptance.
+Browser review remains necessary for meaningful motion, transcript/result continuity, mobile sizing, keyboard focus, reduced motion, missing WebGL, asset loads, and form failures. Use synthetic data and record actual outcomes and limits in `docs/verification.md`.

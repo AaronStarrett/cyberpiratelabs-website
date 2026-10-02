@@ -3,28 +3,32 @@ import Base from "../layouts/Base.astro";
 ---
 <Base
   title="Privacy | Cyber Pirate Labs"
-  description="How the Cyber Pirate Labs website stores demo inquiries. Owner review required."
+  description="How the Cyber Pirate Labs website handles demo inquiries and illustrative voice and chat experiences. Owner review required."
 >
   <section class="page-intro legal-page">
     <div class="wrap">
       <p class="eyebrow">Cyber Pirate Labs / Website information</p>
       <p class="flag"><strong>Owner review required.</strong> This page describes the inquiry system in this repository. Confirm it before treating it as the company’s privacy notice.</p>
       <h1>Privacy</h1>
-      <p>Cyber Pirate Labs, LLC operates this website for CPL Command Center. The only personal information the site is built to collect is what you type into the inquiry form.</p>
-      <h2>What the form stores</h2>
-      <p>The form asks for your name, email, and what you want to automate. Company is optional. A sample-workflow label may be included when you follow a link from the preview. The walkthrough itself does not create an inquiry. There is no marketing list on this form.</p>
-      <p>The site also stores a submission id, a reference id, the time, a hash of the network address, a shortened browser string, and the status of later delivery steps. It does not store the raw network address. There is no account, no payment, and no file upload.</p>
-      <h2>Where it goes</h2>
-      <p>A valid inquiry is saved in a private Cloudflare D1 database for this website. That save is what “saved” means. A later step can copy the inquiry into a private Google Sheet and Drive folder and notify a business inbox. Those steps are tracked separately. If they are not configured, or if they fail, the inquiry remains stored and a scheduled job retries delivery with a limited backoff. Success on the form is not a claim that every later step already finished.</p>
-      <p>Google and notification delivery are not active until the owner adds those credentials. This deployment may therefore save an inquiry locally to the site database only.</p>
+      <p>Cyber Pirate Labs, LLC operates this website to explain CPL AI Voice Agents and CPL AI Chat Agents and receive requests for a demonstration. The request form collects the details you choose to submit. The illustrative experiences use fictional businesses and sample information.</p>
+      <h2>What the request form collects</h2>
+      <p>The form asks for your name, email, and business or company name. Your phone, business website, interest in voice or chat, and a description of what you would like help handling are optional. We use these details to handle your inquiry. The form does not subscribe you to a newsletter.</p>
+      <p>Please do not submit sensitive customer records, payment information, passwords, or access credentials. There is no account, payment, microphone access, or file upload on this website.</p>
+      <p>The site also stores a submission id, a reference id, the submission time, a hash of the network address, a shortened browser string, the source page, and the status of later delivery steps. The inquiry database does not store the raw network address.</p>
+      <h2>Where an inquiry goes</h2>
+      <p>A valid inquiry is saved in the Cloudflare D1 database for this website. That save is what “saved” means. A configured later step can copy it into an owner Google Sheet and Drive folder and notify the business inbox. These steps are tracked separately; a saved request does not establish that an email notification arrived.</p>
+      <p>If archive or notification delivery is not configured, its status remains pending. If configured delivery fails, the system can retry with a bounded backoff and attempt limit. The form confirmation reports the recorded delivery state. You can also contact <a href="mailto:AStarrett@cyberpiratelabs.com">AStarrett@cyberpiratelabs.com</a> directly; email then follows the receiving mailbox’s processing.</p>
       <h2>Verification and abuse controls</h2>
-      <p>Production uses Cloudflare Turnstile. There is no bypass that skips verification. The form also uses rate limits, a hidden field that should stay empty, and same-origin checks. Operators can review pending delivery, retry it, export a private CSV, confirm that a Google copy arrived, or delete a record. There is no public list of inquiries.</p>
-      <h2>What this site does not do</h2>
-      <p>No advertising pixels. No session replay. No sale of inquiry data. No certification is claimed for SOC 2, HIPAA, or GDPR. Deletion removes the inquiry row and keeps a short deletion note with the reference id and time, not the message.</p>
-      <h2>How long it is kept</h2>
-      <p>Until an authorized operator deletes it. This page does not invent a retention period.</p>
-      <p>Questions about a stored inquiry can be sent through the same form. Include the reference id if you have one.</p>
-      <a class="text-link" href="/contact/">Contact Aaron <span aria-hidden="true">↗</span></a>
+      <p>The form uses Cloudflare Turnstile, rate limits, a hidden field that should stay empty, and same-origin checks. Verification involves Cloudflare processing the challenge and related network information. Submissions are refused when required verification or storage is unavailable. Operators can review pending delivery, retry it, export a private CSV, confirm a copy, or delete a record. There is no public list of inquiries.</p>
+      <h2>Illustrative experiences and service platforms</h2>
+      <p>The voice and chat walkthroughs run from locally defined fictional examples in your browser. They do not record audio, send your scenario choices as leads, contact Stammer AI, or make live AI requests. Only submitting the separate request form creates a real website inquiry.</p>
+      <p>Stammer AI is the selected underlying service platform for CPL’s configured voice and chat agents. This website does not represent a deployed customer agent or create a Stammer account. Actual service conversations, connected tools, recording choices, and platform data processing would be scoped separately for an implementation.</p>
+      <h2>Other website processing</h2>
+      <p>This website does not include advertising pixels or session replay. No sale of inquiry data or security or legal compliance certification is claimed. Cloudflare serves the site and provides its verification and storage infrastructure.</p>
+      <h2>Retention and inquiry questions</h2>
+      <p>The inquiry system does not implement a fixed retention period. An authorized operator can delete a stored inquiry. Deletion removes the inquiry row and retains a short deletion note containing its reference id and deletion time, without the submitted message. Copies already delivered to other systems require separate handling.</p>
+      <p>For questions about a stored inquiry, contact the business email above and include your reference id if you have one.</p>
+      <a class="text-link" href="/demo/">Request a CPL Demo <span aria-hidden="true">↗</span></a>
     </div>
   </section>
 </Base>

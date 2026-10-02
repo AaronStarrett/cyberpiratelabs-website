@@ -7,7 +7,10 @@ export const SERVICE_CATEGORIES = [
 
 export const TEAM_SIZES = ["1-5", "6-20", "21-50", "51+", "unspecified"] as const;
 
+export const AGENT_INTERESTS = ["voice", "chat", "both", "not-sure"] as const;
+
 export const INTERESTS = [
+  ...AGENT_INTERESTS,
   "demonstration",
   "early-access",
   "implementation",
@@ -24,6 +27,10 @@ const SERVICE_LABELS: Record<(typeof SERVICE_CATEGORIES)[number], string> = {
 };
 
 const INTEREST_LABELS: Record<(typeof INTERESTS)[number], string> = {
+  voice: "CPL AI Voice Agents",
+  chat: "CPL AI Chat Agents",
+  both: "CPL AI Voice + Chat Agents",
+  "not-sure": "CPL demo — exploring the fit",
   demonstration: "Demonstration",
   "early-access": "Early access",
   implementation: "Implementation discussion",
@@ -111,10 +118,18 @@ export function validateInquiry(raw: Record<string, unknown>): {
   const errors: FieldErrors = {};
   const name = clean(raw.name);
   const email = clean(raw.email).toLowerCase();
+  const interestRaw = clean(raw.interest);
+  const isAgentRequest = (AGENT_INTERESTS as readonly string[]).includes(interestRaw);
   const company = optional(clean(raw.company), LIMITS.company, "company", errors);
+  if (isAgentRequest && !clean(raw.company)) errors.company = "Enter your business or company name.";
   const phoneRaw = clean(raw.phone);
   const tools = optional(clean(raw.currentTools ?? raw.current_tools), LIMITS.tools, "currentTools", errors);
-  const workflow = clean(raw.workflowProblem ?? raw.workflow_problem);
+  // New agent-demo requests use the existing payload and database columns.
+  // Legacy API requests keep their original required-description contract.
+  const workflowInput = clean(raw.workflowProblem ?? raw.workflow_problem);
+  const workflow = isAgentRequest && !workflowInput
+    ? "CPL demo requested. Additional details were not provided."
+    : workflowInput;
   const sourcePath = optional(clean(raw.sourcePath ?? raw.source_path), LIMITS.sourcePath, "sourcePath", errors);
   const honeypot = clean(raw.cpl_leave_blank ?? raw.honeypot);
   const submissionRaw = clean(raw.submissionId ?? raw.submission_id);
@@ -156,7 +171,6 @@ export function validateInquiry(raw: Record<string, unknown>): {
     else errors.teamSize = "Choose a team size from the list.";
   }
 
-  const interestRaw = clean(raw.interest);
   let interest: Interest | null = null;
   if (interestRaw) {
     if ((INTERESTS as readonly string[]).includes(interestRaw)) interest = interestRaw as Interest;
@@ -173,9 +187,20 @@ export function validateInquiry(raw: Record<string, unknown>): {
     }
   }
 
+  if (isAgentRequest && tools) {
+    try {
+      const website = new URL(tools);
+      if (!["http:", "https:"].includes(website.protocol) || !website.hostname || website.username || website.password) {
+        errors.currentTools = "Enter a business website beginning with https:// or http://, or leave it blank.";
+      }
+    } catch {
+      errors.currentTools = "Enter a business website beginning with https:// or http://, or leave it blank.";
+    }
+  }
+
   if (!workflow) errors.workflowProblem = "Describe where work gets stuck.";
   else if (CONTROL.test(workflow)) errors.workflowProblem = "Remove hidden control characters.";
-  else if (workflow.length < LIMITS.workflowMin) {
+  else if (!isAgentRequest && workflow.length < LIMITS.workflowMin) {
     errors.workflowProblem = `Use at least ${LIMITS.workflowMin} characters so the workflow is clear.`;
   } else if (workflow.length > LIMITS.workflowMax) {
     errors.workflowProblem = `Use ${LIMITS.workflowMax} characters or fewer.`;

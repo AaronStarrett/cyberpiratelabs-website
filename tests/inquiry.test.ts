@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { archiveBody } from "../shared/inquiry/google";
 import { handleInquiryPost, handleOperator, retryDue } from "../shared/inquiry/http";
 import type { InquiryRecord } from "../shared/inquiry/types";
-import { neutralizeSpreadsheetFormula, validateInquiry } from "../shared/inquiry/validate";
+import { AGENT_INTERESTS, LIMITS, neutralizeSpreadsheetFormula, validateInquiry } from "../shared/inquiry/validate";
 import { createTestSql } from "./sql";
 
 const origin = "http://127.0.0.1:43123";
@@ -54,7 +54,118 @@ describe("form validation", () => {
   });
 });
 
+describe("agent demo request validation", () => {
+  const request = {
+    name: "Jordan Sample",
+    email: "jordan@example.com",
+    company: "Example Home Services",
+    interest: "not-sure",
+    sourcePath: "/demo/",
+  };
+
+  it("accepts only the three required details and records that no additional problem was provided", () => {
+    const result = validateInquiry(request);
+    expect(result.ok).toBe(true);
+    expect(result.value?.workflowProblem).toBe("CPL demo requested. Additional details were not provided.");
+    expect(result.value?.marketingConsent).toBe(false);
+  });
+
+  it.each(AGENT_INTERESTS)("requires a company for a %s demo request", (interest) => {
+    const result = validateInquiry({ ...request, interest, company: "" });
+    expect(result.ok).toBe(false);
+    expect(result.errors.company).toBeTruthy();
+  });
+
+  it("accepts a brief optional problem and validates an optional website in the existing tools field", () => {
+    const result = validateInquiry({
+      ...request,
+      workflowProblem: "After-hours questions",
+      currentTools: "https://example.com",
+      phone: "+1 (555) 010-0142",
+    });
+    expect(result.ok).toBe(true);
+    expect(result.value?.currentTools).toBe("https://example.com");
+    expect(result.value?.workflowProblem).toBe("After-hours questions");
+  });
+
+  it.each(["javascript:alert(1)", "example.com", "https://user:password@example.com"])("rejects invalid website %s", (currentTools) => {
+    const result = validateInquiry({ ...request, currentTools });
+    expect(result.ok).toBe(false);
+    expect(result.errors.currentTools).toBeTruthy();
+  });
+
+  it("bounds optional fields and rejects hidden characters", () => {
+    const result = validateInquiry({
+      ...request,
+      company: "c".repeat(LIMITS.company + 1),
+      workflowProblem: "w".repeat(LIMITS.workflowMax + 1),
+      phone: "123-4567\u0000",
+      currentTools: "https://example.com/" + "w".repeat(LIMITS.tools),
+    });
+    expect(result.ok).toBe(false);
+    expect(result.errors.company).toBeTruthy();
+    expect(result.errors.workflowProblem).toBeTruthy();
+    expect(result.errors.phone).toBeTruthy();
+    expect(result.errors.currentTools).toBeTruthy();
+  });
+
+  it("keeps legacy caller fields and required-description rules intact", () => {
+    const accepted = validateInquiry(inquiryBody({ currentTools: "Email and spreadsheets" }));
+    expect(accepted.ok).toBe(true);
+    expect(accepted.value?.company).toBeNull();
+    expect(accepted.value?.currentTools).toBe("Email and spreadsheets");
+    const missingDescription = validateInquiry(inquiryBody({ workflowProblem: "" }));
+    expect(missingDescription.ok).toBe(false);
+    expect(missingDescription.errors.workflowProblem).toBeTruthy();
+  });
+});
+
 describe("inquiry persistence", () => {
+  it("stores a minimal agent demo request and reports downstream delivery separately", async () => {
+    const sql = createTestSql();
+    const body = inquiryBody({
+      company: "Example Home Services",
+      interest: "both",
+      workflowProblem: "",
+      currentTools: "https://example.com",
+      sourcePath: "/demo/",
+    });
+    const env = { RATE_LIMIT_SALT: salt, TURNSTILE_SECRET: "secret" };
+    const fetchImpl = async () => jsonResponse({ success: true });
+    const saved = await handleInquiryPost(post(body), sql, env, fetchImpl, 1_000);
+    const retried = await handleInquiryPost(post(body), sql, env, fetchImpl, 2_000);
+    expect(saved.status).toBe(201);
+    expect(saved.json.saved).toBe(true);
+    expect(saved.json.storage).toBe("saved");
+    expect(saved.json.google).toBe("pending_unconfigured");
+    expect(saved.json.notification).toBe("pending_unconfigured");
+    expect(saved.json.message).toContain("notification are not configured");
+    expect(retried.json.duplicate).toBe(true);
+    expect(retried.json.reference).toBe(saved.json.reference);
+    const row = await sql.get<{ company: string; interest: string; current_tools: string; workflow_problem: string }>(
+      "SELECT company, interest, current_tools, workflow_problem FROM inquiries",
+    );
+    expect(row?.company).toBe("Example Home Services");
+    expect(row?.interest).toBe("both");
+    expect(row?.current_tools).toBe("https://example.com");
+    expect(row?.workflow_problem).toBe("CPL demo requested. Additional details were not provided.");
+  });
+
+  it("refuses an agent demo without a company before it reaches storage", async () => {
+    const sql = createTestSql();
+    const env = { RATE_LIMIT_SALT: salt, TURNSTILE_SECRET: "secret" };
+    const failed = await handleInquiryPost(
+      post(inquiryBody({ company: "", interest: "voice", workflowProblem: "" })),
+      sql,
+      env,
+      async () => jsonResponse({ success: true }),
+      1_000,
+    );
+    expect(failed.status).toBe(422);
+    expect(failed.json.errors).toHaveProperty("company");
+    const count = await sql.get<{ count: number }>("SELECT COUNT(*) AS count FROM inquiries");
+    expect(count?.count).toBe(0);
+  });
   it("saves once and treats the same submission id as a duplicate", async () => {
     const sql = createTestSql();
     const body = inquiryBody();
