@@ -1,70 +1,12 @@
-import { readFileSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
-import sharp from "sharp";
-
-const brandSource = readFileSync(new URL("../shared/brand.ts", import.meta.url), "utf8");
-function token(name) {
-  const match = brandSource.match(new RegExp(`${name}:\\s*"(#[0-9A-Fa-f]{6})"`));
-  if (!match) throw new Error(`Missing brand token ${name}`);
-  return match[1];
-}
-const shadow = token("shadow");
-const plate = token("plate");
-const muted = token("muted");
-const navy = token("navy");
-const teal = token("teal");
-const signal = token("signal");
-const highlight = token("highlight");
-
-const source = "public/brand/cpl-logo.png";
-await mkdir("public/icons", { recursive: true });
-
-for (const size of [32, 48, 180, 192, 512]) {
-  await sharp(source)
-    .resize(size, size, { fit: "fill" })
-    .png()
-    .toFile(`public/icons/icon-${size}.png`);
-}
-
-const logo = await sharp(source).resize(86, 86, { fit: "inside" }).png().toBuffer();
-const caption = Buffer.from(`<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="deck" x2="1" y2="1"><stop stop-color="${navy}"/><stop offset="1" stop-color="${shadow}"/></linearGradient>
-  </defs>
-  <rect width="1200" height="630" fill="${shadow}"/>
-  <rect x="665" width="535" height="630" fill="url(#deck)"/>
-  <path d="M700 0v630M800 0v630M900 0v630M1000 0v630M1100 0v630M665 100h535M665 200h535M665 300h535M665 400h535M665 500h535" fill="none" stroke="${teal}" stroke-opacity=".18"/>
-  <text x="176" y="87" font-family="Arial, Helvetica, sans-serif" font-size="25" fill="${plate}">Cyber Pirate Labs</text>
-  <text x="177" y="115" font-family="Arial, Helvetica, sans-serif" letter-spacing="3" font-size="13" fill="${muted}">CPL COMMAND CENTER</text>
-  <text x="68" y="260" font-family="Arial, Helvetica, sans-serif" font-size="59" font-weight="500" letter-spacing="-2" fill="${plate}">Your business.</text>
-  <text x="68" y="329" font-family="Arial, Helvetica, sans-serif" font-size="59" font-weight="500" letter-spacing="-2" fill="${signal}">Under command.</text>
-  <text x="71" y="386" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="${highlight}">From scattered requests to organized work.</text>
-  <path d="M72 459h535" stroke="${teal}" stroke-opacity=".6"/>
-  <text x="72" y="501" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="${highlight}">REQUEST</text>
-  <text x="202" y="501" font-family="Arial, Helvetica, sans-serif" font-size="20" fill="${signal}">→</text>
-  <text x="248" y="501" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="${highlight}">FIELD WORK</text>
-  <text x="411" y="501" font-family="Arial, Helvetica, sans-serif" font-size="20" fill="${signal}">→</text>
-  <text x="458" y="501" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="${highlight}">REPORT</text>
-  <text x="71" y="581" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="${muted}">Interactive product preview · Sample data · Early access</text>
-  <rect x="736" y="166" width="398" height="385" rx="12" fill="${shadow}" opacity=".4"/>
-  <rect x="720" y="150" width="398" height="385" rx="12" fill="${plate}"/>
-  <rect x="720" y="150" width="398" height="57" rx="12" fill="${navy}"/>
-  <rect x="720" y="185" width="398" height="22" fill="${navy}"/>
-  <circle cx="747" cy="179" r="5" fill="${signal}"/>
-  <text x="764" y="185" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="${plate}">COMMAND CENTER</text>
-  <text x="750" y="250" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="2" fill="${teal}">HA-1044 / SAMPLE REPORT</text>
-  <text x="750" y="288" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" fill="${navy}">18 Cedar Wharf</text>
-  <text x="750" y="318" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="${teal}">Roof assessment</text>
-  <path d="M750 341h338" stroke="${teal}" stroke-opacity=".25"/>
-  <rect x="750" y="360" width="83" height="75" rx="5" fill="${highlight}"/>
-  <path d="M761 400l30-22 31 22M767 400v23h49v-23" stroke="${teal}" stroke-width="2" fill="none"/>
-  <text x="849" y="380" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="600" fill="${navy}">Field evidence attached</text>
-  <text x="849" y="407" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="${teal}">Job context carried forward.</text>
-  <text x="849" y="428" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="${teal}">Ready for a human review.</text>
-  <rect x="750" y="462" width="338" height="43" rx="5" fill="${highlight}"/>
-  <text x="769" y="489" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="${navy}">One job. Every moving part.</text>
-</svg>`);
-await sharp(caption)
-  .composite([{ input: logo, left: 68, top: 51 }])
-  .png()
-  .toFile("public/og.png");
+import { readFileSync } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
+import sharp from 'sharp';
+const source = 'public/brand/cpl-logo.png';
+await mkdir('public/icons', {recursive:true});
+for (const size of [32,48,180,192,512]) await sharp(source).resize(size,size,{fit:'fill'}).png().toFile(`public/icons/icon-${size}.png`);
+const logo=await sharp(source).resize(90,90).png().toBuffer();
+// Original CPL artwork is preserved; this composition is locally authored.
+const artwork=Buffer.from(`<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#ecf7ef"/><stop offset="1" stop-color="#b7e2d8"/></linearGradient><linearGradient id="phone" x2="1" y2="1"><stop stop-color="#115b71"/><stop offset="1" stop-color="#052b4e"/></linearGradient></defs><rect width="1200" height="630" fill="url(#bg)"/><circle cx="957" cy="328" r="258" fill="none" stroke="#8bbfb9" opacity=".35"/><circle cx="957" cy="328" r="214" fill="none" stroke="#8bbfb9" opacity=".35"/><text x="170" y="90" font-family="Arial,sans-serif" font-size="24" font-weight="600" fill="#052b4e">Cyber Pirate Labs</text><text x="170" y="116" font-family="Arial,sans-serif" font-size="11" letter-spacing="2" fill="#076b8f">CPL AI VOICE + CHAT AGENTS</text><text x="65" y="252" font-family="Arial,sans-serif" font-size="62" letter-spacing="-2" fill="#052b4e">Your next customer</text><text x="65" y="325" font-family="Arial,sans-serif" font-size="62" letter-spacing="-2" fill="#052b4e">starts with a</text><text x="65" y="398" font-family="Arial,sans-serif" font-size="62" letter-spacing="-2" fill="#076b8f">conversation.</text><text x="68" y="467" font-family="Arial,sans-serif" font-size="22" fill="#375f6e">Configured, connected, tested, and managed.</text><rect x="67" y="506" width="253" height="52" rx="6" fill="#052b4e"/><text x="89" y="539" font-family="Arial,sans-serif" font-size="17" fill="#edf8f1">Request a CPL Demo ↗</text><g transform="translate(788 106) rotate(-8)"><rect x="9" y="12" width="212" height="363" rx="29" fill="#1f7382"/><rect width="212" height="363" rx="29" fill="url(#phone)" stroke="#052b4e" stroke-width="5"/><rect x="77" y="14" width="58" height="7" rx="4" fill="#031e37"/><text x="24" y="60" font-family="Arial,sans-serif" font-size="10" fill="#b1e0d8">ILLUSTRATIVE VOICE CALL</text><text x="25" y="119" font-family="Arial,sans-serif" font-size="29" fill="#ecfff3">A question.</text><text x="25" y="154" font-family="Arial,sans-serif" font-size="29" fill="#ecfff3">A next step.</text><path d="M27 210v10m13-22v35m13-43v51m13-37v23m13-33v44m13-50v56m13-42v28m13-38v48m13-41v34m13-22v11" stroke="#92ecd4" stroke-width="5" stroke-linecap="round"/><text x="25" y="285" font-family="Arial,sans-serif" font-size="13" fill="#b1e0d8">Bathroom remodel</text><text x="25" y="307" font-family="Arial,sans-serif" font-size="13" fill="#b1e0d8">Carmel · Team follow-up</text></g><g transform="translate(923 323) rotate(6)"><rect x="5" y="8" width="216" height="148" rx="12" fill="#98c9c0"/><rect width="216" height="148" rx="12" fill="#f7fff8" stroke="#fff"/><text x="17" y="31" font-family="Arial,sans-serif" font-size="13" font-weight="600" fill="#052b4e">CPL AI Chat Agents</text><rect x="17" y="47" width="182" height="33" rx="6" fill="#052b4e"/><text x="28" y="68" font-family="Arial,sans-serif" font-size="12" fill="#ecfff3">Do you work in our area?</text><text x="20" y="106" font-family="Arial,sans-serif" font-size="12" fill="#076b8f">An approved answer.</text><text x="20" y="125" font-family="Arial,sans-serif" font-size="12" fill="#076b8f">An organized inquiry.</text></g><text x="757" y="579" font-family="Arial,sans-serif" font-size="11" fill="#375f6e">ILLUSTRATIVE DEMO · FICTIONAL BUSINESS · SAMPLE DATA</text></svg>`);
+await sharp(artwork).composite([{input:logo,left:62,top:45}]).png().toFile('public/og.png');
+// Validate the actual approved brand source remains present.
+readFileSync(source);
