@@ -1,7 +1,7 @@
 import type { InquiryInput } from "./validate";
 
-export type GoogleStatus = "pending" | "pending_unconfigured" | "synced" | "failed";
-export type NotifyStatus = "pending" | "pending_unconfigured" | "sent" | "failed";
+export type GoogleStatus = "pending" | "pending_unconfigured" | "synced" | "failed" | "disabled";
+export type NotifyStatus = "pending" | "pending_unconfigured" | "sent" | "failed" | "held" | "ambiguous";
 
 export type InquiryRecord = {
   id: string;

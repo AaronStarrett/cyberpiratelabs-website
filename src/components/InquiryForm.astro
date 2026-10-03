@@ -13,7 +13,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     <h2>Request a CPL Demo</h2>
   </div>
   {showLead && <p class="inquiry-lead">See how voice and chat agents could fit the conversations your business handles. Start with three details; everything else is optional.</p>}
-  {!siteKey && <p class="status verification-notice" role="status">The form’s verification is unavailable on this deployment. Please use the email option below.</p>}
+  {!siteKey && <p class="status verification-notice" role="status">The verification check is unavailable right now. Please use the email option below.</p>}
   <form id="inquiry" class="form" method="post" action="/api/inquiries" novalidate data-turnstile-site-key={siteKey}>
     <div id="form-status" class="status form-field-wide" role="status" aria-live="polite" tabindex="-1" hidden></div>
     <div class="hp" aria-hidden="true">
@@ -68,7 +68,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     <button type="submit" id="submit-inquiry" class="inquiry-submit">Request a CPL Demo <span aria-hidden="true">↗</span></button>
     <p class="form-privacy form-field-wide">We use these details to handle your inquiry. This does not book a meeting or subscribe you to a newsletter. <a href="/privacy/">Privacy details</a></p>
   </form>
-  <p class="inquiry-fallback">Prefer email, or having trouble with the form? <a href="mailto:AStarrett@cyberpiratelabs.com?subject=CPL%20Demo%20Request">AStarrett@cyberpiratelabs.com</a></p>
+  <p class="inquiry-fallback">Prefer email, or having trouble with the form? <a href="mailto:astarrett@cyberpiratelabs.com?subject=CPL%20Demo%20Request">astarrett@cyberpiratelabs.com</a></p>
   <noscript><p class="status">The verification check needs JavaScript. Please request your demonstration using the email link above.</p></noscript>
 </div>
 
@@ -245,7 +245,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
         if (response.ok && payload.ok === true && payload.saved === true && payload.storage === "saved" && payload.reference) {
           confirmed = true;
           status.classList.add("is-saved");
-          status.textContent = payload.message ?? "Saved. Reference " + payload.reference + ". A meeting is arranged separately; notification delivery has not been confirmed.";
+          status.textContent = payload.message ?? "Thanks - your demo request has been received. Reference: " + payload.reference + ". This is a demo request, not a confirmed appointment.";
           button.textContent = "Request saved";
 
           status.focus();

@@ -12,7 +12,7 @@ This document describes the current voice/chat marketing implementation. Source 
 | Reduced-motion/WebGL fallback | Stable HTML composition and transcript; browser verification is reported separately | `AgentExperience.tsx`, `agent-experience.css` |
 | Real demonstration request | Uses the existing same-origin Worker endpoint, Turnstile, D1 persistence/readback, and duplicate protection when configured | `src/components/InquiryForm.astro`, `shared/inquiry/` |
 | Request confirmation | A saved reference establishes site storage; it does not book a meeting or establish notification arrival | `shared/inquiry/http.ts` |
-| Google archive and business notification | Separate configured delivery step with explicit pending, unconfigured, success, or failure status; runtime configuration and live acceptance require their own evidence | `shared/inquiry/google.ts` |
+| Google archive and business notification | Email independent of optional archive; explicit cutoff, durable send ledger, held/ambiguous states and bounded retries. Runtime configuration and inbox acceptance require separate evidence | `shared/inquiry/google.ts` |
 | Direct business contact | Existing public email fallback: `AStarrett@cyberpiratelabs.com`; a mailto link is not evidence of mailbox delivery | `InquiryForm.astro`, `src/pages/contact.astro` |
 | Live CPL customer agent | Not connected to this website walkthrough and not established by this repository; Stammer AI is the selected underlying service platform | Service-page disclosures |
 | Phone setup, transfers, recording, integrations | Assessed, agreed, configured, and tested for the specific implementation; universal compatibility and active recording are not assumed | Service pages and FAQ |

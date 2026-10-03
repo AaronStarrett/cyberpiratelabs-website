@@ -47,7 +47,7 @@ The browser only treats a response as saved when it confirms `ok`, `saved`, `sto
 
 A D1 save establishes website storage. It does not establish arrival in a Google Sheet, Drive folder, or inbox. A configured later step sends a signed payload to the existing Google endpoint; credentials remain server-side.
 
-Archive status is `pending`, `pending_unconfigured`, `synced`, or `failed`. Notification status is `pending`, `pending_unconfigured`, `sent`, or `failed`. The form reports the recorded state. Unconfigured delivery has no live acceptance claim; configured failures can be retried on the existing 15-minute schedule, subject to backoff and an eight-attempt limit.
+Archive status is `pending`, `pending_unconfigured`, `disabled`, `synced`, or `failed`. Notification status also includes `held` and `ambiguous` alongside `pending`, `pending_unconfigured`, `sent`, and `failed`. The form provides a received reference and a concise delay/contact message. Eligible due deliveries use an explicit activation cutoff, per-inquiry claims, eight-attempt backoff and the existing 15-minute schedule. Apps Script's durable send ledger protects retries and reconciles lost responses; uncertain sends require owner review. Email is independent of the optional archive. See [notification setup](google-setup.md) for the additive script, preserved legacy deployments and exact backlog gate.
 
 No new schema migration, database, platform account, resource binding, or environment secret is required by this presentation update. Use the existing verified release target and process documented in `docs/cloudflare-deploy.md`.
 

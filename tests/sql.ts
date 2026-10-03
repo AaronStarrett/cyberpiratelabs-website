@@ -1,10 +1,12 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import type { Sql, SqlRow } from "../shared/inquiry/types";
 
 export function createTestSql(): Sql {
   const db = new DatabaseSync(":memory:");
-  db.exec(readFileSync(new URL("../migrations/0001_inquiries.sql", import.meta.url), "utf8"));
+  for (const filename of readdirSync(new URL("../migrations/", import.meta.url)).filter(name => name.endsWith(".sql")).sort()) {
+    db.exec(readFileSync(new URL("../migrations/" + filename, import.meta.url), "utf8"));
+  }
   return {
     async get<T extends SqlRow>(query: string, ...params: unknown[]) {
       const row = db.prepare(query).get(...(params as Array<string | number | null>)) as T | undefined;

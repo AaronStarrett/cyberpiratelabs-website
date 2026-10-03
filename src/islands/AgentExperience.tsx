@@ -1,6 +1,7 @@
 import { useEffect, useId, useReducer, useRef, useState } from "react";
 import { agentScenarios, type AgentMode, type ScenarioId } from "../../shared/agents/fixtures";
 import { experienceReducer, experienceSnapshot, initialExperience } from "../../shared/agents/experience";
+import { createExperienceClock } from "../../shared/agents/playback";
 import type { AgentStageController } from "./stage/createAgentStage";
 import "../styles/agent-experience.css";
 
@@ -23,21 +24,21 @@ function Symbol({ kind }: { kind: "phone" | "chat" | "arrow" | "play" | "pause" 
 /** Local fixed stories, never connected to the live inquiry form or an agent API. */
 export default function AgentExperience({ initialMode = "voice", compact = false }: Props) {
   const [state, dispatch] = useReducer(experienceReducer, initialMode, initialExperience);
-  const [reduced, setReduced] = useState(false);
   const [hydrated, setHydrated] = useState(false);
-  const [motionPaused, setMotionPaused] = useState(false);
   const [available, setAvailable] = useState(false);
   const [wide, setWide] = useState(false);
-  const [active, setActive] = useState(true);
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  const transcriptRef = useRef<HTMLDetailsElement>(null);
   const controllerRef = useRef<AgentStageController | null>(null);
   const id = useId();
   const snapshot = experienceSnapshot(state);
   const { scenario, shown, captures, complete, phase } = snapshot;
-  const poseRef = useRef({ mode: state.mode, progress: snapshot.progress, complete });
-  const motionRef = useRef(motionPaused);
+  const reduced = state.reducedMotion;
+  const scenePaused = !state.playing || reduced;
+  const poseRef = useRef({ mode: state.mode, progress: snapshot.storyProgress, complete });
+  const motionRef = useRef(scenePaused);
   const nextStep = captures.find((capture) => capture.key === "next");
   const fields = captures.filter((capture) => capture.key !== "next")
     .sort((a, b) => fieldOrder.indexOf(a.key) - fieldOrder.indexOf(b.key));
@@ -50,8 +51,7 @@ export default function AgentExperience({ initialMode = "voice", compact = false
     updateWidth();
     widthQuery.addEventListener("change", updateWidth);
     const update = () => {
-      setReduced(query.matches);
-      if (query.matches) dispatch({ type: "finish" });
+      dispatch({ type: "motion", reduced: query.matches });
     };
     update();
     query.addEventListener("change", update);
@@ -64,12 +64,12 @@ export default function AgentExperience({ initialMode = "voice", compact = false
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
-    let visible = true;
-    const update = () => setActive(visible && !document.hidden);
+    let visible = false;
+    const update = () => dispatch({ type: "visibility", inView: visible, tabVisible: !document.hidden });
     const observer = new IntersectionObserver(([entry]) => {
-      visible = Boolean(entry?.isIntersecting);
+      visible = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.18);
       update();
-    }, { threshold: 0.08 });
+    }, { threshold: [0, 0.18] });
     observer.observe(stage);
     document.addEventListener("visibilitychange", update);
     return () => {
@@ -117,34 +117,27 @@ export default function AgentExperience({ initialMode = "voice", compact = false
   }, [reduced, wide]);
 
   useEffect(() => {
-    poseRef.current = { mode: state.mode, progress: snapshot.progress, complete };
+    poseRef.current = { mode: state.mode, progress: snapshot.storyProgress, complete };
     controllerRef.current?.setPose(poseRef.current);
-  }, [state.mode, snapshot.progress, complete]);
+  }, [state.mode, snapshot.storyProgress, complete]);
 
   useEffect(() => {
-    motionRef.current = motionPaused || reduced;
-    controllerRef.current?.setPaused(motionRef.current);
-  }, [motionPaused, reduced]);
+    motionRef.current = scenePaused;
+    controllerRef.current?.setPaused(scenePaused);
+  }, [scenePaused]);
 
   useEffect(() => {
-    if (!state.playing || !active || reduced) return;
-    let last = performance.now();
-    const timer = window.setInterval(() => {
-      const now = performance.now();
-      dispatch({ type: "tick", ms: Math.min(800, now - last) });
-      last = now;
-    }, 180);
-    return () => window.clearInterval(timer);
-  }, [state.playing, active, reduced]);
-
+    if (!state.playing) return;
+    const clock = createExperienceClock((ms) => dispatch({ type: "tick", ms }));
+    clock.setRunning(true);
+    return () => clock.dispose();
+  }, [state.playing]);
   function chooseMode(mode: AgentMode) {
     dispatch({ type: "mode", mode });
-    if (reduced) dispatch({ type: "finish" });
   }
 
   function chooseScenario(value: string) {
     dispatch({ type: "scenario", scenario: value as ScenarioId });
-    if (reduced) dispatch({ type: "finish" });
   }
 
   function skip() {
@@ -154,14 +147,57 @@ export default function AgentExperience({ initialMode = "voice", compact = false
     }
   }
 
-  function play() {
-    dispatch({ type: reduced ? "finish" : state.playing ? "pause" : "play" });
+  function startOrPause() {
+    if (state.playing) {
+      dispatch({ type: "pause" });
+      return;
+    }
+    if (transcriptRef.current?.open) transcriptRef.current.open = false;
+    dispatch({ type: "transcript", open: false });
+    dispatch({ type: "play" });
   }
 
+  function restart() {
+    if (transcriptRef.current?.open) transcriptRef.current.open = false;
+    dispatch({ type: "transcript", open: false });
+    dispatch({ type: "replay" });
+  }
+
+  const playbackLabel = reduced ? "Reduced motion · Complete static example"
+    : state.playing ? "Animated demo · Playing"
+    : state.reading ? "Paused for transcript reading"
+    : state.intent === "inspect" ? "Result paused for inspection"
+    : state.intent === "pause" ? "Animated demo · Paused"
+    : state.started ? "Animated demo · Paused offscreen"
+    : "A short, silent animated example";
+  const durationSeconds = snapshot.duration / 1000;
+  const elapsedSeconds = Math.min(durationSeconds, Math.floor(state.elapsed / 1000));
   return (
     <div className={"agent-experience" + (compact ? " agent-experience--compact" : "")}
-      data-mode={state.mode} data-webgl={available} data-complete={complete} data-motion-paused={motionPaused || reduced}
+      data-mode={state.mode} data-webgl={available} data-complete={complete} data-motion-paused={scenePaused}
+      data-playing={state.playing} data-cycle={state.cycles} data-elapsed={Math.round(state.elapsed)}
+      data-intent={state.intent} data-in-view={state.inView} data-reading={state.reading}
       aria-label="Illustrative CPL voice and chat agent experience" aria-busy={!hydrated}>
+      <div className="agent-experience__framing">
+        <div><h3>Watch an inquiry become a clear next step.</h3>
+          <p>See how a voice or chat agent turns a conversation into an organized request.</p></div>
+        <span className="agent-experience__duration">{durationSeconds} sec <span>· Silent example</span></span>
+      </div>
+      <div className="agent-playback">
+        <div className="agent-playback__buttons">
+          <button className="agent-playback__primary" type="button" disabled={!hydrated || reduced} onClick={startOrPause}>
+            <Symbol kind={reduced ? "check" : state.playing ? "pause" : "play"} />
+            {reduced ? "Static example" : state.playing ? "Pause demo" : "Play animated demo"}
+          </button>
+          <button type="button" disabled={!hydrated || reduced} onClick={restart} aria-label="Restart animated demo"><Symbol kind="replay" /><span>Restart</span></button>
+          <button type="button" disabled={!hydrated || reduced} onClick={skip}>Skip to result <Symbol kind="arrow" /></button>
+        </div>
+        <div className="agent-playback__progress">
+          <div className="agent-playback__status"><span role="status">{playbackLabel}</span><span aria-hidden="true">{String(elapsedSeconds).padStart(2, "0")} / {durationSeconds} sec</span></div>
+          <progress className="agent-playback__track" aria-label="Sample walkthrough progress" max={100} value={Math.round(snapshot.progress * 100)} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(snapshot.progress * 100)} />
+          <span aria-live="off">{phase}</span>
+        </div>
+      </div>
       <div className="agent-experience__toolbar">
         <div className="agent-mode" role="group" aria-label="Choose voice or chat walkthrough">
           <button type="button" disabled={!hydrated} onClick={() => chooseMode("voice")} aria-pressed={state.mode === "voice"}>
@@ -216,10 +252,12 @@ export default function AgentExperience({ initialMode = "voice", compact = false
                 <p>{item.text}</p>
               </div>
             ))}
+            {!reduced && (!state.started || (!state.playing && state.elapsed === 0)) &&
+              <button className="agent-stage__invitation" type="button" disabled={!hydrated} onClick={startOrPause}><Symbol kind="play" /><span>Play this short story</span></button>}
           </div>
           <div className="agent-conversation__footer">
             <i aria-hidden="true" />
-            <span>{complete ? "Sample follow-up prepared" : state.playing ? "Walking through the example" : "Ready when you are"}</span>
+            <span>{complete ? "Sample follow-up prepared" : state.playing ? "Walking through the example" : state.started ? "Demo paused" : "Ready when you are"}</span>
           </div>
         </div>
 
@@ -240,26 +278,7 @@ export default function AgentExperience({ initialMode = "voice", compact = false
         </div>
       </div>
 
-      <div className="agent-playback">
-        <div className="agent-playback__buttons">
-          <button className="agent-playback__primary" type="button" disabled={!hydrated} onClick={play}>
-            <Symbol kind={state.playing ? "pause" : "play"} />
-            {!hydrated ? "Loading walkthrough" : reduced ? "Show example" : state.playing ? "Pause" : complete ? "Play again" : "Play walkthrough"}
-          </button>
-          <button type="button" disabled={!hydrated} onClick={() => dispatch({ type: reduced ? "finish" : "replay" })} aria-label="Replay sample from the beginning"><Symbol kind="replay" /><span>Replay</span></button>
-          <button type="button" disabled={!hydrated} onClick={skip}>Skip to result <Symbol kind="arrow" /></button>
-        </div>
-        <div className="agent-playback__progress">
-          <progress className="agent-playback__track" aria-label="Sample walkthrough progress" max={100} value={Math.round(snapshot.progress * 100)} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(snapshot.progress * 100)} />
-          <span role="status" aria-live="polite">{phase}</span>
-        </div>
-        <button className="agent-playback__motion" type="button" disabled={reduced || !hydrated} aria-pressed={motionPaused || reduced}
-          onClick={() => setMotionPaused((value) => !value)}>
-          {reduced ? "Reduced motion on" : motionPaused ? "Enable motion" : "Pause motion"}
-        </button>
-      </div>
-
-      <details className="agent-transcript">
+      <details className="agent-transcript" ref={transcriptRef} onToggle={(event) => dispatch({ type: "transcript", open: event.currentTarget.open })}>
         <summary>Read the complete sample transcript <span aria-hidden="true">+</span></summary>
         <div className="agent-transcript__intro">
           <p>This fixed example illustrates a configured workflow. It uses no audio, microphone, live AI, or real customer data.</p>

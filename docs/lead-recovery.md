@@ -1,39 +1,29 @@
-# Lead recovery and deletion
+# Inquiry recovery and deletion
 
-Operator calls need `Authorization: Bearer <OPERATOR_TOKEN>`. The token is a Worker secret. These routes are not linked from the website.
+Operator calls require `Authorization: Bearer <OPERATOR_TOKEN>`. Keep that Worker secret private. These routes have no unauthenticated admin page.
 
-## Inspect
+## Inspect and retry
 
-`GET /api/operator/inquiries` lists rows whose Google or notification step is not finished.
+`GET /api/operator/inquiries` lists up to 200 rows whose notification or enabled archive is unfinished. `GET /api/operator/inquiries?pending=0` lists the latest 200 saved rows. The operator view contains state, attempts, next due time, symbolic errors and confirmation time. A saved record is separate from send or inbox arrival.
 
-`GET /api/operator/inquiries?pending=0` lists the latest 200 saved rows.
+`POST /api/operator/inquiries/<id-or-reference>/retry` still enforces the cutoff, recovery allowlist, QA exclusion, claims, durable ledger and attempt cap. Sent ledgers return the prior outcome without another email. Missing configuration cannot send.
 
-The response includes delivery status, attempt counts, next retry time, and the last error string. It does not include the network hash.
+The existing 15-minute cron selects eligible due rows with increasing backoff and at most eight transient attempts. Lost responses trigger status-only reconciliation before another send. An ambiguous outcome without a due time requires owner review; repeatedly clicking retry does not authorize resending.
 
-## Retry
+For approved recovery, verify `CPL-347301C3` remains pending and has no prior owner email. After a real synthetic request reaches the inbox, temporarily allow exactly `CPL-347301C3` in script and Worker `NOTIFICATION_RECOVERY_REFERENCES`. Let the existing 15-minute cron process that eligible reference, verify arrival, and clear both allowlists. If operator access is already configured, single-record retry is an alternative. When it is unconfigured, do not create a new operator credential solely for this recovery. `CPL-2AA16BBF` is always excluded. Report other historical backlog without automatically sending it.
 
-`POST /api/operator/inquiries/<id-or-reference>/retry`
+## Reconcile
 
-Runs delivery immediately. If Google is still unconfigured, the row stays `pending_unconfigured` and the inquiry remains saved.
+Inspect the inbox and script ledger privately. `sending`/`ambiguous` means a send may have occurred. Do not delete that marker or resend as a workaround. If the owner verifies arrival, record the evidence in D1:
 
-The cron trigger does the same for due rows every 15 minutes, up to 8 failed attempts.
+`POST /api/operator/inquiries/<id-or-reference>/confirm` with `{ "notification": true }`.
 
-## Confirm a Google arrival
+Include `"archive": true` only after verifying an actual archive copy. The response labels `confirmedBy: "operator"`; this is not a provider callback. D1 confirmation does not alter the script ledger or authorize resending. Preserve ambiguity when the outcome remains inconclusive.
 
-`POST /api/operator/inquiries/<id-or-reference>/confirm`
+## Export and delete
 
-Body: `{ "archive": true, "notification": true }`
+`GET /api/operator/export` returns private formula-safe CSV.
 
-This records that an operator saw the Sheet or the mail. The response says `confirmedBy: "operator"`. It is not a callback from Google.
+`DELETE /api/operator/inquiries/<id-or-reference>` removes the inquiry and local claim. The deletion log keeps only identifiers/time. It does not remove email, optional Sheet/Drive copies or the minimal script ledger. Handle separately authorized copies through the owner workflow. Preserve sent/ambiguous identity ledgers while duplicate prevention is required; never clear them merely to retry.
 
-## Export
-
-`GET /api/operator/export` returns CSV. Formula-like cells are prefixed. Treat the file as private.
-
-## Delete
-
-`DELETE /api/operator/inquiries/<id-or-reference>`
-
-Removes the inquiry. A `deletion_log` row keeps the reference id and time, not the message, name, or email. Deletion does not reach into Google. Remove the Sheet row and Drive file by hand if a copy was already made.
-
-There is no unauthenticated admin page.
+See `google-setup.md` for deployment, mail-only authorization and the signed contract.

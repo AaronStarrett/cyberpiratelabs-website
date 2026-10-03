@@ -4,7 +4,6 @@ export type Capture = { key: string; label: string; value: string };
 export type AgentMessage = {
   speaker: "agent" | "visitor";
   text: string;
-  duration: number;
   capture?: Capture[];
 };
 export type AgentScenario = {
@@ -22,8 +21,7 @@ const message = (
   speaker: AgentMessage["speaker"],
   text: string,
   capture: Capture[] = [],
-  duration = 3100,
-): AgentMessage => ({ speaker, text, duration, capture });
+): AgentMessage => ({ speaker, text, capture });
 const field = (key: string, label: string, value: string): Capture => ({ key, label, value });
 const remodelFinish = "Team review and follow-up requested.";
 const cleaningFinish = "Team review and cleaning follow-up requested.";
@@ -41,7 +39,7 @@ export const agentScenarios: AgentScenario[] = [
     approvedInformation: "Fictional remodeler offering bathroom and kitchen remodeling in Carmel.",
     stories: {
       voice: [
-        message("agent", "Thank you for calling Juniper Remodeling. I’m the automated assistant. What are you planning?"),
+        message("agent", "Juniper Remodeling’s automated assistant. What are you planning?"),
         message("visitor", "A bathroom remodel at my home in Carmel.", [
           field("service", "Requested service", "bathroom remodel"),
           field("area", "Requested area", "Carmel"),
@@ -57,13 +55,13 @@ export const agentScenarios: AgentScenario[] = [
           field("name", "Sample contact", "Jamie Example"),
           field("email", "Sample email", "jamie@example.com"),
         ]),
-        message("agent", remodelFinish + " The team can discuss scope and availability; no appointment or quote is confirmed.", [
+        message("agent", remodelFinish + " Scope and availability need review. No appointment or quote is confirmed.", [
           field("next", "Next step", remodelFinish),
-        ], 4000),
+        ]),
       ],
       chat: [
         message("visitor", "Do you handle bathroom remodeling in Carmel?"),
-        message("agent", "Yes. Juniper Remodeling offers bathroom and kitchen remodeling in Carmel. Are you considering a full remodel or a partial update?"),
+        message("agent", "Yes—bathroom and kitchen remodeling in Carmel. A full remodel or partial update?"),
         message("visitor", "A full bathroom remodel, including the shower and vanity.", [
           field("service", "Requested service", "bathroom remodel"),
           field("details", "Project details", "shower and vanity"),
@@ -78,9 +76,9 @@ export const agentScenarios: AgentScenario[] = [
           field("name", "Sample contact", "Jamie Example"),
           field("email", "Sample email", "jamie@example.com"),
         ]),
-        message("agent", remodelFinish + " The team will need to discuss scope and availability; this is not a confirmed booking.", [
+        message("agent", remodelFinish + " Scope and availability need review. This is not a confirmed booking.", [
           field("next", "Next step", remodelFinish),
-        ], 4000),
+        ]),
       ],
     },
   },
@@ -94,7 +92,7 @@ export const agentScenarios: AgentScenario[] = [
     approvedInformation: "Fictional cleaner offering recurring home cleaning in Fishers.",
     stories: {
       voice: [
-        message("agent", "Thanks for calling Clearview Cleaning. I’m the automated assistant. How can I help?"),
+        message("agent", "Clearview Cleaning’s automated assistant. How can I help?"),
         message("visitor", "I’m looking for recurring home cleaning in Fishers.", [
           field("service", "Requested service", "recurring home cleaning"),
           field("area", "Requested area", "Fishers"),
@@ -113,11 +111,11 @@ export const agentScenarios: AgentScenario[] = [
         ]),
         message("agent", cleaningFinish + " Schedule and pricing need to be discussed with the team.", [
           field("next", "Next step", cleaningFinish),
-        ], 4000),
+        ]),
       ],
       chat: [
         message("visitor", "Do you offer recurring home cleaning in Fishers?"),
-        message("agent", "Yes. Clearview Cleaning offers recurring home cleaning in Fishers. How large is your home, and how often would you like cleaning?"),
+        message("agent", "Yes—recurring home cleaning in Fishers. How large is your home, and how often?"),
         message("visitor", "Three bedrooms and two bathrooms, every two weeks.", [
           field("details", "Home details", "Three bedrooms and two bathrooms"),
           field("frequency", "Requested frequency", "every two weeks"),
@@ -135,7 +133,7 @@ export const agentScenarios: AgentScenario[] = [
         ]),
         message("agent", cleaningFinish + " Schedule and pricing still need team confirmation.", [
           field("next", "Next step", cleaningFinish),
-        ], 4000),
+        ]),
       ],
     },
   },
@@ -149,7 +147,7 @@ export const agentScenarios: AgentScenario[] = [
     approvedInformation: "Fictional home-service company offering routine gutter maintenance in Westfield.",
     stories: {
       voice: [
-        message("agent", "You’ve reached Oakline Home Services. I’m the automated assistant. What can I help you with?"),
+        message("agent", "Oakline Home Services’ automated assistant. What can I help with?"),
         message("visitor", "Routine gutter cleaning for my home in Westfield.", [
           field("service", "Requested service", "gutter cleaning"),
           field("area", "Requested area", "Westfield"),
@@ -167,11 +165,11 @@ export const agentScenarios: AgentScenario[] = [
         ]),
         message("agent", homeFinish + " The team needs to review access, scope, and scheduling.", [
           field("next", "Next step", homeFinish),
-        ], 4000),
+        ]),
       ],
       chat: [
         message("visitor", "Do you offer gutter cleaning in Westfield?"),
-        message("agent", "Yes. Oakline Home Services offers routine gutter maintenance in Westfield. How many stories is your home?"),
+        message("agent", "Yes—routine gutter maintenance in Westfield. How many stories is your home?"),
         message("visitor", "It’s a two-story home, and I’d like gutter cleaning.", [
           field("service", "Requested service", "gutter cleaning"),
           field("details", "Home details", "two-story home"),
@@ -188,7 +186,7 @@ export const agentScenarios: AgentScenario[] = [
         ]),
         message("agent", homeFinish + " Access, scope, and scheduling require team review.", [
           field("next", "Next step", homeFinish),
-        ], 4000),
+        ]),
       ],
     },
   },
@@ -202,29 +200,29 @@ export const agentScenarios: AgentScenario[] = [
     approvedInformation: "Billing and account decisions must go to the fictional business team.",
     stories: {
       voice: [
-        message("agent", "Thank you for calling Juniper Remodeling. I’m the automated assistant. How can I help?"),
+        message("agent", "Juniper Remodeling’s automated assistant. How can I help?"),
         message("visitor", "I have a billing question about my September invoice.", [
           field("service", "Request", "billing question"),
           field("details", "Question about", "September invoice"),
         ]),
-        message("agent", "A person needs to review billing questions. I can collect a name and email for follow-up; I can’t access or change your account."),
+        message("agent", "Billing needs a person. May I have your name and email? I can’t access or change your account."),
         message("visitor", "Morgan Example, morgan@example.com.", [
           field("name", "Sample contact", "Morgan Example"),
           field("email", "Sample email", "morgan@example.com"),
         ]),
-        message("agent", billingFinish, [field("next", "Next step", billingFinish)], 4000),
+        message("agent", billingFinish, [field("next", "Next step", billingFinish)]),
       ],
       chat: [
         message("visitor", "I have a billing question about my September invoice.", [
           field("service", "Request", "billing question"),
           field("details", "Question about", "September invoice"),
         ]),
-        message("agent", "Billing questions need a person. I can collect a name and email for follow-up, but I can’t access or change your account."),
+        message("agent", "Billing needs a person. May I have your name and email? I can’t access or change your account."),
         message("visitor", "Morgan Example, morgan@example.com.", [
           field("name", "Sample contact", "Morgan Example"),
           field("email", "Sample email", "morgan@example.com"),
         ]),
-        message("agent", billingFinish, [field("next", "Next step", billingFinish)], 4000),
+        message("agent", billingFinish, [field("next", "Next step", billingFinish)]),
       ],
     },
   },
@@ -232,4 +230,40 @@ export const agentScenarios: AgentScenario[] = [
 
 export function getAgentScenario(id: ScenarioId): AgentScenario {
   return agentScenarios.find((scenario) => scenario.id === id) ?? agentScenarios[0]!;
+}
+export type AgentBeat = { through: number; duration: number; label: string };
+export const RESULT_HOLD_MS = 2500;
+
+const routineVoice: AgentBeat[] = [
+  { through: 1, duration: 2500, label: "An inquiry arrives" },
+  { through: 3, duration: 4000, label: "The project becomes clearer" },
+  { through: 5, duration: 3500, label: "Useful details take shape" },
+  { through: 7, duration: 3500, label: "Contact details are organized" },
+  { through: 8, duration: 4000, label: "The next step becomes clear" },
+];
+const routineChat: AgentBeat[] = [
+  { through: 1, duration: 2500, label: "A question gets an approved answer" },
+  { through: 2, duration: 4000, label: "The request becomes clearer" },
+  { through: 4, duration: 3500, label: "Useful details take shape" },
+  { through: 6, duration: 3500, label: "Contact details are organized" },
+  { through: 7, duration: 4000, label: "The next step becomes clear" },
+];
+const billingVoice: AgentBeat[] = [
+  { through: 1, duration: 2500, label: "A billing question arrives" },
+  { through: 2, duration: 4500, label: "The agent recognizes its boundary" },
+  { through: 3, duration: 5500, label: "Follow-up details are gathered" },
+  { through: 4, duration: 5000, label: "A human follow-up is requested" },
+];
+const billingChat: AgentBeat[] = [
+  { through: 0, duration: 2500, label: "A billing question arrives" },
+  { through: 1, duration: 4500, label: "The agent recognizes its boundary" },
+  { through: 2, duration: 5500, label: "Follow-up details are gathered" },
+  { through: 3, duration: 5000, label: "A human follow-up is requested" },
+];
+
+/** Message groups are meaningful beats; the complete transcript remains available. */
+export function getAgentBeats(scenario: ScenarioId, mode: AgentMode): AgentBeat[] {
+  return scenario === "billing"
+    ? mode === "voice" ? billingVoice : billingChat
+    : mode === "voice" ? routineVoice : routineChat;
 }

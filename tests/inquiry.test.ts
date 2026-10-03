@@ -4,6 +4,7 @@ import { handleInquiryPost, handleOperator, retryDue } from "../shared/inquiry/h
 import type { InquiryRecord } from "../shared/inquiry/types";
 import { AGENT_INTERESTS, LIMITS, neutralizeSpreadsheetFormula, validateInquiry } from "../shared/inquiry/validate";
 import { createTestSql } from "./sql";
+import { createScriptMock, mockedBridgeFetch, TEST_CUTOFF, TEST_HMAC } from "./apps-script.mock";
 
 const origin = "http://127.0.0.1:43123";
 const salt = "test-salt-value-123";
@@ -137,9 +138,9 @@ describe("inquiry persistence", () => {
     expect(saved.status).toBe(201);
     expect(saved.json.saved).toBe(true);
     expect(saved.json.storage).toBe("saved");
-    expect(saved.json.google).toBe("pending_unconfigured");
+    expect(saved.json.google).toBe("disabled");
     expect(saved.json.notification).toBe("pending_unconfigured");
-    expect(saved.json.message).toContain("notification are not configured");
+    expect(saved.json.message).toContain("Our notification is delayed");
     expect(retried.json.duplicate).toBe(true);
     expect(retried.json.reference).toBe(saved.json.reference);
     const row = await sql.get<{ company: string; interest: string; current_tools: string; workflow_problem: string }>(
@@ -175,7 +176,7 @@ describe("inquiry persistence", () => {
     const second = await handleInquiryPost(post(body), sql, env, fetchImpl, 2_000);
     expect(first.status).toBe(201);
     expect(first.json.saved).toBe(true);
-    expect(first.json.google).toBe("pending_unconfigured");
+    expect(first.json.google).toBe("disabled");
     expect(second.status).toBe(200);
     expect(second.json.duplicate).toBe(true);
     expect(second.json.reference).toBe(first.json.reference);
@@ -211,37 +212,36 @@ describe("inquiry persistence", () => {
     expect(count?.count).toBe(0);
   });
 
-  it("keeps the lead when Google fails and recovers on a later retry", async () => {
+  it("keeps the saved lead and reconciles a lost response after email was sent without sending twice", async () => {
     const sql = createTestSql();
+    const runtime = createScriptMock();
+    const bridge = mockedBridgeFetch(runtime);
     let calls = 0;
-    const fetchImpl = async (input: RequestInfo | URL) => {
-      const url = String(input);
-      if (url.includes("turnstile")) return jsonResponse({ success: true });
+    const fetchImpl: typeof fetch = async (input, init) => {
+      if (String(input).includes("turnstile")) return jsonResponse({ success: true });
       calls += 1;
-      if (calls === 1) throw new Error("google down");
-      return jsonResponse({ archive: "synced", notification: "sent" });
+      const response = await bridge(input, init);
+      if (calls === 1) throw new Error("mocked response lost after sent");
+      return response;
     };
     const env = {
-      RATE_LIMIT_SALT: salt,
-      TURNSTILE_SECRET: "secret",
+      RATE_LIMIT_SALT: salt, TURNSTILE_SECRET: "secret",
       GOOGLE_APPS_SCRIPT_URL: "https://script.google.com/macros/s/example/exec",
-      GOOGLE_HMAC_SECRET: "hmac-secret-value-123",
+      GOOGLE_HMAC_SECRET: TEST_HMAC, NOTIFICATION_ENABLED_AFTER: TEST_CUTOFF,
     };
-    const saved = await handleInquiryPost(post(inquiryBody()), sql, env, fetchImpl, 10_000);
+    const now = Date.now();
+    const saved = await handleInquiryPost(post(inquiryBody()), sql, env, fetchImpl, now);
     expect(saved.status).toBe(201);
     expect(saved.json.storage).toBe("saved");
-    expect(saved.json.google).toBe("failed");
-    expect(saved.json.notification).toBe("failed");
-    const tooSoon = await retryDue(sql, env, fetchImpl, 10_500);
-    expect(tooSoon).toBe(0);
-    expect(calls).toBe(1);
-    const retried = await retryDue(sql, env, fetchImpl, 10_000 + 60_000);
-    expect(retried).toBe(1);
-    const row = await sql.get<{ google_status: string; notify_status: string }>("SELECT google_status, notify_status FROM inquiries");
-    expect(row?.google_status).toBe("synced");
+    expect(saved.json.google).toBe("disabled");
+    expect(saved.json.notification).toBe("ambiguous");
+    expect(runtime.mails).toHaveLength(1);
+    expect(await retryDue(sql, env, fetchImpl, now + 500)).toBe(0);
+    expect(await retryDue(sql, env, fetchImpl, now + 60_000)).toBe(1);
+    const row = await sql.get<{ notify_status: string }>("SELECT notify_status FROM inquiries");
     expect(row?.notify_status).toBe("sent");
+    expect(runtime.mails).toHaveLength(1);
   });
-
   it("lets an operator export and delete, and hides records without a token", async () => {
     const sql = createTestSql();
     const env = { RATE_LIMIT_SALT: salt, TURNSTILE_SECRET: "secret", OPERATOR_TOKEN: operator };
@@ -281,7 +281,7 @@ describe("inquiry persistence", () => {
 });
 
 describe("archive payload", () => {
-  it("prefixes formula-like names before they leave the worker", () => {
+  it("preserves raw values for email and leaves spreadsheet escaping to its adapter", () => {
     const record = {
       id: "1",
       submissionId: "s",
@@ -311,6 +311,6 @@ describe("archive payload", () => {
       googleConfirmedAt: null,
       notifyConfirmedAt: null,
     } satisfies InquiryRecord;
-    expect(archiveBody(record)).toContain("'=Casey");
+    expect(JSON.parse(archiveBody(record)).name).toBe("=Casey");
   });
 });

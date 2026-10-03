@@ -67,7 +67,7 @@ export default {
         headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
       });
     } catch {
-      return new Response(JSON.stringify({ ok: false, message: "The inquiry service failed before saving. Retry." }), {
+      return new Response(JSON.stringify({ ok: false, message: "We could not confirm the save. Retry with the same form or contact astarrett@cyberpiratelabs.com." }), {
         status: 500,
         headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
       });

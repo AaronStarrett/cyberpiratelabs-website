@@ -1,10 +1,15 @@
-# Local `wrangler dev` only. Copy to .dev.vars. Never commit .dev.vars.
-# Replace every value. These placeholders are not production secrets.
+# Local wrangler dev only. Copy to .dev.vars. Never commit .dev.vars.
+# Placeholders are not production secrets. No endpoint means no notification.
 ENVIRONMENT=development
 RATE_LIMIT_SALT=local-only-change-this-salt
 OPERATOR_TOKEN=
 TURNSTILE_SECRET=
 GOOGLE_APPS_SCRIPT_URL=
 GOOGLE_HMAC_SECRET=
+GOOGLE_ARCHIVE_ENABLED=false
+# Required explicit UTC cutoff before enabling any bridge request.
+NOTIFICATION_ENABLED_AFTER=
+# Leave empty except an authorized one-time CPL-347301C3 recovery.
+NOTIFICATION_RECOVERY_REFERENCES=
 # Optional extra origins. The request's own origin is always allowed.
 ALLOWED_ORIGINS=

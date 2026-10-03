@@ -122,6 +122,7 @@ export function validateInquiry(raw: Record<string, unknown>): {
   const isAgentRequest = (AGENT_INTERESTS as readonly string[]).includes(interestRaw);
   const company = optional(clean(raw.company), LIMITS.company, "company", errors);
   if (isAgentRequest && !clean(raw.company)) errors.company = "Enter your business or company name.";
+  if (company && /[\r\n]/.test(company)) errors.company = "Use a single line for your company.";
   const phoneRaw = clean(raw.phone);
   const tools = optional(clean(raw.currentTools ?? raw.current_tools), LIMITS.tools, "currentTools", errors);
   // New agent-demo requests use the existing payload and database columns.
@@ -137,17 +138,17 @@ export function validateInquiry(raw: Record<string, unknown>): {
   const marketingConsent = marketingRaw === true || marketingRaw === "yes" || marketingRaw === "true" || marketingRaw === "on";
 
   if (!name) errors.name = "Enter your name.";
-  else if (CONTROL.test(name)) errors.name = "Remove hidden control characters.";
+  else if ((CONTROL.test(name) || /[\r\n]/.test(name))) errors.name = "Remove hidden control characters.";
   else if (name.length > LIMITS.name) errors.name = `Use ${LIMITS.name} characters or fewer.`;
 
   if (!email) errors.email = "Enter your email.";
-  else if (email.length > LIMITS.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  else if (email.length > LIMITS.email || CONTROL.test(email) || !/^[^\s@<>;,]+@[^\s@<>;,]+\.[^\s@<>;,]+$/.test(email)) {
     errors.email = "Enter a valid email address.";
   }
 
   let phone: string | null = null;
   if (phoneRaw) {
-    if (CONTROL.test(phoneRaw) || phoneRaw.length > LIMITS.phone || !/^[0-9+().\-\s]{7,40}$/.test(phoneRaw)) {
+    if (CONTROL.test(phoneRaw) || /[\r\n]/.test(phoneRaw) || phoneRaw.length > LIMITS.phone || !/^[0-9+().\-\s]{7,40}$/.test(phoneRaw)) {
       errors.phone = "Enter a phone number using digits and ordinary punctuation, or leave it blank.";
     } else {
       phone = phoneRaw;

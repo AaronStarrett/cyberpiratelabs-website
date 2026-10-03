@@ -147,7 +147,8 @@ export async function mountAgentStage(
   let paused = Boolean(options.reduced);
   let inView = true;
   let raf = 0;
-  let elapsed = 1000;
+  const transitionDuration = 550;
+  let elapsed = transitionDuration;
   let lastTime = 0;
   let current = {
     cameraX: 0, cameraZ: 11, phoneY: 0.3, phoneZ: 0.122, phoneScale: 1,
@@ -222,14 +223,15 @@ export async function mountAgentStage(
     if (disposed || lost || !inView || document.hidden) return;
     const delta = lastTime ? Math.min(time - lastTime, 50) : 0;
     lastTime = time;
-    elapsed = paused ? 1000 : Math.min(1000, elapsed + delta);
-    const t = elapsed / 1000;
+    if (paused) { apply(); return; }
+    elapsed = Math.min(transitionDuration, elapsed + delta);
+    const t = elapsed / transitionDuration;
     const eased = 1 - Math.pow(1 - t, 3);
     for (const key of Object.keys(current) as (keyof typeof current)[]) {
       current[key] = from[key] + (target[key] - from[key]) * eased;
     }
     apply();
-    if (elapsed < 1000) raf = requestAnimationFrame(frame);
+    if (elapsed < transitionDuration) raf = requestAnimationFrame(frame);
   }
 
   function requestFrame() {
@@ -287,13 +289,14 @@ export async function mountAgentStage(
           cameraX: next.complete ? 0.35 : next.mode === "voice" ? 0 : 0.2,
           cameraZ: next.complete ? 10.6 : 11,
         };
-        elapsed = 0;
+        elapsed = paused ? transitionDuration : 0;
+        if (paused) current = { ...target };
       }
       requestFrame();
     },
     setPaused(next) {
       paused = next || Boolean(options.reduced);
-      if (paused) { current = { ...target }; elapsed = 1000; }
+      if (paused) { cancelAnimationFrame(raf); raf = 0; }
       requestFrame();
     },
     dispose() {

@@ -1,4 +1,4 @@
-import { deliverInquiry } from "./google";
+import { deliverInquiry, googleConfigured, notificationCutoff, recoveryReferences } from "./google";
 import { bumpRateLimit, deleteInquiry, findBySubmissionId, findInquiry, insertInquiry, listDueInquiries, listInquiries, updateDelivery } from "./repository";
 import { newId, publicReference, sha256Hex, timingSafeEqual } from "./sign";
 import type { GoogleEnv } from "./google";
@@ -85,16 +85,11 @@ function clientIp(request: Request): string | null {
 }
 
 export function savedMessage(record: InquiryRecord): string {
-  const stored = `Saved. Reference ${record.publicReference}. This does not reserve a meeting or promise a response time.`;
-  if (record.googleStatus === "synced" && record.notifyStatus === "sent") {
-    return `${stored} The owner archive and notification steps reported success.`;
-  }
-  if (record.googleStatus === "pending_unconfigured" || record.notifyStatus === "pending_unconfigured") {
-    return `${stored} Site storage succeeded. Google archive and owner notification are not configured on this deployment, so those steps stay pending.`;
-  }
-  return `${stored} Site storage succeeded. Owner delivery is still pending and will be retried.`;
+  const received = "Thanks - your demo request has been received. Reference: " + record.publicReference + ".";
+  const appointment = " This is a demo request, not a confirmed appointment.";
+  if (record.notifyStatus === "sent") return received + appointment;
+  return received + " Our notification is delayed. You can also contact astarrett@cyberpiratelabs.com." + appointment;
 }
-
 export async function handleInquiryPost(
   request: Request,
   sql: Sql,
@@ -187,7 +182,11 @@ export async function handleInquiryPost(
   }
   let record = await findBySubmissionId(sql, submissionId);
   if (!record) return jsonResult(500, { ok: false, message: "The inquiry could not be read back. Retry with the same submission id." });
-  record = await deliverInquiry(sql, env, record, fetchImpl, now);
+  try {
+    record = await deliverInquiry(sql, env, record, fetchImpl, now);
+  } catch {
+    // Storage was read back successfully. A downstream failure cannot undo it.
+  }
   return jsonResult(201, publicPayload(record, false));
 }
 
@@ -335,9 +334,14 @@ export function payloadForHash(value: InquiryInput, submissionId: string): Promi
 }
 
 export async function retryDue(sql: Sql, env: InquiryEnv, fetchImpl: typeof fetch, now = Date.now()): Promise<number> {
-  const due = await listDueInquiries(sql, new Date(now).toISOString());
+  const cutoff = notificationCutoff(env);
+  if (!googleConfigured(env) || !cutoff) return 0;
+  const due = await listDueInquiries(sql, new Date(now).toISOString(), cutoff, recoveryReferences(env)[0] ?? null);
+  const started = Date.now();
   for (const record of due) {
-    await deliverInquiry(sql, env, record, fetchImpl, now);
+    try { await deliverInquiry(sql, env, record, fetchImpl, now + Date.now() - started); } catch {
+      // Keep saved data and let the bounded scheduled retry recover.
+    }
   }
   return due.length;
 }

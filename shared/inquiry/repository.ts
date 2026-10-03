@@ -95,6 +95,7 @@ export async function updateDelivery(
   id: string,
   patch: Partial<Pick<InquiryRecord,
     "googleStatus" | "notifyStatus" | "googleAttempts" | "notifyAttempts" | "googleNextAt" | "notifyNextAt" | "googleError" | "notifyError" | "googleConfirmedAt" | "notifyConfirmedAt">>,
+  claimToken?: string,
 ): Promise<void> {
   const current = await sql.get<SqlRow>("SELECT * FROM inquiries WHERE id = ?", id);
   if (!current) return;
@@ -105,7 +106,7 @@ export async function updateDelivery(
       google_status = ?, notify_status = ?, google_attempts = ?, notify_attempts = ?,
       google_next_at = ?, notify_next_at = ?, google_error = ?, notify_error = ?,
       google_confirmed_at = ?, notify_confirmed_at = ?
-    WHERE id = ?`,
+    WHERE id = ?` + (claimToken ? " AND EXISTS (SELECT 1 FROM inquiry_delivery_claims WHERE inquiry_id = inquiries.id AND claim_token = ?)" : ""),
     next.googleStatus,
     next.notifyStatus,
     next.googleAttempts,
@@ -117,6 +118,7 @@ export async function updateDelivery(
     next.googleConfirmedAt,
     next.notifyConfirmedAt,
     id,
+    ...(claimToken ? [claimToken] : []),
   );
 }
 
@@ -124,28 +126,44 @@ export async function listInquiries(sql: Sql, pendingOnly: boolean): Promise<Inq
   const rows = pendingOnly
     ? await sql.all<SqlRow>(
         `SELECT * FROM inquiries
-         WHERE google_status != 'synced' OR notify_status != 'sent'
+         WHERE google_status NOT IN ('synced', 'disabled') OR notify_status != 'sent'
          ORDER BY created_at ASC LIMIT 200`,
       )
     : await sql.all<SqlRow>("SELECT * FROM inquiries ORDER BY created_at DESC LIMIT 200");
   return rows.map(mapInquiry);
 }
 
-export async function listDueInquiries(sql: Sql, nowIso: string): Promise<InquiryRecord[]> {
+export async function listDueInquiries(
+  sql: Sql, nowIso: string, cutoff: string, recoveryReference: string | null,
+): Promise<InquiryRecord[]> {
   const rows = await sql.all<SqlRow>(
-    `SELECT * FROM inquiries
-     WHERE google_status IN ('pending', 'pending_unconfigured')
-        OR notify_status IN ('pending', 'pending_unconfigured')
-        OR (google_status = 'failed' AND google_attempts < 8 AND (google_next_at IS NULL OR google_next_at <= ?))
-        OR (notify_status = 'failed' AND notify_attempts < 8 AND (notify_next_at IS NULL OR notify_next_at <= ?))
-     ORDER BY created_at ASC
-     LIMIT 25`,
-    nowIso,
-    nowIso,
+    "SELECT * FROM inquiries WHERE (created_at >= ? OR public_reference = ?) AND public_reference != 'CPL-2AA16BBF' AND ("
+      + "google_status = 'pending' OR (google_status = 'failed' AND google_attempts < 8 AND google_next_at IS NOT NULL AND google_next_at <= ?) "
+      + "OR notify_status IN ('pending', 'pending_unconfigured', 'held') "
+      + "OR (notify_status IN ('failed', 'ambiguous') AND notify_attempts < 8 AND notify_next_at IS NOT NULL AND notify_next_at <= ?)) "
+      + "ORDER BY created_at ASC LIMIT 25",
+    cutoff, recoveryReference ?? "", nowIso, nowIso,
   );
   return rows.map(mapInquiry);
 }
 
+export async function claimDelivery(sql: Sql, inquiryId: string, now: number): Promise<string | null> {
+  const token = crypto.randomUUID();
+  const nowIso = new Date(now).toISOString();
+  const until = new Date(now + 90_000).toISOString();
+  await sql.run(
+    "INSERT INTO inquiry_delivery_claims (inquiry_id, claim_token, claimed_until) VALUES (?, ?, ?) "
+      + "ON CONFLICT(inquiry_id) DO UPDATE SET claim_token = excluded.claim_token, claimed_until = excluded.claimed_until "
+      + "WHERE inquiry_delivery_claims.claimed_until <= ?",
+    inquiryId, token, until, nowIso,
+  );
+  const claim = await sql.get<SqlRow>("SELECT claim_token FROM inquiry_delivery_claims WHERE inquiry_id = ?", inquiryId);
+  return claim?.claim_token === token ? token : null;
+}
+
+export async function releaseDelivery(sql: Sql, inquiryId: string, token: string): Promise<void> {
+  await sql.run("DELETE FROM inquiry_delivery_claims WHERE inquiry_id = ? AND claim_token = ?", inquiryId, token);
+}
 export async function deleteInquiry(sql: Sql, idOrReference: string, deletedAt: string): Promise<InquiryRecord | null> {
   const existing = await findInquiry(sql, idOrReference);
   if (!existing) return null;
@@ -156,6 +174,7 @@ export async function deleteInquiry(sql: Sql, idOrReference: string, deletedAt: 
     existing.publicReference,
     deletedAt,
   );
+  await sql.run("DELETE FROM inquiry_delivery_claims WHERE inquiry_id = ?", existing.id);
   await sql.run("DELETE FROM inquiries WHERE id = ?", existing.id);
   return existing;
 }
