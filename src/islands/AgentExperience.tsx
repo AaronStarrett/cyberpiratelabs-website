@@ -27,6 +27,7 @@ export default function AgentExperience({ initialMode = "voice", compact = false
   const [hydrated, setHydrated] = useState(false);
   const [available, setAvailable] = useState(false);
   const [wide, setWide] = useState(false);
+  const experienceRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -62,15 +63,15 @@ export default function AgentExperience({ initialMode = "voice", compact = false
   }, []);
 
   useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
+    const experience = experienceRef.current;
+    if (!experience) return;
     let visible = false;
     const update = () => dispatch({ type: "visibility", inView: visible, tabVisible: !document.hidden });
     const observer = new IntersectionObserver(([entry]) => {
-      visible = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.18);
+      visible = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.1);
       update();
-    }, { threshold: [0, 0.18] });
-    observer.observe(stage);
+    }, { threshold: [0, 0.1] });
+    observer.observe(experience);
     document.addEventListener("visibilitychange", update);
     return () => {
       observer.disconnect();
@@ -173,7 +174,7 @@ export default function AgentExperience({ initialMode = "voice", compact = false
   const durationSeconds = snapshot.duration / 1000;
   const elapsedSeconds = Math.min(durationSeconds, Math.floor(state.elapsed / 1000));
   return (
-    <div className={"agent-experience" + (compact ? " agent-experience--compact" : "")}
+    <div ref={experienceRef} className={"agent-experience" + (compact ? " agent-experience--compact" : "")}
       data-mode={state.mode} data-webgl={available} data-complete={complete} data-motion-paused={scenePaused}
       data-playing={state.playing} data-cycle={state.cycles} data-elapsed={Math.round(state.elapsed)}
       data-intent={state.intent} data-in-view={state.inView} data-reading={state.reading}
