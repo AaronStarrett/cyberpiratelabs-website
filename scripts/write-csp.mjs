@@ -27,9 +27,9 @@ for (const file of walk("dist")) {
   }
 }
 
-const scriptSrc = ["'self'", "https://challenges.cloudflare.com", ...scriptHashes].join(" ");
+const scriptSrc = ["'self'", "https://challenges.cloudflare.com", "https://static.cloudflareinsights.com", ...scriptHashes].join(" ");
 const styleSrc = ["'self'", ...styleHashes].join(" ");
-const policy = `default-src 'self'; img-src 'self'; style-src ${styleSrc}; font-src 'self'; script-src ${scriptSrc}; frame-src https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'`;
+const policy = `default-src 'self'; img-src 'self'; style-src ${styleSrc}; font-src 'self'; script-src ${scriptSrc}; frame-src https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com https://cloudflareinsights.com; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'none'`;
 
 const headers = `/*
   X-Content-Type-Options: nosniff
