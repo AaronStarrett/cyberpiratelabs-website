@@ -2,10 +2,11 @@ import { useEffect, useId, useReducer, useRef, useState } from "react";
 import { agentScenarios, type AgentMode, type ScenarioId } from "../../shared/agents/fixtures";
 import { experienceReducer, experienceSnapshot, initialExperience } from "../../shared/agents/experience";
 import { createExperienceClock } from "../../shared/agents/playback";
+import { getSolutionAgentScenario } from "../../shared/agents/solution-scenarios";
 import type { AgentStageController } from "./stage/createAgentStage";
 import "../styles/agent-experience.css";
 
-type Props = { initialMode?: AgentMode; compact?: boolean };
+type Props = { initialMode?: AgentMode; compact?: boolean; solution?: string };
 const fieldOrder = ["service", "area", "details", "frequency", "timing", "name", "email"];
 
 function Symbol({ kind }: { kind: "phone" | "chat" | "arrow" | "play" | "pause" | "replay" | "check" }) {
@@ -22,8 +23,11 @@ function Symbol({ kind }: { kind: "phone" | "chat" | "arrow" | "play" | "pause" 
 }
 
 /** Local fixed stories, never connected to the live inquiry form or an agent API. */
-export default function AgentExperience({ initialMode = "voice", compact = false }: Props) {
-  const [state, dispatch] = useReducer(experienceReducer, initialMode, initialExperience);
+export default function AgentExperience({ initialMode = "voice", compact = false, solution }: Props) {
+  const requestedScenario = getSolutionAgentScenario(solution);
+  const requestedId = requestedScenario?.id ?? "remodeling";
+  const [state, dispatch] = useReducer(experienceReducer, { initialMode, requestedId },
+    (initial) => initialExperience(initial.initialMode, initial.requestedId));
   const [hydrated, setHydrated] = useState(false);
   const [available, setAvailable] = useState(false);
   const [wide, setWide] = useState(false);
@@ -36,13 +40,19 @@ export default function AgentExperience({ initialMode = "voice", compact = false
   const id = useId();
   const snapshot = experienceSnapshot(state);
   const { scenario, shown, captures, complete, phase } = snapshot;
+  const focused = scenario.solution;
   const reduced = state.reducedMotion;
   const scenePaused = !state.playing || reduced;
   const poseRef = useRef({ mode: state.mode, progress: snapshot.storyProgress, complete });
   const motionRef = useRef(scenePaused);
   const nextStep = captures.find((capture) => capture.key === "next");
+  const resultOrder = focused?.result.map((field) => field.key) ?? fieldOrder;
   const fields = captures.filter((capture) => capture.key !== "next")
-    .sort((a, b) => fieldOrder.indexOf(a.key) - fieldOrder.indexOf(b.key));
+    .sort((a, b) => resultOrder.indexOf(a.key) - resultOrder.indexOf(b.key));
+
+  useEffect(() => {
+    dispatch({ type: "scenario", scenario: requestedId });
+  }, [requestedId]);
 
   useEffect(() => {
     setHydrated(true);
@@ -174,14 +184,15 @@ export default function AgentExperience({ initialMode = "voice", compact = false
   const durationSeconds = snapshot.duration / 1000;
   const elapsedSeconds = Math.min(durationSeconds, Math.floor(state.elapsed / 1000));
   return (
-    <div ref={experienceRef} className={"agent-experience" + (compact ? " agent-experience--compact" : "")}
+    <div ref={experienceRef} className={"agent-experience" + (compact ? " agent-experience--compact" : "") + (focused ? " agent-experience--focused" : "")}
       data-mode={state.mode} data-webgl={available} data-complete={complete} data-motion-paused={scenePaused}
+      data-solution={focused?.slug}
       data-playing={state.playing} data-cycle={state.cycles} data-elapsed={Math.round(state.elapsed)}
       data-intent={state.intent} data-in-view={state.inView} data-reading={state.reading}
-      aria-label="Illustrative CPL voice and chat agent experience" aria-busy={!hydrated}>
+      aria-label={focused ? `${scenario.label}: fictional ${state.mode} demonstration` : "Illustrative CPL voice and chat agent experience"} aria-busy={!hydrated}>
       <div className="agent-experience__framing">
-        <div><h3>Watch an inquiry become a clear next step.</h3>
-          <p>See how a voice or chat agent turns a conversation into an organized request.</p></div>
+        <div><h3>{focused ? "Watch this solution at work." : "Watch an inquiry become a clear next step."}</h3>
+          <p>{focused ? focused.title : "See how a voice or chat agent turns a conversation into an organized request."}</p></div>
         <span className="agent-experience__duration">{durationSeconds} sec <span>· Silent example</span></span>
       </div>
       <div className="agent-playback">
@@ -200,21 +211,24 @@ export default function AgentExperience({ initialMode = "voice", compact = false
         </div>
       </div>
       <div className="agent-experience__toolbar">
-        <div className="agent-mode" role="group" aria-label="Choose voice or chat walkthrough">
+        {focused ? <div className="agent-delivery"><Symbol kind={state.mode === "voice" ? "phone" : "chat"} /><span>{state.mode === "voice" ? "Voice agent" : "Chat agent"}<small>{scenario.label}</small></span></div> : <>
+          <div className="agent-mode" role="group" aria-label="Choose voice or chat walkthrough">
           <button type="button" disabled={!hydrated} onClick={() => chooseMode("voice")} aria-pressed={state.mode === "voice"}>
             <Symbol kind="phone" /> Voice
           </button>
           <button type="button" disabled={!hydrated} onClick={() => chooseMode("chat")} aria-pressed={state.mode === "chat"}>
             <Symbol kind="chat" /> Chat
           </button>
-        </div>
+          </div>
         <div className="agent-scenario">
           <label htmlFor={id + "-scenario"}>Try a sample</label>
           <select disabled={!hydrated} id={id + "-scenario"} value={state.scenario} onChange={(event) => chooseScenario(event.currentTarget.value)}>
             {agentScenarios.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}
           </select>
-        </div>
+          </div>
+        </>}
         <span className="agent-experience__sample"><i aria-hidden="true" /> Illustrative demo · Fictional business · Sample data</span>
+        {focused?.accessNote && <p className="agent-access-note">{focused.accessNote}</p>}
       </div>
 
       <div className="agent-stage" ref={stageRef}>
@@ -231,7 +245,7 @@ export default function AgentExperience({ initialMode = "voice", compact = false
             <span className="agent-phone__time">{state.mode === "voice" ? scenario.setting.match(/[0-9]+:[0-9]+/)?.[0] ?? "CPL" : "CPL"}</span>
             <div className="agent-phone__avatar">{scenario.initials}</div>
             <span className="agent-phone__business">{scenario.business}</span>
-            <span className="agent-phone__call">{complete ? "Sample complete" : state.mode === "voice" ? "Incoming inquiry" : "Website visitor"}</span>
+            <span className="agent-phone__call">{complete ? "Sample complete" : state.mode === "voice" ? "Fictional inquiry" : focused?.accessNote ? "Sample employee" : "Website visitor"}</span>
             <div className="agent-phone__signal"><Symbol kind={state.mode === "voice" ? "phone" : "chat"} /></div>
             <span className="agent-phone__note">{state.mode === "voice" ? "Transcript walkthrough" : "Scripted conversation"}</span>
             <span className="agent-phone__audio">No audio · No live connection</span>
@@ -241,7 +255,7 @@ export default function AgentExperience({ initialMode = "voice", compact = false
         <div className="agent-conversation">
           <div className="agent-conversation__heading">
             <span className="agent-conversation__mark"><Symbol kind={state.mode === "voice" ? "phone" : "chat"} /></span>
-            <div><strong>{scenario.business}</strong><span>Fictional {state.mode === "voice" ? "call" : "website chat"}</span></div>
+            <div><strong>{scenario.business}</strong><span>Fictional {state.mode === "voice" ? "call" : focused?.accessNote ? "staff chat" : "website chat"}</span></div>
             <span className="agent-conversation__count">{String(snapshot.index + 1).padStart(2, "0")} / {String(snapshot.messages.length).padStart(2, "0")}</span>
           </div>
           <p className="agent-conversation__setting">{scenario.setting}</p>
@@ -249,7 +263,7 @@ export default function AgentExperience({ initialMode = "voice", compact = false
             {shown.slice(-3).map((item, index) => (
               <div key={state.mode + state.scenario + (snapshot.index - Math.min(2, snapshot.index) + index)}
                 className={"agent-message agent-message--" + item.speaker}>
-                <span>{item.speaker === "agent" ? "AI assistant" : state.mode === "voice" ? "Sample caller" : "Sample visitor"}</span>
+                <span>{item.speaker === "agent" ? "AI assistant" : state.mode === "voice" ? "Sample caller" : focused?.accessNote ? "Sample employee" : "Sample visitor"}</span>
                 <p>{item.text}</p>
               </div>
             ))}
@@ -258,20 +272,20 @@ export default function AgentExperience({ initialMode = "voice", compact = false
           </div>
           <div className="agent-conversation__footer">
             <i aria-hidden="true" />
-            <span>{complete ? "Sample follow-up prepared" : state.playing ? "Walking through the example" : state.started ? "Demo paused" : "Ready when you are"}</span>
+            <span>{complete ? focused ? "Sample result ready to inspect" : "Sample follow-up prepared" : state.playing ? "Walking through the example" : state.started ? "Demo paused" : "Ready when you are"}</span>
           </div>
         </div>
 
-        <div className="agent-result" ref={resultRef} aria-label="Organized sample inquiry">
+        <div className="agent-result" ref={resultRef} aria-label={focused?.resultTitle ?? "Organized sample inquiry"}>
           <div className="agent-result__top"><span>CONVERSATION → ACTION</span><Symbol kind={complete ? "check" : "arrow"} /></div>
-          <h3>{scenario.kind === "handoff" ? "A person takes it from here." : "Useful details. One clear next step."}</h3>
-          <span className="agent-result__badge">{complete ? "Sample result" : fields.length ? "Sample inquiry forming" : "Waiting for sample details"}</span>
+          <h3>{focused?.resultTitle ?? (scenario.kind === "handoff" ? "A person takes it from here." : "Useful details. One clear next step.")}</h3>
+          <span className="agent-result__badge">{complete ? "Sample result" : fields.length ? "Sample result forming" : "Waiting for sample details"}</span>
           {fields.length ? (
             <dl>{fields.map((capture) => <div key={capture.key} data-field={capture.key}><dt>{capture.label}</dt><dd>{capture.value}</dd></div>)}</dl>
           ) : (
             <div className="agent-result__empty">
               <div /><div /><div />
-              <p>Watch details move from the conversation into an organized request.</p>
+              <p>{focused ? "Follow the conversation to see the useful result take shape." : "Watch details move from the conversation into an organized request."}</p>
             </div>
           )}
           {nextStep && <div className="agent-result__next"><Symbol kind="arrow" /><p>{nextStep.value}</p></div>}
@@ -280,17 +294,22 @@ export default function AgentExperience({ initialMode = "voice", compact = false
       </div>
 
       <details className="agent-transcript" ref={transcriptRef} onToggle={(event) => dispatch({ type: "transcript", open: event.currentTarget.open })}>
-        <summary>Read the complete sample transcript <span aria-hidden="true">+</span></summary>
+        <summary>Read the complete sample {focused ? "and result" : "transcript"} <span aria-hidden="true">+</span></summary>
         <div className="agent-transcript__intro">
           <p>This fixed example illustrates a configured workflow. It uses no audio, microphone, live AI, or real customer data.</p>
           <p><strong>Sample business information:</strong> {scenario.approvedInformation}</p>
         </div>
         <ol>{snapshot.messages.map((item, index) => <li key={state.mode + state.scenario + index}>
-          <strong>{item.speaker === "agent" ? "AI assistant" : state.mode === "voice" ? "Sample caller" : "Sample visitor"}</strong>
+          <strong>{item.speaker === "agent" ? "AI assistant" : state.mode === "voice" ? "Sample caller" : focused?.accessNote ? "Sample employee" : "Sample visitor"}</strong>
           <p>{item.text}</p>
         </li>)}</ol>
+        {focused && <section className="agent-transcript__result" aria-label="Complete sample result">
+          <h4>{focused.resultTitle}</h4>
+          <dl>{focused.result.map((field) => <div key={field.key}><dt>{field.label}</dt><dd>{field.value}</dd></div>)}</dl>
+          <p>{focused.next}</p>
+        </section>}
       </details>
-      <noscript><p className="agent-noscript">This illustrative transcript is available above. Enable JavaScript to switch scenarios and use playback controls.</p></noscript>
+      <noscript><p className="agent-noscript">The complete fictional example is available above without JavaScript. Enable JavaScript to use playback controls.</p></noscript>
     </div>
   );
 }

@@ -1,0 +1,14 @@
+---
+import Base from "../../layouts/Base.astro";
+import SolutionDetail from "../../components/SolutionDetail.astro";
+import { solutions, type Solution } from "../../../shared/solutions";
+
+export function getStaticPaths() {
+  return solutions.map(solution => ({ params: { slug: solution.slug }, props: { solution } }));
+}
+interface Props { solution: Solution; }
+const { solution } = Astro.props;
+---
+<Base title={`${solution.name} | Cyber Pirate Labs`} description={solution.benefit}>
+  <SolutionDetail solution={solution} />
+</Base>

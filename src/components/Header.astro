@@ -6,10 +6,10 @@ const path = Astro.url.pathname;
     <a class="brand" href="/" aria-label="Cyber Pirate Labs home"><img src="/brand/cpl-logo.png" width="1254" height="1254" alt="" /><span>Cyber Pirate Labs<small>CONVERSATIONS. PUT TO WORK.</small></span></a>
     <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" type="button">Menu <span aria-hidden="true">☰</span></button>
     <nav id="site-nav" class="nav" aria-label="Primary">
-      <a href="/voice-agents/" aria-current={path === '/voice-agents/' ? 'page' : undefined}>Voice agents</a>
-      <a href="/chat-agents/" aria-current={path === '/chat-agents/' ? 'page' : undefined}>Chat agents</a>
+      <a href="/solutions/" aria-current={path.startsWith('/solutions/') && !path.includes('/bundles/') ? 'page' : undefined}>Solutions</a>
+      <a href="/solutions/bundles/" aria-current={path.includes('/solutions/bundles/') ? 'page' : undefined}>Bundles</a>
       <a href="/#how-it-works">How it works</a>
-      <a class="nav-cta" href="/demo/" aria-current={path === '/demo/' ? 'page' : undefined}>Request a CPL Demo <span aria-hidden="true">↗</span></a>
+      <a class="nav-cta" href="/demo/" aria-current={path === '/demo/' ? 'page' : undefined}>Request a demo <span aria-hidden="true">↗</span></a>
     </nav>
   </div>
 </header>

@@ -1,5 +1,13 @@
 # Deploy the existing Cloudflare preview
 
+## Current review: ten business solutions (2026-10-04)
+
+This update is a local review preview on `codex/ten-business-solutions`, based on `e5295f45d6146bf11c484d75d2718b6d774d923a`. No new deployment, production inquiry, or provider configuration was performed. Review the current [verification](verification.md) before authorizing a release.
+
+The September 21 preflight details below are historical. They must not be used to conclude that notifications are currently unconfigured: the current source includes notification repair `bb2366d`, with separate archive/email states, HMAC verification, durable send ledger, activation cutoff, backlog controls, uncertain-send review and retry protections. Preserve the deployed connector; the local `google/apps-script/` example is not the authoritative cloud deployment.
+
+After approval, use the same manual release mechanism below from the verified current checkout at `D:\Cyber Pirate Labs\03_ENGINEERING\Repositories\cyberpiratelabs-website`. Recheck the active version and existing target before upload, build the exact reviewed clean commit, preserve variables with `--keep-vars`, and record the commit tag and deployed version. No new Worker, database, domain, cron, secret or schema is needed. The `env.production` placeholder is not a release target for this update. Production inquiry tests or real communications require their own authorization.
+
 This repository updates the existing `cyberpiratelabs-website` Worker at [the preview origin](https://cyberpiratelabs-website.astarrett.workers.dev/). It uses Workers Static Assets, D1, Turnstile, and the existing fifteen-minute retry trigger. Deployments are manual from reviewed, committed source. Keep GitHub Actions disabled; do not add automatic Git builds or paid services.
 
 This is a release procedure, not evidence that the current redesign has been deployed. Record the actual released commit, Worker version, browser checks, and inquiry readback in the release handoff.
@@ -25,12 +33,12 @@ Existing Wrangler authorization worked during preflight. Use `whoami` to check t
 
 ## Windows workspace and build environment
 
-Use the verified external-SSD checkout. The owner's current workspace is `D:\CPL Website`. Verify the SSD before writing, preserve any unrelated files, and keep dependencies, caches, output, logs, screenshots, recordings, and temporary files on that drive.
+Use the verified external-SSD checkout. The current working checkout is `D:\Cyber Pirate Labs\03_ENGINEERING\Repositories\cyberpiratelabs-website`; preserve the original `D:\CPL Website` checkout. Verify the SSD before writing, preserve any unrelated files, and keep dependencies, caches, output, logs, screenshots, recordings, and temporary files on that drive.
 
 The following PowerShell setup uses the Node installation verified for this workspace. If that installation changes, resolve and verify the replacement on the SSD before substituting its path.
 
 ```powershell
-Set-Location -LiteralPath 'D:\CPL Website'
+Set-Location -LiteralPath 'D:\Cyber Pirate Labs\03_ENGINEERING\Repositories\cyberpiratelabs-website'
 $nodeDir = 'D:\Cyber Pirate Labs\93_TOOLS_AND_CACHE\gods-eye-view\node-v24.14.0-win-x64'
 $node = Join-Path $nodeDir 'node.exe'
 $npmCli = Join-Path $nodeDir 'node_modules\npm\bin\npm-cli.js'
@@ -49,7 +57,7 @@ $env:PUBLIC_INDEXABLE = 'false'
 
 The Turnstile **site key is public** and is embedded in the form HTML. It must be present when Astro builds; preserving the Worker secret alone does not preserve a working form after a rebuild. Public build settings may be kept in an ignored local `.env`, but never put secret values in a committed example. Keep preview indexing disabled. The existing site's canonical-domain metadata is not authorization to attach a domain.
 
-Use command-local Git trust where exFAT requires it, for example `git -c safe.directory='D:/CPL Website' status --short`. Do not change global Git trust settings.
+Use command-local Git trust where exFAT requires it, for example `git -c safe.directory='D:/Cyber Pirate Labs/03_ENGINEERING/Repositories/cyberpiratelabs-website' status --short`. Do not change global Git trust settings.
 
 ## Read-only release preflight
 
@@ -72,13 +80,13 @@ During the recorded preflight, only `RATE_LIMIT_SALT` and `TURNSTILE_SECRET` wer
 4. Run the dry run, inspect the target and bindings, then deploy that same build. Use a commit tag and message so the Worker version can be matched to source.
 
 ```powershell
-$releaseCommit = (git -c safe.directory='D:/CPL Website' rev-parse HEAD).Trim()
-if (git -c safe.directory='D:/CPL Website' status --porcelain) {
+$releaseCommit = (git -c safe.directory='D:/Cyber Pirate Labs/03_ENGINEERING/Repositories/cyberpiratelabs-website' rev-parse HEAD).Trim()
+if (git -c safe.directory='D:/Cyber Pirate Labs/03_ENGINEERING/Repositories/cyberpiratelabs-website' status --porcelain) {
   throw 'Commit and review source changes before release.'
 }
 & $node $npmCli run build
 if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
-if (git -c safe.directory='D:/CPL Website' status --porcelain) {
+if (git -c safe.directory='D:/Cyber Pirate Labs/03_ENGINEERING/Repositories/cyberpiratelabs-website' status --porcelain) {
   throw 'Build changed tracked source; review and commit before release.'
 }
 & $node node_modules/wrangler/bin/wrangler.js deploy --dry-run --name cyberpiratelabs-website

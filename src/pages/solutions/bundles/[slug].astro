@@ -1,0 +1,21 @@
+---
+import Base from "../../../layouts/Base.astro";
+import BundleFlow from "../../../components/BundleFlow.astro";
+import SolutionCard from "../../../components/SolutionCard.astro";
+import { bundles, getSolution, demoRequestHref, type Bundle, type Solution } from "../../../../shared/solutions";
+import "../../../styles/solutions.css";
+
+export function getStaticPaths() {
+  return bundles.map(bundle => ({ params: { slug: bundle.slug }, props: { bundle } }));
+}
+interface Props { bundle: Bundle; }
+const { bundle } = Astro.props;
+const included = bundle.solutionSlugs.map(getSolution).filter((item): item is Solution => Boolean(item));
+const demoHref = demoRequestHref({ bundle: bundle.slug });
+---
+<Base title={`${bundle.name} Bundle | Cyber Pirate Labs`} description={bundle.summary}>
+  <section class="solutions-hub-intro"><div class="wrap"><nav class="solution-breadcrumb" aria-label="Breadcrumb"><a href="/solutions/bundles/">All bundles</a><span aria-hidden="true">/</span><span>{bundle.name}</span></nav><p class="eyebrow"><span class="signal-dot"></span>{bundle.name} / {bundle.delivery === "voice" ? "Voice" : "Chat"} bundle</p><div class="solutions-hub-heading"><h1>{bundle.headline}</h1><div><p>{bundle.summary}</p><a class="button" href={demoHref}>Show me this bundle <span aria-hidden="true">↗</span></a></div></div></div></section>
+  <section class="bundle-detail-flow wrap"><div><p class="eyebrow">The route, made clear</p><h2>What happens<br />at each handoff.</h2><p class="solution-section-copy">See where the service helps, what your team receives and where a person takes the next step.</p><div class="bundle-fit"><h3>Where it fits</h3><p>{bundle.fit}</p></div></div><BundleFlow bundle={bundle} /></section>
+  <section class="solution-related wrap"><div class="section-heading"><div><p class="eyebrow">Inside this bundle</p><h2>{included.length === 1 ? "A focused staff companion." : "Related needs, brought together."}</h2></div><p>Explore the scope and a fictional demonstration for each solution.</p></div><div class="solution-grid">{included.map(solution => <SolutionCard solution={solution} />)}</div></section>
+  <section class="solution-closing"><div class="wrap"><div><p class="eyebrow">A workflow around your business</p><h2>Start with your real next step.</h2><p>Tell us how inquiries and handoffs work today. We’ll discuss the configuration, access needs and a custom quote.</p></div><a class="button" href={demoHref}>Show me this bundle <span aria-hidden="true">↗</span></a></div></section>
+</Base>

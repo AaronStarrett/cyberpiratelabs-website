@@ -1,5 +1,7 @@
+import { solutionAgentScenarios } from "./solution-scenarios";
+
 export type AgentMode = "voice" | "chat";
-export type ScenarioId = "remodeling" | "cleaning" | "home-service" | "billing";
+export type ScenarioId = "remodeling" | "cleaning" | "home-service" | "billing" | `solution:${string}`;
 export type Capture = { key: string; label: string; value: string };
 export type AgentMessage = {
   speaker: "agent" | "visitor";
@@ -15,6 +17,17 @@ export type AgentScenario = {
   kind: "inquiry" | "handoff";
   approvedInformation: string;
   stories: Record<AgentMode, AgentMessage[]>;
+  /** Focused solution stories use one configured entry point, not shared voice/chat memory. */
+  delivery?: AgentMode;
+  beats?: AgentBeat[];
+  solution?: {
+    slug: string;
+    title: string;
+    resultTitle: string;
+    result: Capture[];
+    next: string;
+    accessNote?: string;
+  };
 };
 
 const message = (
@@ -229,7 +242,9 @@ export const agentScenarios: AgentScenario[] = [
 ];
 
 export function getAgentScenario(id: ScenarioId): AgentScenario {
-  return agentScenarios.find((scenario) => scenario.id === id) ?? agentScenarios[0]!;
+  return agentScenarios.find((scenario) => scenario.id === id)
+    ?? solutionAgentScenarios.find((scenario) => scenario.id === id)
+    ?? agentScenarios[0]!;
 }
 export type AgentBeat = { through: number; duration: number; label: string };
 export const RESULT_HOLD_MS = 2500;
@@ -263,6 +278,8 @@ const billingChat: AgentBeat[] = [
 
 /** Message groups are meaningful beats; the complete transcript remains available. */
 export function getAgentBeats(scenario: ScenarioId, mode: AgentMode): AgentBeat[] {
+  const focused = getAgentScenario(scenario);
+  if (focused.beats) return focused.beats;
   return scenario === "billing"
     ? mode === "voice" ? billingVoice : billingChat
     : mode === "voice" ? routineVoice : routineChat;

@@ -1,0 +1,19 @@
+---
+import Base from "../../layouts/Base.astro";
+import SolutionCard from "../../components/SolutionCard.astro";
+import { solutions, solutionGroups } from "../../../shared/solutions";
+import "../../styles/solutions.css";
+---
+<Base title="Business Solutions | Cyber Pirate Labs" description="Find voice and chat assistance for missed inquiries, incomplete quote requests, routine questions, customer care and staff procedures.">
+  <section class="solutions-hub-intro">
+    <div class="wrap">
+      <p class="eyebrow"><span class="signal-dot"></span>Ten solutions / one clear next step</p>
+      <div class="solutions-hub-heading"><h1>Start with the problem.<br /><span>Find your solution.</span></h1><div><p>Give routine questions a useful answer, requests the right details, and people a clear place to go.</p><p>CPL configures and manages voice or chat assistance around your business.</p><a class="text-link" href="/solutions/bundles/">See how solutions work together <span aria-hidden="true">↗</span></a></div></div>
+      <nav class="solution-group-nav" aria-label="Solution categories">{solutionGroups.map(group => <a href={`#${group.id}`}>{group.label}<span aria-hidden="true">↓</span></a>)}</nav>
+    </div>
+  </section>
+  <div class="solutions-catalog wrap">
+    {solutionGroups.map(group => { const entries = solutions.filter(solution => solution.group === group.id); return <section id={group.id} class:list={["solution-group", `solution-group--${group.id}`]} aria-labelledby={`${group.id}-heading`}><div class="section-heading"><div><p class="eyebrow">{String(entries.length).padStart(2, "0")} {entries.length === 1 ? "solution" : "solutions"}</p><h2 id={`${group.id}-heading`}>{group.label}.</h2></div><p>{group.description}</p></div><div class="solution-grid">{entries.map(solution => <SolutionCard solution={solution} />)}</div></section>; })}
+  </div>
+  <section class="solution-closing"><div class="wrap"><div><p class="eyebrow">A connected next step</p><h2>Several needs.<br />One considered workflow.</h2><p>Explore four bundles with clear routes, useful outputs and visible human handoffs.</p></div><a class="button" href="/solutions/bundles/">Explore the bundles <span aria-hidden="true">↗</span></a></div></section>
+</Base>

@@ -1,4 +1,36 @@
-# Voice and chat website verification
+# Website verification
+
+## Ten business solutions review — 2026-10-04
+
+Implemented in the verified Extreme SSD checkout at `D:\Cyber Pirate Labs\03_ENGINEERING\Repositories\cyberpiratelabs-website`, on `codex/ten-business-solutions`, from `e5295f45d6146bf11c484d75d2718b6d774d923a`. The original `D:\CPL Website` checkout is clean and preserved. This update has not been pushed or deployed.
+
+### Checks
+
+- PASS: 245 tests across 12 files, including the existing inquiry, notification, Apps Script ledger/HMAC/cutoff/retry and uncertain-send regressions, plus catalog, selection and ten focused-demo tests.
+- PASS: Astro checks for 51 files with zero errors, warnings or hints; Worker TypeScript, ESLint, production build, secret scan and diff whitespace checks.
+- PASS: static audit of 24 generated HTML pages and 863 internal references, including all ten solution and four bundle details, titles, descriptions, canonical/social metadata, retained anchors and sitemap coverage. All 34 contextual CTAs use known selections and valid voice/chat interests.
+- PASS: generated CSP contains all seven inline script and four style hashes, agrees with `public/_headers`, and adds no unsafe-inline permission, inline style attributes or inline event handlers.
+- PASS: all 20 protected baseline files retain their SHA-256 hashes; Git confirms no changes to Worker/inquiry/Apps Script/migration trees, Wrangler config, dependencies/lockfile, original logo, approved illustrations or `PirateAgentIllustration.astro`.
+
+### Browser evidence
+
+The built asset preview at `http://127.0.0.1:43123/` serves the generated security headers. It accepts only static GET/HEAD requests and blocks the inquiry API and POST requests, so review cannot save an inquiry or notify a customer. It uses the existing public Turnstile key; localhost verification is unavailable and its visible email fallback remains intact.
+
+- PASS: all 23 public content routes at 360px mobile, 768px tablet and 1440px desktop; no horizontal document overflow or broken loaded images. Additional 390px solution/result review covered longer quote and procedure examples.
+- PASS: all ten focused demo results, both delivery modes, sample disclosures and expected fields; all fourteen solution/bundle CTA clicks populate the visible selection, valid interest and existing `workflowProblem` field.
+- PASS: all six problem filters plus All solutions using keyboard activation; visible next-step links, live counts, mobile menu and Escape focus return; keyboard restart/pause and native full transcript access with JavaScript enabled.
+- PASS: reduced-motion emulation shows a complete static quote result, with playback stopped. JavaScript-disabled rendering keeps all ten homepage services discoverable and mobile navigation visible; the native staff transcript opens and exposes the complete SSR result.
+- Existing unit regressions cover hidden/offscreen playback, renderer loss and clock disposal. Forced WebGL failure and hidden-tab behavior were not separately established in this browser pass. Physical devices, WebKit and real-user performance were not tested.
+
+Private screenshots and JSON audits are on D: at `D:\Cyber Pirate Labs\93_TOOLS_AND_CACHE\cpl-website\evidence\solutions-20261004`. They include the desktop homepage, quote result on mobile, Lead to Next Step branches on desktop and Team Knowledge access boundary on tablet. This evidence is local preview acceptance, not live provider acceptance.
+
+### Configuration and release boundary
+
+No new schema, paid dependency, AI call, live Stammer integration or provider configuration is needed for this marketing update. Customer deployments still require agreed approved content, recipient/transfer number/booking URL as applicable, and verified controlled access for private employee material. The demos are fictional local examples.
+
+Notification repair `bb2366d` is preserved. The older unconfigured-notification observations below are historical and are not current configuration evidence. No production test inquiry, real email, Worker/D1 operation, credential change, cron/domain change, push or deployment was performed. After owner review, follow the existing manual [release](cloudflare-deploy.md) and [rollback](rollback.md) procedures from the exact clean reviewed revision.
+
+## Historical voice and chat verification (prior release)
 
 This repository is the CPL marketing website. Checks below describe this revision and do not establish a deployed customer agent, Stammer account, or customer acceptance.
 

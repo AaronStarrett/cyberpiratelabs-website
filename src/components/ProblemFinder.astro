@@ -1,0 +1,40 @@
+---
+import SolutionCard from "./SolutionCard.astro";
+import { solutions, demoRequestHref } from "../../shared/solutions";
+import { businessProblems } from "../../shared/solution-selection";
+---
+<section id="solutions" class="solution-finder">
+  <div class="wrap">
+    <div class="section-heading"><div><p class="eyebrow">Start with the work that gets repeated</p><h2>What needs a<br /><span>clearer next step?</span></h2></div><p>Ten focused solutions. Choose a familiar problem, or explore the full menu. CPL configures and manages the voice or chat assistance behind each one.</p></div>
+    <div class="problem-options" role="group" aria-label="Choose a business problem">
+      <button type="button" data-problem="all" aria-pressed="true" aria-controls="solution-results">All solutions <span>10</span></button>
+      {businessProblems.map(problem => <button type="button" data-problem={problem.id} data-matches={problem.solutions.join(',')} aria-pressed="false" aria-controls="solution-results">{problem.label}<span aria-hidden="true">↗</span></button>)}
+    </div>
+    <div class="finder-next"><p id="solution-match-status" role="status" aria-live="polite">Explore all ten solutions below.</p><a id="solution-match-next" class="text-link" href="/solutions/">Open the solutions guide ↗</a></div>
+    <div id="solution-results" class="home-solution-grid">
+      {solutions.map(solution => <div class="home-solution" data-solution-id={solution.id} data-demo-href={demoRequestHref({solution:solution.slug})} data-solution-name={solution.name}><SolutionCard solution={solution} compact /></div>)}
+    </div>
+    <noscript><p class="finder-static">All ten solutions are listed above. Open any solution to explore its sample and request a demonstration.</p></noscript>
+  </div>
+</section>
+<script>
+  const finder = document.querySelector('.solution-finder');
+  if (finder) {
+    const buttons = finder.querySelectorAll<HTMLButtonElement>('[data-problem]');
+    const cards = [...finder.querySelectorAll<HTMLElement>('[data-solution-id]')];
+    const status = finder.querySelector<HTMLElement>('#solution-match-status');
+    const next = finder.querySelector<HTMLAnchorElement>('#solution-match-next');
+    for (const button of buttons) button.addEventListener('click', () => {
+      const all = button.dataset.problem === 'all';
+      const ids = button.dataset.matches?.split(',') ?? [];
+      buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      cards.forEach(card => { card.hidden = !all && !ids.includes(card.dataset.solutionId ?? ''); });
+      const shown = cards.filter(card => !card.hidden);
+      if (status) status.textContent = all ? 'Explore all ten solutions below.' : `${shown.length} ${shown.length === 1 ? 'solution fits' : 'solutions fit'} this problem. Explore a sample, then ask CPL to show it for your business.`;
+      if (next) {
+        next.href = all ? '/solutions/' : shown[0]?.dataset.demoHref ?? '/demo/';
+        next.textContent = all ? 'Open the solutions guide ↗' : `Request a relevant demo ↗`;
+      }
+    });
+  }
+</script>

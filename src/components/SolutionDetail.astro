@@ -1,0 +1,75 @@
+---
+import type { Solution } from "../../shared/solutions";
+import { getBundle, getSolution, demoRequestHref } from "../../shared/solutions";
+import AgentExperience from "../islands/AgentExperience";
+import PirateAgentIllustration from "./PirateAgentIllustration.astro";
+import SolutionCard from "./SolutionCard.astro";
+import "../styles/solutions.css";
+
+interface Props { solution: Solution; }
+const { solution } = Astro.props;
+const related = solution.relatedSlugs.map(getSolution).filter((item): item is Solution => Boolean(item));
+const connectedBundles = solution.bundleSlugs.map(getBundle).filter(item => Boolean(item));
+const demoHref = demoRequestHref({ solution: solution.slug });
+---
+<section class="solution-intro">
+  <div class="wrap">
+    <nav class="solution-breadcrumb" aria-label="Breadcrumb"><a href="/solutions/">All solutions</a><span aria-hidden="true">/</span><span>{solution.name}</span></nav>
+    <div class="solution-intro-grid">
+      <div class="solution-intro-copy">
+        <p class="eyebrow"><span class="signal-dot"></span>{solution.delivery === "voice" ? "Voice assistance" : "Chat assistance"}</p>
+        <h1>{solution.headline}</h1>
+        <p class="hero-summary">{solution.benefit}</p>
+        <div class="hero-actions"><a class="button" href={demoHref}>Show me this solution <span aria-hidden="true">↗</span></a><a class="text-link" href="#sample">See a sample <span aria-hidden="true">↓</span></a></div>
+      </div>
+      <div class="solution-sample-composition">
+        <div class="solution-agent-art"><PirateAgentIllustration variant={solution.delivery} /></div>
+        <div class="solution-result-card">
+          <span class="solution-sample-label">Fictional example · {solution.delivery}</span>
+          <h2>{solution.demo.resultTitle}</h2>
+          <dl>{solution.demo.result.slice(0, 3).map(field => <div><dt>{field.label}</dt><dd>{field.value}</dd></div>)}</dl>
+          <p><span aria-hidden="true">↳</span> {solution.demo.next}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="solution-configuration wrap" aria-labelledby="configure-heading">
+  <div class="solution-problem">
+    <p class="eyebrow">The everyday problem</p>
+    <h2>{solution.name}</h2>
+    <p>{solution.problem}</p>
+  </div>
+  <div>
+    <p class="eyebrow">Built around your business</p>
+    <h2 id="configure-heading">What CPL configures.</h2>
+    <p class="solution-section-copy">{solution.configuration}</p>
+    <ul class="solution-inclusions">{solution.inclusions.map(item => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul>
+  </div>
+</section>
+
+<aside class="solution-scope">
+  <div class="wrap"><span class="solution-scope-label">{solution.group === "team" ? "Access & scope" : "Clear scope"}</span><p>{solution.scope}</p></div>
+</aside>
+
+<section id="sample" class="experience-section solution-experience" aria-labelledby="solution-sample-heading">
+  <div class="wrap">
+    <div class="section-heading"><div><p class="eyebrow">A fictional demonstration</p><h2 id="solution-sample-heading">{solution.demo.title}</h2></div><p>Follow the conversation and its useful result. This sample does not make calls, send messages or take action in your systems.</p></div>
+    <AgentExperience solution={solution.slug} compact client:visible />
+  </div>
+</section>
+
+<section class="solution-next wrap" aria-labelledby="solution-fit-heading">
+  <div class="solution-fit"><p class="eyebrow">Where it fits</p><h2 id="solution-fit-heading">A useful fit for…</h2><ul>{solution.fit.map(item => <li>{item}</li>)}</ul></div>
+  <div class="solution-next-cards">
+    <article><span class="solution-small-label">01 / Next step</span><h3>A clear place to go.</h3><p>{solution.next}</p></article>
+    <article><span class="solution-small-label">02 / Human involvement</span><h3>Your team stays involved.</h3><p>{solution.human}</p></article>
+  </div>
+</section>
+
+{connectedBundles.length > 0 && <section class="solution-bundle-band"><div class="wrap"><div><p class="eyebrow">Works well together</p><h2>Part of a wider workflow.</h2><p>Combine related needs in a clearly scoped service.</p></div><div class="solution-bundle-links">{connectedBundles.map(bundle => bundle && <a href={`/solutions/bundles/${bundle.slug}/`}><span class="solution-small-label">{bundle.delivery === "voice" ? "Voice bundle" : "Chat bundle"}</span><strong>{bundle.name}</strong><span>{bundle.headline}</span><span class="solution-inline-arrow" aria-hidden="true">↗</span></a>)}</div></div></section>}
+
+{related.length > 0 && <section class="solution-related wrap" aria-labelledby="related-heading"><div class="section-heading"><div><p class="eyebrow">Related solutions</p><h2 id="related-heading">Another useful next step.</h2></div><a class="text-link" href="/solutions/">Browse all ten <span aria-hidden="true">↗</span></a></div><div class="solution-grid">{related.map(item => <SolutionCard solution={item} />)}</div></section>}
+
+<section class="solution-closing"><div class="wrap"><div><p class="eyebrow">Configured for your business</p><h2>See how this could work for you.</h2><p>Share your workflow and the outcome you need. We’ll discuss the scope and provide a custom quote.</p></div><a class="button" href={demoHref}>Show me this solution <span aria-hidden="true">↗</span></a></div></section>

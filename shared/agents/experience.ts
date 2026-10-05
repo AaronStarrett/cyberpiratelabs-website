@@ -26,9 +26,10 @@ export type ExperienceAction =
   | { type: "motion"; reduced: boolean }
   | { type: "tick"; ms: number };
 
-export function initialExperience(mode: AgentMode = "voice"): ExperienceState {
+export function initialExperience(mode: AgentMode = "voice", scenario: ScenarioId = "remodeling"): ExperienceState {
+  const fixture = getAgentScenario(scenario);
   return {
-    mode, scenario: "remodeling", elapsed: 0, playing: false, started: false,
+    mode: fixture.delivery ?? mode, scenario: fixture.id, elapsed: 0, playing: false, started: false,
     intent: "auto", inView: false, tabVisible: true, reading: false,
     reducedMotion: false, cycles: 0,
   };
@@ -58,12 +59,15 @@ export function experienceReducer(state: ExperienceState, action: ExperienceActi
   switch (action.type) {
     case "mode":
       return applyPlayback({
-        ...state, mode: action.mode, elapsed: 0, cycles: 0, started: false,
+        ...state, mode: getAgentScenario(state.scenario).delivery ?? action.mode, elapsed: 0, cycles: 0, started: false,
       });
-    case "scenario":
+    case "scenario": {
+      const fixture = getAgentScenario(action.scenario);
       return applyPlayback({
-        ...state, scenario: action.scenario, elapsed: 0, cycles: 0, started: false,
+        ...state, scenario: fixture.id, mode: fixture.delivery ?? state.mode,
+        elapsed: 0, cycles: 0, started: false,
       });
+    }
     case "visibility":
       return applyPlayback({ ...state, inView: action.inView, tabVisible: action.tabVisible });
     case "transcript":
@@ -96,7 +100,7 @@ export function experienceReducer(state: ExperienceState, action: ExperienceActi
 
 export function experienceSnapshot(state: ExperienceState) {
   const scenario = getAgentScenario(state.scenario);
-  const messages = scenario.stories[state.mode];
+  const messages = scenario.stories[scenario.delivery ?? state.mode];
   const beats = getAgentBeats(state.scenario, state.mode);
   const duration = experienceDuration(state);
   const storyDuration = experienceStoryDuration(state);

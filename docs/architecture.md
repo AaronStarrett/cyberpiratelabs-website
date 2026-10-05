@@ -4,21 +4,24 @@ The marketing site keeps the existing static Astro build, React islands, npm loc
 
 ## Public rendering
 
-`src/pages/` defines the homepage, voice and chat service pages, request page, existing contact route, legal routes, and 404. `Base.astro` supplies metadata, bundled fonts, navigation, footer, and shared `agent-site.css`. The approved CPL logo is unchanged; the build derives icons and voice/chat social artwork.
+`src/pages/` defines the homepage, solution and bundle hubs, ten generated solution pages, four generated bundle pages, supporting voice/chat pages, request page, existing contact route, legal routes, and 404. `src/pages/solutions/[slug].astro` and `bundles/[slug].astro` use catalog-driven static paths. `SolutionCard`, `SolutionDetail`, and `BundleFlow` provide reusable presentation, including scope, alternative paths, and recipients. `Base.astro` supplies metadata, bundled fonts, navigation, footer, and shared `agent-site.css`; `solutions.css` and `solution-home.css` extend the existing style. Approved logo and pirate illustration assets are reused.
 
-The homepage’s initial `HeroStage.astro` composition is lightweight HTML/CSS. Core offer text and the request CTA are prerendered. The homepage and both service pages mount `AgentExperience` with `client:visible`; the request form is a separate component on `/demo/`.
+The homepage's initial `HeroStage.astro` composition is lightweight HTML/CSS. Core offer text, all ten solution cards, and the request CTA are prerendered. `ProblemFinder.astro` adds accessible pressed-state buttons that filter those cards and update a visible next-step link; all services remain discoverable without JavaScript. The homepage mounts a focused quote-request `AgentExperience`; solution details mount their matching catalog demo. Both supporting voice/chat pages retain the general experience. Islands use `client:visible`; the request form is a separate component on `/demo/`. Existing homepage anchors `experience`, `services`, `use-cases`, `how-it-works`, and `faq` remain available.
 
 ## Local Agent Experience
 
 | Source | Responsibility |
 | --- | --- |
-| `shared/agents/fixtures.ts` | Four fictional business scenarios, approved information, voice/chat messages, timings, and sample captures |
+| `shared/solutions.ts` | Ten solutions, four bundles, stable slugs, groups, scope, fictional demos, relationships, and safe request URLs |
+| `shared/solution-selection.ts` | Problem-to-solution matching and known solution/bundle query selection for request prefill |
+| `shared/agents/fixtures.ts` | Four retained general fictional business scenarios, approved information, voice/chat messages, timings, and sample captures |
+| `shared/agents/solution-scenarios.ts` | Adapts catalog demos into the existing scenario shape, with authored source-turn captures and one assigned delivery mode |
 | `shared/agents/experience.ts` | One reducer for mode, scenario, elapsed time, and playback; derives transcript progress and result fields |
 | `src/islands/AgentExperience.tsx` | Mode/scenario selection, playback, transcript, HTML result, motion preferences, and lazy scene mounting |
 | `src/styles/agent-experience.css` | Dimensional HTML composition and responsive/static presentation |
 | `src/islands/stage/createAgentStage.ts` | Optional Three.js phone, conversation, and inquiry geometry, lighting, perspective, and pose transitions |
 
-The reducer’s snapshot reveals complete messages and collects only their explicitly supplied fields. Mode/scenario changes restart the sample; play, pause, replay, and skip-to-result use the same state. The complete selected transcript is rendered in semantic HTML. A billing scenario illustrates a simulated person-needed boundary.
+The reducer's snapshot reveals complete messages and collects their explicitly supplied fields. The catalog adapter associates result fields with authored source turns; unknown mappings fall back to an exact text match or the final turn. The final next-step disclosure is added at the final turn. Focused scenarios lock their voice/chat delivery and replace the legacy chooser with a delivery label. General mode/scenario changes restart the sample; play, pause, replay, and skip-to-result use the same state. The complete selected transcript, plus a focused sample's complete result, is prerendered in an expandable native HTML disclosure. The retained billing scenario illustrates a simulated person-needed boundary.
 
 These fixed stories exist in browser memory. They do not request microphone access, play audio, invoke an LLM or Stammer API, create an appointment, or submit a real inquiry. No visitor scenario choice is transmitted as a lead. Stammer AI is the selected platform for separately scoped CPL services; the marketing implementation does not establish a live platform account or deployment.
 
@@ -28,11 +31,13 @@ HTML carries the readable conversation and result; the decorative canvas is hidd
 
 The renderer caps pixel ratio at 1.5. It renders bounded pose transitions and changes on demand, pauses offscreen or while the document is hidden, and disposes observers, listeners, geometry, materials, and GPU resources. WebGL failure or context loss leaves the HTML story available. Playback also stops advancing while hidden or offscreen.
 
-Reduced motion shows a completed stable sample and uses immediate state changes. A separate motion control governs visual interpolation; playback has its own pause control. These are source-level behavior descriptions. Browser and measured performance outcomes belong in `docs/verification.md`.
+Reduced motion shows a completed stable sample and disables animated playback controls. The scene's paused state follows playback and motion preferences. These are source-level behavior descriptions. Browser and measured performance outcomes belong in `docs/verification.md`.
 
 ## Real inquiry path
 
 `InquiryForm.astro` posts to `POST /api/inquiries`. Shared `validateInquiry` rules run in the browser and Worker. New agent interests (`voice`, `chat`, `both`, `not-sure`) require name, email, and company. Phone, website, and problem text are optional and bounded. The website is represented by the existing `currentTools` column; omitted problem text becomes an explicit request stating that additional details were not provided. Existing legacy interest values and their required-description rules remain supported.
+
+`demoRequestHref` builds `/demo/?solution=<known-slug>&interest=voice|chat` or the equivalent `bundle` link. In the form, `demoSelection` resolves only catalog entries, writes readable selection context to an empty `workflowProblem` field, and sets the existing delivery interest. A valid solution takes precedence over a bundle. Unknown slugs do not become inquiry interests or arbitrary public copy. This is client-side prefill, with no new payload field, database column, or backend route.
 
 `worker/index.ts` routes inquiry and protected operator requests; static assets are served from `dist/` through the existing asset configuration. The backend retains:
 
@@ -47,9 +52,9 @@ The browser only treats a response as saved when it confirms `ok`, `saved`, `sto
 
 A D1 save establishes website storage. It does not establish arrival in a Google Sheet, Drive folder, or inbox. A configured later step sends a signed payload to the existing Google endpoint; credentials remain server-side.
 
-Archive status is `pending`, `pending_unconfigured`, `disabled`, `synced`, or `failed`. Notification status also includes `held` and `ambiguous` alongside `pending`, `pending_unconfigured`, `sent`, and `failed`. The form provides a received reference and a concise delay/contact message. Eligible due deliveries use an explicit activation cutoff, per-inquiry claims, eight-attempt backoff and the existing 15-minute schedule. Apps Script's durable send ledger protects retries and reconciles lost responses; uncertain sends require owner review. Email is independent of the optional archive. See [notification setup](google-setup.md) for the additive script, preserved legacy deployments and exact backlog gate.
+Archive status is `pending`, `pending_unconfigured`, `disabled`, `synced`, or `failed`. Notification status also includes `held` and `ambiguous` alongside `pending`, `pending_unconfigured`, `sent`, and `failed`. These are possible states, not an assertion that the current configuration is unconfigured. The form provides a received reference and a concise delay/contact message. The `bb2366d` notification repair remains intact: eligible due deliveries use an explicit activation cutoff, per-inquiry claims, HMAC validation, eight-attempt backoff and the existing 15-minute schedule. Apps Script's durable send ledger protects retries and reconciles lost responses; uncertain sends require owner review. Email is independent of the optional archive. See [notification setup](google-setup.md) for the additive script, preserved legacy deployments and exact backlog gate. The local Apps Script example is not the authoritative cloud connector and is not bulk-deployed by this update.
 
-No new schema migration, database, platform account, resource binding, or environment secret is required by this presentation update. Use the existing verified release target and process documented in `docs/cloudflare-deploy.md`.
+No new schema migration, database, platform account, resource binding, or environment secret is required by this presentation update. Current delivery stops at a local review preview, with no production test inquiry or new production deployment. A separately authorized release uses the existing target and process documented in `docs/cloudflare-deploy.md`, preserving bindings, credentials, cron, and domain configuration.
 
 ## Retained history
 

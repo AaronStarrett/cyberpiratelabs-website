@@ -15,6 +15,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   {showLead && <p class="inquiry-lead">See how voice and chat agents could fit the conversations your business handles. Start with three details; everything else is optional.</p>}
   {!siteKey && <p class="status verification-notice" role="status">The verification check is unavailable right now. Please use the email option below.</p>}
   <form id="inquiry" class="form" method="post" action="/api/inquiries" novalidate data-turnstile-site-key={siteKey}>
+    <p id="selected-solution" class="status form-field-wide" hidden></p>
     <div id="form-status" class="status form-field-wide" role="status" aria-live="polite" tabindex="-1" hidden></div>
     <div class="hp" aria-hidden="true">
       <label for="cpl_leave_blank">Leave blank</label>
@@ -74,6 +75,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 <script>
   import { AGENT_INTERESTS, validateInquiry, type FieldErrors } from "../../shared/inquiry/validate";
+  import { demoSelection } from "../../shared/solution-selection";
 
   const form = document.querySelector<HTMLFormElement>("#inquiry");
   if (form) {
@@ -84,6 +86,14 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     const params = new URLSearchParams(window.location.search);
     const interestValue = params.get("interest") ?? "";
     if (interest && (AGENT_INTERESTS as readonly string[]).includes(interestValue)) interest.value = interestValue;
+    const selection = demoSelection(params);
+    if (selection) {
+      const problem = form.querySelector<HTMLTextAreaElement>('#inquiry-problem');
+      if (problem && !problem.value) problem.value = selection.context;
+      if (interest) interest.value = selection.interest;
+      const selected = form.querySelector<HTMLElement>('#selected-solution');
+      if (selected) { selected.hidden = false; selected.textContent = `Your selected demonstration: ${selection.name}. Add your business context below.`; }
+    }
 
     const fieldErrors = [
       ["name", "name-error"],

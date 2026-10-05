@@ -1,0 +1,32 @@
+---
+import type { Bundle } from "../../shared/solutions";
+import "../styles/solutions.css";
+interface Props { bundle: Bundle; }
+const { bundle } = Astro.props;
+---
+<div class:list={["bundle-flow", `bundle-flow--${bundle.slug}`]} role="group" aria-label={`${bundle.name} workflow`}>
+  <div class="bundle-flow-label"><span class="signal-dot"></span> Illustrative workflow <span>{bundle.delivery === "voice" ? "Voice" : "Chat"}</span></div>
+  <ol class="bundle-flow-steps">
+    {bundle.steps.map((step, index) => (
+      <li>
+        <span class="bundle-step-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+        <div><h3>{step.title}</h3><p>{step.description}</p></div>
+      </li>
+    ))}
+  </ol>
+  {bundle.branches.length > 0 && (
+    <div class="bundle-flow-routing">
+      <p class="bundle-route-label">{bundle.slug === "team-knowledge" ? "Keep the handoff clear" : "The appropriate path for this need"}</p>
+      <ul class="bundle-flow-branches">
+        {bundle.branches.map(branch => (
+          <li>
+            <h3>{branch.title}</h3>
+            <p>{branch.description}</p>
+            <span class="bundle-recipient"><span aria-hidden="true">↳</span> {branch.recipient}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+  <p class="bundle-flow-boundary"><strong>{bundle.slug === "team-knowledge" ? "Access boundary" : "Handoff & scope"}</strong>{bundle.scope}</p>
+</div>

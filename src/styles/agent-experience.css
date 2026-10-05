@@ -544,3 +544,66 @@
 @media (prefers-reduced-motion: reduce) {
   .agent-experience *, .agent-experience *::before { animation: none !important; transition: none !important; }
 }
+
+/* Focused service stories retain the same stage, with room for their distinct results. */
+.agent-delivery { display: flex; align-items: center; gap: 11px; color: #dffff0; min-width: 0; }
+.agent-delivery > svg { width: 24px; height: 24px; color: #aeffde; }
+.agent-delivery > span { font-size: 14px; font-weight: 600; line-height: 1.4; }
+.agent-delivery small { display: block; margin-top: 2px; color: #badbd3; font-size: 12px; font-weight: 400; }
+.agent-access-note { flex-basis: 100%; margin: 0; padding: 11px 14px; border: 1px solid #467c79; border-radius: 8px; color: #d0eee2; font-size: 12px; line-height: 1.6; background: #123844; }
+.agent-transcript__result { padding: 0 28px 28px; color: #d9f5e8; }
+.agent-transcript__result h4 { margin: 0 0 16px; color: #effff7; font-size: 17px; font-weight: 500; }
+.agent-transcript__result dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 28px; margin: 0; }
+.agent-transcript__result dt { color: #aee7d2; font-size: 11px; margin-bottom: 5px; }
+.agent-transcript__result dd { margin: 0; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.agent-transcript__result > p { font-size: 12px; line-height: 1.6; margin: 22px 0 0; max-width: 760px; }
+.agent-experience--focused .agent-stage {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 25px;
+  align-items: start;
+  min-height: 650px;
+  padding: 55px 32px 65px;
+}
+.agent-experience--focused .agent-phone { position: relative; inset: auto; width: 150px; height: 310px; margin-top: 65px; }
+.agent-experience--focused .agent-phone__avatar { margin-top: 25px; width: 45px; height: 45px; font-size: 19px; }
+.agent-experience--focused .agent-phone__business { font-size: 12px; }
+.agent-experience--focused .agent-phone__signal { margin: 19px 0 12px; width: 37px; height: 37px; }
+.agent-experience--focused .agent-phone__audio { font-size: 8px; }
+.agent-experience--focused .agent-conversation { width: 100%; margin: 0; min-height: 445px; }
+.agent-experience--focused .agent-conversation__setting { font-size: 10px; line-height: 1.5; }
+.agent-experience--focused .agent-conversation__messages { min-height: 285px; }
+.agent-experience--focused .agent-conversation__heading strong { font-size: 14px; }
+.agent-experience--focused .agent-message p { font-size: 13px; line-height: 1.6; }
+.agent-experience--focused .agent-result { position: relative; inset: auto; width: 100%; margin: 30px 0 0; padding: 22px; }
+.agent-experience--focused .agent-result h3 { font-size: clamp(20px, 2vw, 25px); }
+.agent-experience--focused .agent-result dl { grid-template-columns: 1fr; gap: 12px; }
+.agent-experience--focused .agent-result dd { font-size: 13px; line-height: 1.5; }
+.agent-experience--focused .agent-result__next p { font-size: 12px; line-height: 1.6; }
+.agent-experience--focused .agent-result__disclosure { font-size: 11px; }
+.agent-experience--focused .agent-experience__sample { margin-left: auto; width: auto; }
+@media (max-width: 1100px) {
+  .agent-experience--focused .agent-stage { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 25px; padding: 52px 27px 50px; }
+  .agent-experience--focused .agent-phone { display: none; }
+  .agent-experience--focused .agent-experience__sample { margin-left: 0; }
+}
+@media (max-width: 700px) {
+  .agent-experience--focused .agent-stage { display: flex; min-height: 0; gap: 22px; padding: 20px 17px 28px; }
+  .agent-experience--focused .agent-stage__chapter { display: none; }
+  .agent-experience--focused .agent-conversation,
+  .agent-experience--focused[data-mode] .agent-conversation { transform: none; margin: 0; min-height: 0; }
+  .agent-experience--focused .agent-conversation__messages { min-height: 220px; }
+  .agent-experience--focused .agent-message { width: 94%; }
+  .agent-experience--focused .agent-conversation__setting { font-size: 10px; }
+  .agent-experience--focused .agent-result,
+  .agent-experience--focused[data-complete] .agent-result { transform: none; margin: 0; padding: 20px; }
+  .agent-experience--focused .agent-result dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .agent-experience--focused .agent-result dl > div:last-child { grid-column: 1 / -1; }
+  .agent-experience--focused .agent-result h3 { max-width: none; }
+  .agent-experience--focused .agent-result dt { line-height: 1.5; }
+  .agent-experience--focused .agent-result__badge { font-size: 10px; }
+  .agent-delivery { align-items: flex-start; }
+  .agent-delivery small { line-height: 1.55; }
+  .agent-transcript__result { padding: 0 17px 24px; }
+  .agent-transcript__result dl { grid-template-columns: 1fr; gap: 14px; }
+}
