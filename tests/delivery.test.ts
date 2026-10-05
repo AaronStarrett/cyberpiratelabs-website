@@ -123,11 +123,13 @@ describe("Worker delivery safety using SQLite and mocked provider services",()=>
   });
   it("never displays internal delivery diagnostics in received confirmations",async()=>{
     const sql=createTestSql(),{record}=await save(sql);
+    // A valid random reference can contain D1; audit only the explanatory copy.
+    const publicReference="CPL-D1227373";
     for(const notifyStatus of ["sent","held","pending_unconfigured","failed","ambiguous"] as const) {
-      const message=savedMessage({...record,notifyStatus,notifyError:"SECRET_INTERNAL_DIAGNOSTIC"});
-      expect(message).toContain(record.publicReference);
+      const message=savedMessage({...record,publicReference,notifyStatus,notifyError:"SECRET_INTERNAL_DIAGNOSTIC"});
+      expect(message).toContain(publicReference);
       expect(message).toContain("not a confirmed appointment");
-      expect(message).not.toMatch(/Google|D1|SECRET|configured|database|archive/);
+      expect(message.replace(publicReference,"")).not.toMatch(/Google|D1|SECRET|configured|database|archive/);
       if(notifyStatus!=="sent") expect(message).toContain("astarrett@cyberpiratelabs.com");
     }
   });

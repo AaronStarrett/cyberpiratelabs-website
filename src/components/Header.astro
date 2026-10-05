@@ -8,6 +8,7 @@ const path = Astro.url.pathname;
     <nav id="site-nav" class="nav" aria-label="Primary">
       <a href="/solutions/" aria-current={path.startsWith('/solutions/') && !path.includes('/bundles/') ? 'page' : undefined}>Solutions</a>
       <a href="/solutions/bundles/" aria-current={path.includes('/solutions/bundles/') ? 'page' : undefined}>Bundles</a>
+      <a href="/custom-automation/" aria-current={path === "/custom-automation/" || path === "/consultation/" ? "page" : undefined}>Custom automation</a>
       <a href="/#how-it-works">How it works</a>
       <a class="nav-cta" href="/demo/" aria-current={path === '/demo/' ? 'page' : undefined}>Request a demo <span aria-hidden="true">↗</span></a>
     </nav>

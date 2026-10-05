@@ -1,21 +1,26 @@
 ---
+import { customConsultation } from "../../shared/custom-automation";
+
 interface Props {
   sourcePath: string;
   showLead?: boolean;
+  requestKind?: "demo" | "custom";
 }
 
-const { sourcePath, showLead = true } = Astro.props;
+const { sourcePath, showLead = true, requestKind = "demo" } = Astro.props;
+const isCustom = requestKind === "custom";
+const requestLabel = isCustom ? "Request a custom automation consultation" : "Request a CPL Demo";
 const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 ---
 <div class="inquiry-card">
   <div class="inquiry-heading">
     <span class="kicker">Let’s talk about your business</span>
-    <h2>Request a CPL Demo</h2>
+    <h2 id="inquiry-heading-title">{requestLabel}</h2>
   </div>
-  {showLead && <p class="inquiry-lead">See how voice and chat agents could fit the conversations your business handles. Start with three details; everything else is optional.</p>}
+  {showLead && <p id="inquiry-lead" class="inquiry-lead">{isCustom ? "Start with your business and the process you want to improve. We will assess the fit before defining an implementation scope." : "Explore a core solution for the work your business handles. Start with three details; everything else is optional."}</p>}
   {!siteKey && <p class="status verification-notice" role="status">The verification check is unavailable right now. Please use the email option below.</p>}
   <form id="inquiry" class="form" method="post" action="/api/inquiries" novalidate data-turnstile-site-key={siteKey}>
-    <p id="selected-solution" class="status form-field-wide" hidden></p>
+    <p id="selected-solution" class="status form-field-wide" hidden={!isCustom}>{isCustom ? `Your selected request: ${customConsultation.name}. Add your business context below.` : ""}</p>
     <div id="form-status" class="status form-field-wide" role="status" aria-live="polite" tabindex="-1" hidden></div>
     <div class="hp" aria-hidden="true">
       <label for="cpl_leave_blank">Leave blank</label>
@@ -49,7 +54,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     <div class="form-field form-field-wide">
       <label for="inquiry-interest">What interests you? <span class="optional-label">Optional</span></label>
       <select id="inquiry-interest" name="interest" aria-describedby="interest-error">
-        <option value="not-sure">Not sure yet</option>
+        <option value="not-sure">{isCustom ? "Custom automation consultation" : "Not sure yet"}</option>
         <option value="voice">CPL AI Voice Agents</option>
         <option value="chat">CPL AI Chat Agents</option>
         <option value="both">Voice + Chat</option>
@@ -58,7 +63,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     </div>
     <div class="form-field form-field-wide">
       <label for="inquiry-problem">What would you like help handling? <span class="optional-label">Optional</span></label>
-      <textarea id="inquiry-problem" name="workflowProblem" maxlength="2000" aria-describedby="workflow-hint workflow-error" placeholder="Routine questions, after-hours inquiries, lead details, requests that need a person…"></textarea>
+      <textarea id="inquiry-problem" name="workflowProblem" maxlength="2000" aria-describedby="workflow-hint workflow-error" placeholder={isCustom ? "Describe the process, current tools, recurring work and the outcome you need." : "Routine questions, after-hours inquiries, lead details, requests that need a person…"}>{isCustom ? customConsultation.context : ""}</textarea>
       <p id="workflow-hint" class="form-hint">A little context is welcome. Please leave out sensitive customer records, payment details, passwords, and credentials.</p>
       <p id="workflow-error" class="error" hidden></p>
     </div>
@@ -66,11 +71,11 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     <input type="hidden" name="submissionId" id="submissionId" value="" />
     <div id="inquiry-turnstile" class="form-field-wide"></div>
     <p id="turnstile-error" class="error form-field-wide" hidden></p>
-    <button type="submit" id="submit-inquiry" class="inquiry-submit">Request a CPL Demo <span aria-hidden="true">↗</span></button>
+    <button type="submit" id="submit-inquiry" class="inquiry-submit">{requestLabel} <span aria-hidden="true">↗</span></button>
     <p class="form-privacy form-field-wide">We use these details to handle your inquiry. This does not book a meeting or subscribe you to a newsletter. <a href="/privacy/">Privacy details</a></p>
   </form>
-  <p class="inquiry-fallback">Prefer email, or having trouble with the form? <a href="mailto:astarrett@cyberpiratelabs.com?subject=CPL%20Demo%20Request">astarrett@cyberpiratelabs.com</a></p>
-  <noscript><p class="status">The verification check needs JavaScript. Please request your demonstration using the email link above.</p></noscript>
+  <p class="inquiry-fallback">Prefer email, or having trouble with the form? <a href={isCustom ? "mailto:astarrett@cyberpiratelabs.com?subject=Custom%20Automation%20Consultation" : "mailto:astarrett@cyberpiratelabs.com?subject=CPL%20Demo%20Request"}>astarrett@cyberpiratelabs.com</a></p>
+  <noscript><p class="status">The verification check needs JavaScript. Please use the email link above for your request.</p></noscript>
 </div>
 
 <script>
@@ -88,11 +93,20 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     if (interest && (AGENT_INTERESTS as readonly string[]).includes(interestValue)) interest.value = interestValue;
     const selection = demoSelection(params);
     if (selection) {
+      if ("requestKind" in selection && selection.requestKind === "custom") {
+        const title = document.querySelector('#inquiry-heading-title');
+        const lead = document.querySelector('#inquiry-lead');
+        if (title) title.textContent = "Request a custom automation consultation";
+        if (lead) lead.textContent = "Start with your business and the process you want to improve. We will assess the fit before defining an implementation scope.";
+        if (button) button.textContent = "Request a custom automation consultation";
+        const exploring = interest?.querySelector('option[value="not-sure"]');
+        if (exploring) exploring.textContent = "Custom automation consultation";
+      }
       const problem = form.querySelector<HTMLTextAreaElement>('#inquiry-problem');
       if (problem && !problem.value) problem.value = selection.context;
       if (interest) interest.value = selection.interest;
       const selected = form.querySelector<HTMLElement>('#selected-solution');
-      if (selected) { selected.hidden = false; selected.textContent = `Your selected demonstration: ${selection.name}. Add your business context below.`; }
+      if (selected) { selected.hidden = false; selected.textContent = `Your selected request: ${selection.name}. Add your business context below.`; }
     }
 
     const fieldErrors = [
@@ -226,7 +240,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
         if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) field.disabled = true;
       }
       button.textContent = "Saving your request…";
-      status.textContent = "Saving your demo request.";
+      status.textContent = "Saving your request.";
 
       try {
         const response = await fetch("/api/inquiries", {
@@ -255,7 +269,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
         if (response.ok && payload.ok === true && payload.saved === true && payload.storage === "saved" && payload.reference) {
           confirmed = true;
           status.classList.add("is-saved");
-          status.textContent = payload.message ?? "Thanks - your demo request has been received. Reference: " + payload.reference + ". This is a demo request, not a confirmed appointment.";
+          status.textContent = payload.message ?? "Thanks - your request has been received. Reference: " + payload.reference + ". Meeting time and implementation scope are agreed separately.";
           button.textContent = "Request saved";
 
           status.focus();
@@ -278,7 +292,7 @@ const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
             if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) field.disabled = false;
           }
           button.disabled = false;
-          button.textContent = "Retry demo request";
+          button.textContent = "Retry request";
         }
       }
     });

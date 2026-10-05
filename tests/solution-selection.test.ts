@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { businessProblems, demoSelection, matchingSolutions } from "../shared/solution-selection";
 import { bundles, demoRequestHref, solutions } from "../shared/solutions";
+import { customConsultation, customConsultationHref } from "../shared/custom-automation";
 import { AGENT_INTERESTS, validateInquiry } from "../shared/inquiry/validate";
 
 describe("problem selection and existing inquiry contract", () => {
@@ -38,5 +39,31 @@ describe("problem selection and existing inquiry contract", () => {
   });
   it("rejects a solution slug masquerading as an inquiry interest", () => {
     expect(validateInquiry({name:"Fictional QA",email:"qa@example.invalid",company:"Fictional Company",interest:solutions[0].slug,workflowProblem:"A demonstration request"}).ok).toBe(false);
+  });
+});
+
+
+describe("custom consultation within the existing inquiry contract", () => {
+  it("sends the allowlisted consultation context through existing fields", () => {
+    const url = new URL(customConsultationHref, "https://example.invalid");
+    expect(url.pathname).toBe("/demo/");
+    const selection = demoSelection(url.searchParams)!;
+    expect(selection).toEqual(customConsultation);
+    const result = validateInquiry({ name: "Fictional QA", email: "qa@example.invalid", company: "Fictional Company", interest: selection.interest, workflowProblem: selection.context, sourcePath: url.pathname });
+    expect(result.ok).toBe(true);
+    expect(result.value?.interest).toBe("not-sure");
+    expect(result.value?.sourcePath).toBe("/demo/");
+    expect(result.value?.workflowProblem).toContain("custom automation consultation");
+    expect(result.value).not.toHaveProperty("consultation");
+    expect(solutions).toHaveLength(10);
+  });
+  it.each(["made-up", "<script>alert(1)</script>"])("does not copy unknown consultation value %s into the request", value => {
+    expect(demoSelection(new URLSearchParams({ consultation: value, interest: "not-sure" }))).toBeNull();
+  });
+  it.each([
+    { query: { solution: solutions[0].slug, consultation: "custom-automation" }, expected: solutions[0].name },
+    { query: { bundle: bundles[0].slug, consultation: "custom-automation" }, expected: bundles[0].name },
+  ])("keeps an existing core selection when a consultation key is also present", ({ query, expected }) => {
+    expect(demoSelection(new URLSearchParams(query))?.name).toBe(expected);
   });
 });

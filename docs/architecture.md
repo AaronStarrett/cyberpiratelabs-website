@@ -1,5 +1,10 @@
 # Architecture
 
+## Outcome-led marketing and separate consultation path
+
+The ten-service catalog remains unchanged. shared/custom-automation.ts holds the separate consultation context, process and FAQ; custom-automation.astro explains the offer and consultation.astro reuses InquiryForm with requestKind=custom. CustomAutomationCTA links from the homepage, catalog and bundle hub. The consultation uses existing inquiry fields and not-sure interest; no Worker, database, migration, binding, secret or provider deployment is introduced.
+
+
 The marketing site keeps the existing static Astro build, React islands, npm lockfile, and Cloudflare Worker/D1 inquiry backend.
 
 ## Public rendering
@@ -59,3 +64,5 @@ No new schema migration, database, platform account, resource binding, or enviro
 ## Retained history
 
 `ProductStage.tsx`, `FilmScenes.tsx`, their styles, `shared/demo/`, and the old `shared/capability.ts` remain as historical source. Current routes do not import the retired Command Center marketing experience. Its tests preserve past source invariants; they do not establish active website or customer-product behavior.
+
+The established /demo/ document and CTA destination remains available for core demonstrations and custom consultation. Custom links use /demo/?consultation=custom-automation&interest=not-sure; /consultation/ is an additional direct custom-form route. All payload fields, notification processing and saved-state checks remain unchanged.

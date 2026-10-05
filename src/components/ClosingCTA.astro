@@ -1,4 +1,5 @@
 ---
-const {title = "Let’s make your next conversation count.", text = "See how a CPL voice or chat agent could fit your business. We’ll discuss the information, workflow, and connections that matter to you."} = Astro.props;
+interface Props { title?: string; text?: string; href?: string; label?: string; eyebrow?: string; }
+const {title = "Put the next step to work.", text = "Explore the ten core solutions, or bring a different workflow to a custom automation consultation.", href = "/demo/", label = "Request a CPL Demo", eyebrow = "A useful software solution starts with your business"} = Astro.props;
 ---
-<section class="closing"><div class="wrap closing-inner"><div><p class="eyebrow">A better first conversation starts here</p><h2>{title}</h2><p>{text}</p></div><a class="button light" href="/demo/">Request a CPL Demo <span aria-hidden="true">↗</span></a></div><span class="closing-word" aria-hidden="true">LET’S TALK.</span></section>
+<section class="closing"><div class="wrap closing-inner"><div><p class="eyebrow">{eyebrow}</p><h2>{title}</h2><p>{text}</p></div><a class="button light" href={href}>{label} <span aria-hidden="true">&nearr;</span></a></div><span class="closing-word" aria-hidden="true">LET'S TALK.</span></section>

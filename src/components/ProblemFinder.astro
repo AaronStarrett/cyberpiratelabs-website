@@ -5,7 +5,7 @@ import { businessProblems } from "../../shared/solution-selection";
 ---
 <section id="solutions" class="solution-finder">
   <div class="wrap">
-    <div class="section-heading"><div><p class="eyebrow">Start with the work that gets repeated</p><h2>What needs a<br /><span>clearer next step?</span></h2></div><p>Ten focused solutions. Choose a familiar problem, or explore the full menu. CPL configures and manages the voice or chat assistance behind each one.</p></div>
+    <div class="section-heading"><div><p class="eyebrow">Start with the work that gets repeated</p><h2>What needs a<br /><span>clearer next step?</span></h2></div><p>Ten core solutions for familiar business problems. Explore the useful outcome first; CPL configures and manages the voice or chat software that delivers the agreed assistance.</p></div>
     <div class="problem-options" role="group" aria-label="Choose a business problem">
       <button type="button" data-problem="all" aria-pressed="true" aria-controls="solution-results">All solutions <span>10</span></button>
       {businessProblems.map(problem => <button type="button" data-problem={problem.id} data-matches={problem.solutions.join(',')} aria-pressed="false" aria-controls="solution-results">{problem.label}<span aria-hidden="true">↗</span></button>)}

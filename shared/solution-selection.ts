@@ -1,4 +1,5 @@
 import { bundles, solutions } from "./solutions";
+import { customConsultation } from "./custom-automation";
 
 export const businessProblems = [
   { id: "missed", label: "We miss inquiries when we’re busy or closed", solutions: ["01", "02"] },
@@ -28,5 +29,6 @@ export function demoSelection(params: URLSearchParams) {
     interest: bundle.delivery,
     context: `I'd like a demonstration of the ${bundle.name} bundle.\nSolutions: ${bundle.solutionSlugs.map(slug => solutions.find(item => item.slug === slug)?.name).join(", ")}.\n\nMy business context: `,
   };
+  if (params.get("consultation") === "custom-automation") return customConsultation;
   return null;
 }

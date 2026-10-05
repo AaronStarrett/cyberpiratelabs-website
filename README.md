@@ -1,6 +1,6 @@
 # Cyber Pirate Labs website
 
-The official Cyber Pirate Labs marketing website presents **ten business solutions and four scoped bundles**, delivered through configured voice or chat assistance. CPL implements and manages the agreed business information and workflows, using Stammer AI as the underlying service platform.
+The official Cyber Pirate Labs marketing website presents **automated software solutions to business problems**: ten focused core offers, four scoped bundles and a separate custom automation consultation pathway. CPL leads with the useful business outcome. Voice, chat and AI are enabling technology; Stammer AI remains the selected platform for the core voice/chat solutions. Custom work may require additional software development or integrations, subject to discovery, API/access, technical feasibility, security and an approved scope, budget and timeline.
 
 This repository contains a static Astro website, a local React/Three.js conversation walkthrough, and the existing Cloudflare Worker/D1 inquiry system. It does not contain a live Stammer agent, a customer portal, or the separate Command Center application.
 
@@ -15,7 +15,9 @@ This repository contains a static Astro website, a local React/Three.js conversa
 | `/solutions/bundles/[slug]/` | Four catalog-generated bundle detail pages |
 | `/voice-agents/` | Inbound voice service and setup boundaries |
 | `/chat-agents/` | Website chat service and setup boundaries |
-| `/demo/` | Real demonstration request form |
+| `/demo/` | Core solution demonstration request form |
+| `/custom-automation/` | Separate custom offer, feasibility boundaries, six-step process and FAQ |
+| `/consultation/` | Custom automation consultation request using the existing inquiry payload and endpoint |
 | `/contact/` | Existing business email and access to the request form |
 | `/privacy/`, `/terms/` | Existing legal routes with owner-review notices |
 
@@ -47,6 +49,7 @@ Configure ignored local environment files for your test environment. `PUBLIC_TUR
 
 - Page copy: `src/pages/`; FAQ: `shared/site.ts`.
 - Service/bundle metadata, stable slugs, boundaries, and fictional demos: `shared/solutions.ts`.
+- Separate custom offer and consultation context: `shared/custom-automation.ts`, `src/pages/custom-automation.astro`, `src/pages/consultation.astro` and `src/components/CustomAutomationCTA.astro`.
 - Problem matching and allowlisted request context: `shared/solution-selection.ts`; homepage selector: `src/components/ProblemFinder.astro`.
 - Reusable solution and bundle presentation: `src/components/{SolutionCard,SolutionDetail,BundleFlow}.astro` and `src/pages/solutions/`.
 - Navigation, hero composition, and final CTA: `src/components/{Header,HeroStage,ClosingCTA}.astro`.
@@ -67,6 +70,8 @@ The separate form sends to `POST /api/inquiries`. Name, email, and company are r
 
 Known `solution` or `bundle` query values on `/demo/` prefill clear selection context in the existing `workflowProblem` field and select the existing `voice` or `chat` interest. Service slugs are not submitted as inquiry interests. Unknown selections are ignored; no new payload or database field is introduced.
 
+The allowlisted `consultation=custom-automation` selection preserves `/demo/` as the canonical request destination and uses the existing `not-sure` interest and readable context in `workflowProblem`. The consultation form also prefills that context in server-rendered HTML. Name, email and company remain required; no field, API, schema, delivery state or notification behavior is added. Custom is a separate pathway, not an eleventh core service.
+
 A confirmed save means the D1 record was inserted and read back. Google archive and business notification use separate statuses; a saved request does not establish final notification delivery. The notification repair from `bb2366d`, including the durable send ledger, HMAC verification, activation cutoff/backlog gate, uncertain-send handling, and retry protections, is preserved. Status names such as `pending_unconfigured` describe possible states, not an assertion about current production configuration. The form keeps a stable submission id for unchanged retries. The verified public email fallback is **AStarrett@cyberpiratelabs.com**. No meeting is automatically booked and no newsletter consent is bundled into an inquiry.
 
 ## Checks and release
@@ -81,10 +86,12 @@ npm run scan:secrets
 
 Inspect rendered desktop, tablet, mobile, keyboard, reduced-motion, and WebGL fallback behavior as well as request validation and failure states. Review the problem selector, all ten direct solution pages and sample results, four bundle paths, and selected context on `/demo/`. Do not submit production test inquiries or trigger customer communications during preview review. [Verification](docs/verification.md) records actual results; commands here are instructions, not a claim that checks or deployment have passed.
 
-The ten-solution update is a local review preview and stops before a new production deployment. For a separately authorized release, use the established Worker procedure in [deployment documentation](docs/cloudflare-deploy.md). Preserve existing infrastructure, deployed secrets, bindings, cron, domains, and workflow configuration; do not bulk-deploy `google/apps-script/`, whose local example is not the authoritative cloud connector. A Git push, Worker deployment, public-page verification, and downstream notification acceptance are separate states. [Rollback notes](docs/rollback.md) describe recovery through the existing release mechanism.
+Aaron has explicitly authorized the outcome-led/custom-automation website update and production release. The ten-solution release at `a7c52a9`, Worker version `c4d219f3-cd19-473e-be1c-73b201a414e0`, is the baseline and rollback reference. This marketing release does not build a customer automation or authorize new vendors, subscriptions, integrations or production inquiry tests. For a separately authorized release, use the established Worker procedure in [deployment documentation](docs/cloudflare-deploy.md). Preserve existing infrastructure, deployed secrets, bindings, cron, domains, and workflow configuration; do not bulk-deploy `google/apps-script/`, whose local example is not the authoritative cloud connector. A Git push, Worker deployment, public-page verification, and downstream notification acceptance are separate states. [Rollback notes](docs/rollback.md) describe recovery through the existing release mechanism.
 
 See [content editing](docs/content-editing.md), [architecture](docs/architecture.md), and [capability boundaries](docs/capability-matrix.md).
 
 ## Rights
 
 All rights reserved. No open-source license is granted.
+
+The established /demo/ document and CTA destination remains available for core demonstrations and custom consultation. Custom links use /demo/?consultation=custom-automation&interest=not-sure; /consultation/ is an additional direct custom-form route. All payload fields, notification processing and saved-state checks remain unchanged.

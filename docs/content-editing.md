@@ -1,5 +1,12 @@
 # Content editing
 
+## Outcome-led positioning and custom work
+
+Lead with the business problem and the useful software outcome. Keep the ten core services and four bundles intact; custom automation is a separate pathway at /custom-automation/ with a consultation form at /consultation/. AI, voice and chat are enabling technology. Stammer remains selected for the core voice/chat offers; additional engineering or integrations for a custom workflow must be assessed separately. Do not promise universal automation, native Stammer coverage, unapproved prices, fixed timing or guaranteed results. Discovery, API/access, technical feasibility, security and an approved scope/budget/timeline precede implementation.
+
+Use customConsultationHref from shared/custom-automation.ts; it retains /demo/ as the canonical request destination with an allowlisted consultation marker. The allowlisted consultation query, existing not-sure interest and workflowProblem/sourcePath fields preserve the inquiry contract. The Worker, D1, Turnstile, HMAC and notification ledger/cutoff/backlog/uncertain-send/retry safeguards are unchanged. Production release is explicitly authorized for this website update; production inquiry/email tests remain excluded.
+
+
 ## Active content
 
 | Source | Edit here |
@@ -70,3 +77,5 @@ Preserve the `bb2366d` notification safeguards: separate archive/email states, d
 Run the tests, type check, lint, build, and secret scan. `tests/solutions.test.ts` checks catalog boundaries, reciprocal links, bundle topology, and request links; `tests/solution-selection.test.ts` checks filtering and prefill; `tests/solution-experience.test.ts` checks catalog scenario/playback continuity. `tests/agent-experience.test.ts` retains general narrative coverage; `tests/inquiry.test.ts` checks validation and synthetic persistence/delivery behavior. Older film tests preserve historical source invariants.
 
 Browser review remains necessary for meaningful motion, transcript/result continuity, responsive sizing, keyboard focus, reduced motion, missing WebGL, asset loads, and form failures. Check all ten detail URLs, all four bundles, related links, retained homepage anchors, and every selected-service/bundle prefill. Keep stable slugs unless providing deliberate redirects. Use synthetic local/mocked requests; do not submit production test inquiries or trigger customer communications. Record actual outcomes and limits in `docs/verification.md`. This update stops at a local review preview before production deployment.
+
+The established /demo/ document and CTA destination remains available for core demonstrations and custom consultation. Custom links use /demo/?consultation=custom-automation&interest=not-sure; /consultation/ is an additional direct custom-form route. All payload fields, notification processing and saved-state checks remain unchanged.

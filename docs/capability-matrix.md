@@ -1,5 +1,12 @@
 # Capability boundaries
 
+## Custom automation offer boundary
+
+The website positions CPL as automated software solutions to business problems. All ten core offers and four bundles remain. The separate custom offer page, six-step process, FAQ and consultation form describe a discovery/implementation service, not a completed customer automation or an eleventh catalog entry. Stammer is the selected platform for the core voice/chat solutions; a custom workflow may require additional development or integrations. A consultation establishes no universal feasibility, new supported integration, price, timeline or customer commitment.
+
+The custom form uses the same /api/inquiries endpoint and unchanged payload/schema, with allowlisted context in workflowProblem and the existing not-sure interest. The notification backend and existing production data are preserved. This website revision is owner-authorized for production release; current deployment and test evidence must be read from its release report, rather than inferred from historical preview notes below.
+
+
 This document describes the ten-solution/four-bundle marketing implementation in the local review preview. It does not claim a new production deployment. Source implementation, synthetic tests, live deployment, provider acceptance, and a customer's commissioned service are separate evidence states. Actual checks are recorded in [verification](verification.md).
 
 | Capability | Current boundary | Source |
@@ -30,3 +37,5 @@ This document describes the ten-solution/four-bundle marketing implementation in
 The public experience is labeled **Illustrative demo · Fictional business · Sample data** near its controls and result. Simulated follow-up does not send a lead to a person or suggest someone has joined the conversation.
 
 Retired Command Center marketing sources are preserved in the repository but are not imported by current public routes. Historical source and tests do not advertise that separate application or imply customer availability. The old `shared/capability.ts` is retained history; current service boundaries are expressed by the active pages, FAQ, and this document.
+
+The established /demo/ document and CTA destination remains available for core demonstrations and custom consultation. Custom links use /demo/?consultation=custom-automation&interest=not-sure; /consultation/ is an additional direct custom-form route. All payload fields, notification processing and saved-state checks remain unchanged.

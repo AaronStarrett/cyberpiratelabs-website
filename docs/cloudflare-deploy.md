@@ -1,5 +1,10 @@
 # Deploy the existing Cloudflare preview
 
+## Authorized production update: custom automation (2026-10-05)
+
+Aaron explicitly authorizes implementing and deploying outcome-led positioning, the separate custom offer and consultation path. Use the existing domain-bound cyberpiratelabs-website Worker and unchanged top-level configuration; env.production is still a placeholder and is not the target. Baseline/rollback: source a7c52a92e9eb0bac60e717bcb521611da5d1dbce, Worker version c4d219f3-cd19-473e-be1c-73b201a414e0. Run the existing checks and GET-only public/browser verification; no production inquiry, email, Apps Script deployment, infrastructure, billing, DNS or credential change is authorized. Preserve variables with --keep-vars and record the final commit/version. Historical preview-only restrictions below are superseded only for this explicitly authorized website release.
+
+
 ## Current review: ten business solutions (2026-10-04)
 
 This update is a local review preview on `codex/ten-business-solutions`, based on `e5295f45d6146bf11c484d75d2718b6d774d923a`. No new deployment, production inquiry, or provider configuration was performed. Review the current [verification](verification.md) before authorizing a release.

@@ -1,5 +1,22 @@
 # Website verification
 
+## Custom automation release acceptance — 2026-10-05
+
+Aaron authorized the production update to lead with automated software solutions and business outcomes, retain ten core offers and four bundles, and add a separate custom automation consultation. AI enables solutions; Stammer remains the core voice/chat platform. Custom work depends on discovery, supported APIs, authorized access, feasibility, security and an approved scope, budget and timeline.
+
+The ten-service source a7c52a92e9eb0bac60e717bcb521611da5d1dbce was released and publicly verified today as Worker version c4d219f3-cd19-473e-be1c-73b201a414e0. That version is this update's rollback baseline. Local-only statements below are dated historical reviews.
+
+- PASS: 250 tests in 12 files, including existing inquiry/HMAC/notification ledger/cutoff/backlog/uncertain-send/retry regressions and core/custom selection precedence.
+- PASS: Astro checks for 55 files with zero errors/warnings/hints, Worker TypeScript, ESLint, production build, secret scan and diff whitespace check.
+- PASS: static audit of 26 HTML files (25 content pages and 404), 991 internal references and 41 allowlisted contextual CTAs; all seven script and four style CSP hashes are present.
+- PASS: all 25 content routes at 1440px desktop and 390px mobile with no horizontal overflow or broken loaded images; navigation also fits at 1024px.
+- PASS: all fourteen core solution/bundle CTA clicks preserve selection, interest and workflowProblem context. Custom requests preserve the canonical /demo/ destination with consultation=custom-automation and interest=not-sure. /consultation/ also renders the custom form directly.
+- PASS: custom offer desktop/mobile appearance, six-step process, native feasibility FAQ expansion, mobile menu and Escape focus return.
+
+The static review server accepts only GET/HEAD and blocks the inquiry API and submissions. No production inquiry, email, replay or operator action was performed. Physical devices, WebKit and real-user performance were not tested. A deterministic public-reference regression prevents a random hexadecimal reference containing D1 from falsely matching the diagnostic-leak assertion; the assertion still checks all explanatory copy.
+
+Worker/inquiry/Apps Script/migration source, Wrangler configuration, dependencies, core catalog and approved logo/voice/chat pirate illustrations remain unchanged. No credentials, bindings, DNS, billing or schema change is required. Actual provider/public release evidence is recorded on the Extreme SSD under 93_TOOLS_AND_CACHE/Temp/cpl-custom-automation-release-20261005.
+
 ## Ten business solutions review — 2026-10-04
 
 Implemented in the verified Extreme SSD checkout at `D:\Cyber Pirate Labs\03_ENGINEERING\Repositories\cyberpiratelabs-website`, on `codex/ten-business-solutions`, from `e5295f45d6146bf11c484d75d2718b6d774d923a`. The original `D:\CPL Website` checkout is clean and preserved. This update has not been pushed or deployed.
