@@ -1,5 +1,19 @@
 # Website verification
 
+## Platform and tech-stack agnostic positioning — 2026-10-08
+
+The approved message is **We solve business problems with software solutions.** The homepage, metadata, shared FAQ, custom automation page and voice/chat service disclosures now make tool selection dependent on customer needs, existing systems and agreed scope. Stammer AI is optional. The ten-service catalog, four bundles, examples, branding, styles, inquiry contract and backend remain unchanged. Feasibility, authorized access and human-review boundaries remain in place.
+
+The verified repository baseline is main commit `9040edc3b029e1faf3ea9ad970a48ea198d7a5d2`. Read-only Cloudflare preflight confirmed the corresponding active Worker version `911739a7-b245-4c0e-850c-09fdb787e9e8`, the existing `cyberpiratelabs-website` Worker, ASSETS/DB/ENVIRONMENT bindings and current secret names. The default environment is the established domain-bound target; `env.production` remains a placeholder and is not the release target. Existing encrypted Wrangler authentication is available. Work used a fresh repository checkout; the original SSD checkout was not modified.
+
+- PASS: all 250 tests in 12 files, Astro checks for 55 files with zero errors/warnings/hints, Worker TypeScript, ESLint, production build, secret scan and diff whitespace check.
+- PASS: all 26 generated HTML files, 706 internal asset/link references, and inline script/style CSP hashes. Only the generated JSON-LD hash changes in the existing security policy.
+- PASS: all 25 content routes at 1440px desktop and 390px mobile in headless Edge, with no horizontal overflow, broken loaded images or page errors. Homepage/custom-offer screenshots were visually reviewed.
+- PASS: mobile menu and Escape behavior, core quote-request context and custom consultation context, required name/email/company fields, unchanged `/api/inquiries` action and the existing public Turnstile key. No inquiry was submitted.
+- PASS: deployment dry run with the existing DB, ASSETS and ENVIRONMENT bindings.
+
+The production build retains the existing deferred Three.js chunk warning. Physical-device, WebKit and real-user performance checks were not run. Test/visual evidence is saved in the task's `tools/evidence` folder; the published commit, new Worker version and GET-only live checks are recorded in the release handoff. The historical checks below describe their dated releases.
+
 ## Custom automation release acceptance — 2026-10-05
 
 Aaron authorized the production update to lead with automated software solutions and business outcomes, retain ten core offers and four bundles, and add a separate custom automation consultation. AI enables solutions; Stammer remains the core voice/chat platform. Custom work depends on discovery, supported APIs, authorized access, feasibility, security and an approved scope, budget and timeline.
