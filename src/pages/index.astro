@@ -1,24 +1,76 @@
 ---
-import CustomAutomationCTA from "../components/CustomAutomationCTA.astro";
 import Base from "../layouts/Base.astro";
-import HeroStage from "../components/HeroStage.astro";
-import PirateAgentIllustration from "../components/PirateAgentIllustration.astro";
-import ClosingCTA from "../components/ClosingCTA.astro";
-import ProblemFinder from "../components/ProblemFinder.astro";
-import AgentExperience from "../islands/AgentExperience";
-import {agentFaqs} from "../../shared/site";
-import {bundles} from "../../shared/solutions";
-import "../styles/solution-home.css";
-const jsonLd = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Cyber Pirate Labs, LLC', url: 'https://cyberpiratelabs.com', logo: 'https://cyberpiratelabs.com/brand/cpl-logo.png', description: 'We solve business problems with software solutions. Platform and tech-stack agnostic custom process automation, ten core services and scoped integrations from Cyber Pirate Labs.' };
+import AutomationStage from "../components/AutomationStage.astro";
+import {organizationSchema} from "../../shared/seo";
+import {solutions, solutionGroups} from "../../shared/solutions";
+import {customConsultationHref} from "../../shared/custom-automation";
+import "../styles/automation-home.css";
+const homeFaqs = [
+ {q: "Do we need a particular platform?", a: "No. CPL is platform and tech-stack agnostic. We choose tools around your requirements and existing systems. AI and Stammer AI are options when they fit the solution."},
+ {q: "Can you assess a different workflow?", a: "Yes. Custom automation starts with discovery. We check the process, supported connections, authorized access and technical feasibility before agreeing the scope."},
+ {q: "How are cost and support agreed?", a: "Implementation and ongoing management are custom-quoted. We agree deliverables, budget, timeline, acceptance checks and support arrangements before implementation."},
+];
 ---
-<Base title="Software Solutions for Business Problems | Cyber Pirate Labs" description="We solve business problems with software solutions. Ten core services and custom process automation, with tools chosen around your needs and existing systems." jsonLd={jsonLd}>
- <section class="hero"><div class="wrap hero-grid"><div class="hero-copy"><p class="eyebrow"><span class="signal-dot"></span> BUSINESS PROBLEMS. USEFUL RESULTS.</p><h1>Solve the problem.<br /><span>Move work forward.</span></h1><p class="hero-summary">We solve business problems with software solutions. CPL designs, builds and manages custom process automation around your needs and existing systems. Explore ten focused services or discuss a different workflow.</p><p class="hero-portfolio">Platform and tech-stack agnostic. Tools chosen around your business.</p><div class="hero-actions"><a class="button" href="#solutions">Find your solution ↓</a><a class="text-link" href="/demo/">Request a demo ↗</a></div><div class="hero-footnote"><span>YOUR APPROVED INFORMATION.</span><span>CUSTOM-QUOTED SETUP + MANAGEMENT.</span></div></div><HeroStage /></div><div class="wrap hero-strip"><span>01 <strong>Answer the routine question.</strong></span><span aria-hidden="true">→</span><span>02 <strong>Capture the useful context.</strong></span><span aria-hidden="true">→</span><span>03 <strong>Keep the next person informed.</strong></span></div></section>
- <ProblemFinder />
- <CustomAutomationCTA />
- <section id="experience" class="experience-section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">See the useful result take shape</p><h2>From “how much?”<br />to a reviewable request.</h2></div><p>Follow a fictional bathroom-remodel inquiry as a chat gathers the details an estimating team needs. A person still reviews the request and prepares the quote.</p></div><AgentExperience solution="ready-to-review-quote-requests" client:visible /><p class="experience-note">Scripted illustrative demonstration · Fictional business · No live conversation, email or quote.</p></div></section>
- <section class="home-bundles" id="use-cases"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">Useful together</p><h2>A few connected needs.<br /><span>One clear route.</span></h2></div><p>Related services can share one configured voice or chat experience. The customer’s need determines the route; people own the next action.</p></div><div class="bundle-teasers">{bundles.map(bundle => <article class="bundle-teaser"><p class="eyebrow">BUNDLE {bundle.label} / {bundle.delivery === 'voice' ? 'VOICE' : 'CHAT'}</p><h3>{bundle.name}</h3><p>{bundle.summary}</p><p class="bundle-preview-steps">{bundle.steps.map(step => step.title).join(' → ')}</p><a class="text-link" href={`/solutions/bundles/#${bundle.slug}`}>Explore the connected workflow ↗</a></article>)}</div><p class="scope-summary">An email reaches the agreed inbox. A booking link is completed by the customer. A staff member uses a procedure to do the work. Voice and chat remain separate entry points.</p></div></section>
- <section id="how-it-works" class="process-section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">We configure the assistance behind the outcome</p><h2>Your information.<br />Your handoff rules.</h2></div><p>Custom-quoted implementation and ongoing management. We agree the content, human destination and service boundaries before launch.</p></div><ol class="process-list"><li><span>01</span><h3>Define</h3><p>Choose the problem and the information a useful response needs.</p></li><li><span>02</span><h3>Configure</h3><p>Approve answers, questions, source material and next-step rules.</p></li><li><span>03</span><h3>Connect</h3><p>Select supported tools and connections for the scope: an inbox, transfer number or booking link for the core services.</p></li><li><span>04</span><h3>Test</h3><p>Review sample conversations, unanswered calls, uncertainty and human handoffs.</p></li><li><span>05</span><h3>Manage</h3><p>Launch after review, then maintain approved information as it changes.</p></li></ol></div></section>
- <section id="services" class="services-section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">The delivery behind the solution</p><h2>On the phone.<br />On your website.</h2></div><p>Choose the business outcome first. Voice and chat support the ten core services; custom process automation can address other workflows after discovery.</p></div><div class="service-duo"><article class="service-panel voice-panel"><span class="service-number">VOICE / INBOUND CALLS</span><PirateAgentIllustration variant="voice" /><h3>A useful first<br />phone response.</h3><p>Approved questions, focused screening, one human transfer destination or a captured message for the team.</p><a class="text-link" href="/voice-agents/">How voice delivery works ↗</a><div class="service-bottom"><span>ANSWER</span><span>SCREEN</span><span>HUMAN FOLLOW-UP</span></div></article><article class="service-panel chat-panel"><span class="service-number">CHAT / GUIDED CONVERSATIONS</span><PirateAgentIllustration variant="chat" /><h3>A clearer path<br />through the website.</h3><p>Approved information, a structured request, helpful guidance and a visible next step.</p><a class="text-link" href="/chat-agents/">How chat delivery works ↗</a><div class="service-bottom"><span>EXPLAIN</span><span>CAPTURE</span><span>GUIDE</span></div></article></div></div></section>
- <section id="faq" class="faq-section"><div class="wrap faq-layout"><div><p class="eyebrow">The practical questions</p><h2>Clear answers.<br />Clear expectations.</h2><p>Your information, your rules, and people involved where they’re needed.</p></div><div class="faq-list">{agentFaqs.map(faq => <details><summary>{faq.q}<span aria-hidden="true">+</span></summary><p>{faq.a}</p></details>)}</div></div></section>
- <ClosingCTA />
+<Base title="Software Automation & Custom Solutions | Cyber Pirate Labs" description="We solve business problems with software solutions. Custom process automation and ten core services, with tools chosen around your needs and existing systems." jsonLd={organizationSchema()}>
+<div class="cpl-home">
+  <section class="automation-hero">
+    <div class="wrap automation-hero-grid">
+      <div class="automation-hero-copy">
+        <p class="eyebrow"><span class="signal-dot"></span> BUILT AROUND YOUR BUSINESS</p>
+        <h1>Software<br /><span>automation.</span></h1>
+        <p class="automation-lead">We solve business problems<br class="desktop-break" /> with software solutions.</p>
+        <p class="automation-hero-summary">Custom process automation and ten established services. Tools chosen around your needs, systems and agreed scope.</p>
+        <div class="automation-actions"><a class="button" href={customConsultationHref}>Discuss your workflow <span aria-hidden="true">↗</span></a><a class="text-link" href="#solutions">Explore services <span aria-hidden="true">↓</span></a></div>
+        <p class="automation-agnostic"><span aria-hidden="true">✦</span> Platform and tech-stack agnostic.</p>
+      </div>
+      <AutomationStage id="experience" />
+    </div>
+  </section>
+
+  <section id="solutions" class="automation-services" aria-labelledby="services-heading">
+    <div class="wrap">
+      <div class="automation-section-heading"><div><p class="eyebrow">TEN CORE SERVICES</p><h2 id="services-heading">Start where<br /><span>work gets stuck.</span></h2></div><a class="text-link" href="/solutions/">See the full service scope <span aria-hidden="true">↗</span></a></div>
+      <div id="services" class="automation-service-layout">
+        <aside id="use-cases" class="automation-feature">
+          <p class="automation-feature-kicker">CUSTOMERS. REQUESTS. YOUR TEAM.</p>
+          <div class="automation-pirate-art" aria-hidden="true">
+            <svg class="automation-compass" viewBox="0 0 400 400" fill="none" focusable="false"><circle cx="200" cy="200" r="177" /><circle cx="200" cy="200" r="143" stroke-dasharray="2 12" /><path d="M200 9v34M200 357v34M9 200h34M357 200h34M66 66l22 22M312 312l22 22M66 334l22-22M312 88l22-22" /><path class="compass-route" d="M76 282C90 160 260 286 325 118" /><circle cx="76" cy="282" r="8" /><circle cx="325" cy="118" r="8" /></svg>
+            <img src="/illustrations/cpl-pirate-agent-chat.webp" srcset="/illustrations/cpl-pirate-agent-chat.webp 480w, /illustrations/cpl-pirate-agent-chat@2x.webp 960w" sizes="(max-width: 680px) 240px, 320px" width="480" height="480" alt="" loading="lazy" decoding="async" />
+            <span class="automation-art-label art-label-top">APPROVED INFORMATION</span><span class="automation-art-label art-label-bottom">A CLEAR HUMAN NEXT STEP</span>
+          </div>
+          <h3>Capture. Guide.<br />Support.</h3>
+          <p>Focused voice and chat services for everyday customer and team needs.</p>
+          <a class="text-link" href="/solutions/bundles/">Connect related services <span aria-hidden="true">↗</span></a>
+        </aside>
+        <div class="automation-service-index">
+          {solutionGroups.map(group => <section class="automation-service-group" aria-labelledby={`group-${group.id}`}><h3 id={`group-${group.id}`}>{group.label}<span>{solutions.filter(solution => solution.group === group.id).length} {solutions.filter(solution => solution.group === group.id).length === 1 ? "service" : "services"}</span></h3><ul>{solutions.filter(solution => solution.group === group.id).map(solution => <li><a href={`/solutions/${solution.slug}/`}><span class="automation-service-id">{solution.id}</span><span>{solution.name}</span><span class="automation-service-arrow" aria-hidden="true">↗</span></a></li>)}</ul></section>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="automation-custom" aria-labelledby="custom-heading">
+    <div class="wrap automation-custom-grid">
+      <div><p class="eyebrow">CUSTOM SOFTWARE SOLUTIONS</p><h2 id="custom-heading">A different workflow.<br /><span>A considered solution.</span></h2><p>Tell us where work gets stuck. We assess the process and systems, then scope a feasible software approach.</p><a class="button" href="/custom-automation/">Explore custom automation <span aria-hidden="true">↗</span></a></div>
+      <div class="automation-custom-visual">
+        <div class="automation-paper-stack" aria-hidden="true"><div class="workflow-paper paper-back"></div><div class="workflow-paper paper-mid"></div><div class="workflow-paper paper-front"><span class="paper-caption">YOUR WORKFLOW</span><span class="paper-line"></span><span class="paper-line paper-line-short"></span><span class="paper-step"><span>01</span> Information</span><span class="paper-step"><span>02</span> Agreed rules</span><span class="paper-step paper-human"><span>03</span> Human review <b>↗</b></span></div><svg class="automation-paper-orbit" viewBox="0 0 420 330" fill="none" focusable="false"><ellipse cx="210" cy="165" rx="194" ry="122" transform="rotate(-14 210 165)" stroke-dasharray="5 10" /><path d="m357 84 18 12-1-22" /></svg></div>
+        <p>Illustrative process.<br />Connections and feasibility are checked during discovery.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="automation-process" aria-labelledby="process-heading">
+    <div class="wrap">
+      <div class="automation-section-heading"><div><p class="eyebrow">FROM THE PROBLEM TO THE SOFTWARE</p><h2 id="process-heading">Understand it.<br /><span>Then build it well.</span></h2></div><p>Technology follows the job.<br />People stay involved where needed.</p></div>
+      <ol class="automation-process-list">
+        <li><span class="automation-process-number">01</span><div><h3>Understand</h3><p>Map the problem, systems and useful outcome.</p></div></li>
+        <li><span class="automation-process-number">02</span><div><h3>Scope</h3><p>Check feasibility. Agree deliverables, boundaries and acceptance checks.</p></div></li>
+        <li><span class="automation-process-number">03</span><div><h3>Build &amp; support</h3><p>Implement, test and launch the approved solution, with support agreed in scope.</p></div></li>
+      </ol>
+      <div id="faq" class="automation-practical"><h3>The practical details.</h3><div>{homeFaqs.map(faq => <details><summary>{faq.q}<span aria-hidden="true">+</span></summary><p>{faq.a}</p></details>)}</div></div>
+    </div>
+  </section>
+
+  <section class="automation-closing"><div class="wrap"><div><p class="eyebrow">LET'S FIND A USEFUL NEXT STEP</p><h2>What should your<br /><span>software handle?</span></h2><p>Bring the business problem and the outcome you need.</p></div><a class="button" href={customConsultationHref}>Discuss your workflow <span aria-hidden="true">↗</span></a></div></section>
+</div>
 </Base>

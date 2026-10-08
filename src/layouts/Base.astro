@@ -4,9 +4,9 @@ import "@fontsource/ibm-plex-mono/400.css";
 import "../styles/agent-site.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-interface Props { title: string; description: string; jsonLd?: Record<string, unknown> | Record<string, unknown>[]; }
-const {title, description, jsonLd} = Astro.props;
-const indexable = import.meta.env.PUBLIC_INDEXABLE === "true";
+interface Props { title: string; description: string; jsonLd?: Record<string, unknown> | Record<string, unknown>[]; noindex?: boolean; }
+const {title, description, jsonLd, noindex = false} = Astro.props;
+const indexable = import.meta.env.PUBLIC_INDEXABLE === "true" && !noindex;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const image = new URL("/og.png", Astro.site);
 ---

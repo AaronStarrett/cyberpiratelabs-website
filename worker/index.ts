@@ -34,6 +34,7 @@ function responseFor(result: { status: number; json: Record<string, unknown>; ht
         "content-disposition": "attachment; filename=\"inquiries.csv\"",
         "cache-control": "no-store",
         "x-content-type-options": "nosniff",
+        "x-robots-tag": "noindex, nofollow",
       },
     });
   }
@@ -45,6 +46,7 @@ function responseFor(result: { status: number; json: Record<string, unknown>; ht
       "cache-control": "no-store",
       "x-content-type-options": "nosniff",
       "referrer-policy": "no-referrer",
+      "x-robots-tag": "noindex, nofollow",
     },
   });
 }
@@ -64,12 +66,12 @@ export default {
       }
       return new Response(JSON.stringify({ ok: false, message: "Not found." }), {
         status: 404,
-        headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+        headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" },
       });
     } catch {
       return new Response(JSON.stringify({ ok: false, message: "We could not confirm the save. Retry with the same form or contact astarrett@cyberpiratelabs.com." }), {
         status: 500,
-        headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+        headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" },
       });
     }
   },

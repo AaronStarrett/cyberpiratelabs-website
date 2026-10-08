@@ -8,7 +8,7 @@ This repository contains a static Astro website, a local React/Three.js conversa
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Outcome-led offer, problem selector, all ten solutions, focused quote-request example, bundles, implementation sequence, and FAQ |
+| `/` | Software automation positioning, illustrative workflow controls, compact links to all ten services, custom solutions, three-step process and concise FAQ |
 | `/solutions/` | All ten services grouped by capture, guidance, customer care, and staff needs |
 | `/solutions/[slug]/` | Ten catalog-generated detail pages with inclusions, fictional samples, scope, and relevant links |
 | `/solutions/bundles/` | Four connected workflows with alternative paths and named human recipients |
@@ -50,9 +50,9 @@ Configure ignored local environment files for your test environment. `PUBLIC_TUR
 - Page copy: `src/pages/`; FAQ: `shared/site.ts`.
 - Service/bundle metadata, stable slugs, boundaries, and fictional demos: `shared/solutions.ts`.
 - Separate custom offer and consultation context: `shared/custom-automation.ts`, `src/pages/custom-automation.astro`, `src/pages/consultation.astro` and `src/components/CustomAutomationCTA.astro`.
-- Problem matching and allowlisted request context: `shared/solution-selection.ts`; homepage selector: `src/components/ProblemFinder.astro`.
+- Allowlisted request context: `shared/solution-selection.ts`. The earlier `ProblemFinder.astro` selector remains as retained source; the homepage uses a compact grouped service index.
 - Reusable solution and bundle presentation: `src/components/{SolutionCard,SolutionDetail,BundleFlow}.astro` and `src/pages/solutions/`.
-- Navigation, hero composition, and final CTA: `src/components/{Header,HeroStage,ClosingCTA}.astro`.
+- Navigation and current dimensional hero: `src/components/{Header,AutomationStage,Footer}.astro`. Homepage-only styling: `src/styles/automation-home.css` and `automation-stage.css`.
 - Signature walkthrough: `src/islands/AgentExperience.tsx`, `shared/agents/fixtures.ts`, and `shared/agents/experience.ts`; focused catalog adapter: `shared/agents/solution-scenarios.ts`.
 - Optional 3D scene: `src/islands/stage/createAgentStage.ts`.
 - Presentation: `src/styles/agent-site.css`, `src/styles/agent-experience.css`, `src/styles/solutions.css`, and `src/styles/solution-home.css`.
@@ -64,7 +64,7 @@ Retired Command Center marketing components, styles, and `shared/demo/` modules 
 
 ## Demonstration and inquiry boundaries
 
-The homepage and solution details use focused demonstrations derived from the ten-service catalog. Each keeps its assigned voice or chat delivery, playback controls, an accessible complete transcript, and a sample result. The general experience on the supporting voice/chat pages retains its four fictional scenarios and mode/scenario selection. All examples are transcript-only: no audio, microphone, live AI request, Stammer connection, real call, booking, or lead transmission. The retained billing example shows a simulated human follow-up boundary.
+The homepage has three lightweight illustrative workflow examples: a request, a repeated task and an approval. They switch local SVG labels and a readable status without making network calls. Solution details use focused demonstrations derived from the ten-service catalog. Each keeps its assigned voice or chat delivery, playback controls, an accessible complete transcript, and a sample result. The general experience on the supporting voice/chat pages retains its four fictional scenarios and mode/scenario selection. All examples are transcript-only: no audio, microphone, live AI request, Stammer connection, real call, booking, or lead transmission. The retained billing example shows a simulated human follow-up boundary.
 
 The separate form sends to `POST /api/inquiries`. Name, email, and company are required for new agent-demo requests; phone, website, interest, and problem details are optional. The existing payload and D1 schema are preserved. Legacy inquiry interests retain their earlier validation rules.
 
@@ -84,7 +84,7 @@ npm run build
 npm run scan:secrets
 ~~~
 
-Inspect rendered desktop, tablet, mobile, keyboard, reduced-motion, and WebGL fallback behavior as well as request validation and failure states. Review the problem selector, all ten direct solution pages and sample results, four bundle paths, and selected context on `/demo/`. Do not submit production test inquiries or trigger customer communications during preview review. [Verification](docs/verification.md) records actual results; commands here are instructions, not a claim that checks or deployment have passed.
+Inspect rendered desktop, tablet, mobile, keyboard, reduced-motion, and WebGL fallback behavior as well as request validation and failure states. Review the homepage workflow controls and compact service links, all ten direct solution pages and sample results, four bundle paths, and selected context on `/demo/`. Do not submit production test inquiries or trigger customer communications during preview review. [Verification](docs/verification.md) records actual results; commands here are instructions, not a claim that checks or deployment have passed.
 
 Aaron has explicitly authorized the outcome-led/custom-automation website update and production release. The ten-solution release at `a7c52a9`, Worker version `c4d219f3-cd19-473e-be1c-73b201a414e0`, is the baseline and rollback reference. This marketing release does not build a customer automation or authorize new vendors, subscriptions, integrations or production inquiry tests. For a separately authorized release, use the established Worker procedure in [deployment documentation](docs/cloudflare-deploy.md). Preserve existing infrastructure, deployed secrets, bindings, cron, domains, and workflow configuration; do not bulk-deploy `google/apps-script/`, whose local example is not the authoritative cloud connector. A Git push, Worker deployment, public-page verification, and downstream notification acceptance are separate states. [Rollback notes](docs/rollback.md) describe recovery through the existing release mechanism.
 

@@ -2,13 +2,19 @@
 import Base from "../../layouts/Base.astro";
 import SolutionDetail from "../../components/SolutionDetail.astro";
 import { solutions, type Solution } from "../../../shared/solutions";
+import { breadcrumbSchema, serviceSchema } from "../../../shared/seo";
 
 export function getStaticPaths() {
   return solutions.map(solution => ({ params: { slug: solution.slug }, props: { solution } }));
 }
 interface Props { solution: Solution; }
 const { solution } = Astro.props;
+const path = `/solutions/${solution.slug}/`;
+const jsonLd = [
+  serviceSchema({ name: solution.name, description: solution.configuration, path }),
+  breadcrumbSchema([{ name: "All solutions", path: "/solutions/" }, { name: solution.name, path }]),
+];
 ---
-<Base title={`${solution.name} | Cyber Pirate Labs`} description={solution.benefit}>
+<Base title={`${solution.name} | Cyber Pirate Labs`} description={solution.benefit} jsonLd={jsonLd}>
   <SolutionDetail solution={solution} />
 </Base>

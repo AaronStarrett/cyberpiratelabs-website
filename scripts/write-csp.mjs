@@ -37,6 +37,12 @@ const headers = `/*
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   Content-Security-Policy: ${policy}
+
+https://cyberpiratelabs-website.astarrett.workers.dev/*
+  X-Robots-Tag: noindex, nofollow
+
+https://:version-cyberpiratelabs-website.astarrett.workers.dev/*
+  X-Robots-Tag: noindex, nofollow
 `;
 
 writeFileSync("dist/_headers", headers);

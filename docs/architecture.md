@@ -2,7 +2,7 @@
 
 ## Outcome-led marketing and separate consultation path
 
-The ten-service catalog remains unchanged. shared/custom-automation.ts holds the separate consultation context, process and FAQ; custom-automation.astro explains the offer and consultation.astro reuses InquiryForm with requestKind=custom. CustomAutomationCTA links from the homepage, catalog and bundle hub. The consultation uses existing inquiry fields and not-sure interest; no Worker, database, migration, binding, secret or provider deployment is introduced.
+The ten-service catalog remains unchanged. shared/custom-automation.ts holds the separate consultation context, process and FAQ; custom-automation.astro explains the offer and consultation.astro reuses InquiryForm with requestKind=custom. The homepage links directly to custom automation and its consultation URL; CustomAutomationCTA remains on the catalog and bundle hub. The consultation uses existing inquiry fields and not-sure interest; no Worker, database, migration, binding, secret or provider deployment is introduced.
 
 
 The marketing site keeps the existing static Astro build, React islands, npm lockfile, and Cloudflare Worker/D1 inquiry backend.
@@ -11,7 +11,9 @@ The marketing site keeps the existing static Astro build, React islands, npm loc
 
 `src/pages/` defines the homepage, solution and bundle hubs, ten generated solution pages, four generated bundle pages, supporting voice/chat pages, request page, existing contact route, legal routes, and 404. `src/pages/solutions/[slug].astro` and `bundles/[slug].astro` use catalog-driven static paths. `SolutionCard`, `SolutionDetail`, and `BundleFlow` provide reusable presentation, including scope, alternative paths, and recipients. `Base.astro` supplies metadata, bundled fonts, navigation, footer, and shared `agent-site.css`; `solutions.css` and `solution-home.css` extend the existing style. Approved logo and pirate illustration assets are reused.
 
-The homepage's initial `HeroStage.astro` composition is lightweight HTML/CSS. Core offer text, all ten solution cards, and the request CTA are prerendered. `ProblemFinder.astro` adds accessible pressed-state buttons that filter those cards and update a visible next-step link; all services remain discoverable without JavaScript. The homepage mounts a focused quote-request `AgentExperience`; solution details mount their matching catalog demo. Both supporting voice/chat pages retain the general experience. Islands use `client:visible`; the request form is a separate component on `/demo/`. Existing homepage anchors `experience`, `services`, `use-cases`, `how-it-works`, and `faq` remain available.
+The homepage renders a navy software-automation hero with `AutomationStage.astro`: an SVG isometric workflow and three native buttons that update local labels and a polite readable status. All ten service links are prerendered in compact groups beside the approved pirate artwork. Custom software, three process steps and concise native FAQs use varied sections. The homepage imports no React/Three.js experience. Solution details still mount their matching catalog demos; supporting voice/chat pages retain the general experience. Islands use `client:visible`. The inquiry form remains a separate component on `/demo/`. Existing homepage anchors `experience`, `services`, `use-cases`, `how-it-works` and `faq` remain available with their current related content.
+
+`shared/seo.ts` defines factual Organization, Service and visible-path BreadcrumbList markup. Official production assets are built with `PUBLIC_INDEXABLE=true`; the workers.dev host has an exact-host noindex header, API responses have runtime noindex headers, and the 404 document explicitly stays noindex.
 
 ## Local Agent Experience
 
@@ -28,7 +30,7 @@ The homepage's initial `HeroStage.astro` composition is lightweight HTML/CSS. Co
 
 The reducer's snapshot reveals complete messages and collects their explicitly supplied fields. The catalog adapter associates result fields with authored source turns; unknown mappings fall back to an exact text match or the final turn. The final next-step disclosure is added at the final turn. Focused scenarios lock their voice/chat delivery and replace the legacy chooser with a delivery label. General mode/scenario changes restart the sample; play, pause, replay, and skip-to-result use the same state. The complete selected transcript, plus a focused sample's complete result, is prerendered in an expandable native HTML disclosure. The retained billing scenario illustrates a simulated person-needed boundary.
 
-These fixed stories exist in browser memory. They do not request microphone access, play audio, invoke an LLM or Stammer API, create an appointment, or submit a real inquiry. No visitor scenario choice is transmitted as a lead. Stammer AI is the selected platform for separately scoped CPL services; the marketing implementation does not establish a live platform account or deployment.
+These fixed stories exist in browser memory. They do not request microphone access, play audio, invoke an LLM or Stammer API, create an appointment, or submit a real inquiry. No visitor scenario choice is transmitted as a lead. Stammer AI is an optional platform when it fits separately scoped CPL services; the marketing implementation does not establish a live platform account or deployment.
 
 ## Motion and fallback
 
@@ -59,7 +61,7 @@ A D1 save establishes website storage. It does not establish arrival in a Google
 
 Archive status is `pending`, `pending_unconfigured`, `disabled`, `synced`, or `failed`. Notification status also includes `held` and `ambiguous` alongside `pending`, `pending_unconfigured`, `sent`, and `failed`. These are possible states, not an assertion that the current configuration is unconfigured. The form provides a received reference and a concise delay/contact message. The `bb2366d` notification repair remains intact: eligible due deliveries use an explicit activation cutoff, per-inquiry claims, HMAC validation, eight-attempt backoff and the existing 15-minute schedule. Apps Script's durable send ledger protects retries and reconciles lost responses; uncertain sends require owner review. Email is independent of the optional archive. See [notification setup](google-setup.md) for the additive script, preserved legacy deployments and exact backlog gate. The local Apps Script example is not the authoritative cloud connector and is not bulk-deployed by this update.
 
-No new schema migration, database, platform account, resource binding, or environment secret is required by this presentation update. Current delivery stops at a local review preview, with no production test inquiry or new production deployment. A separately authorized release uses the existing target and process documented in `docs/cloudflare-deploy.md`, preserving bindings, credentials, cron, and domain configuration.
+No new schema migration, database, platform account, resource binding, or environment secret is required by this presentation update. The current official website release is authorized and uses the existing target and process documented in `docs/cloudflare-deploy.md`, preserving bindings, credentials, cron and domain configuration. Production inquiry submissions remain excluded. API response headers now include noindex; processing behavior is unchanged.
 
 ## Retained history
 

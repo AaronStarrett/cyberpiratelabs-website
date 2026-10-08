@@ -1,4 +1,23 @@
-# Deploy the existing Cloudflare preview
+# Deploy the existing CPL website
+
+## Current authorized production release: software automation and SEO (2026-10-08)
+
+Aaron authorizes editing, testing, publishing and deploying this website update to the existing `cyberpiratelabs-website` Worker serving `https://cyberpiratelabs.com`. Use the existing authentication and manual release workflow. The `env.production` block remains an inactive placeholder, not this release target. Preserve deployed variables with `--keep-vars`, existing bindings and the inquiry/notification system. No infrastructure, DNS, secret, credential, billing or sharing changes are part of this release; production inquiry submissions and email tests remain excluded.
+
+The public production build must be indexable. The historical preview commands below set `PUBLIC_INDEXABLE=false`; that setting is for separate review builds and must not be used for this official-domain release. Before building the reviewed source, set:
+
+```powershell
+$env:SITE_URL = 'https://cyberpiratelabs.com'
+$env:PUBLIC_INDEXABLE = 'true'
+```
+
+Keep the existing public Turnstile site key present at build time. Verify the current repository, remote commit, active Worker version and domain before release. Run the repository tests, typecheck, lint, build and secret scan. Build the exact reviewed commit, inspect the dry run, then deploy that build to the existing Worker with `--keep-vars` and the full commit as its version tag. The authorized task workspace may be used for this release under Aaron's explicit storage waiver; the SSD examples below document the earlier local workflow.
+
+After release, read back the active version and its commit tag. Use GET-only checks to verify the official public pages return HTTP 200, retain their HTTPS canonicals and unique metadata, and emit `index,follow`. Verify `robots.txt` permits public crawling, references the sitemap and excludes `/api/` and `/404`; the 404 document must retain `noindex`. Confirm the `workers.dev` preview host and version/alias hosts retain their host-specific `X-Robots-Tag: noindex, nofollow` policy. Check the actual desktop/mobile page, motion preferences and inquiry form without submitting it. Parse the generated JSON-LD and separately check Google-supported structured data when the validation tool is available; schema validity does not promise indexing or rich results.
+
+## Historical release and preview instructions
+
+The sections below are retained for provenance and rollback context. The current production procedure above governs this authorized release. Their preview-only indexing and storage settings are not current production instructions.
 
 ## Authorized production update: custom automation (2026-10-05)
 

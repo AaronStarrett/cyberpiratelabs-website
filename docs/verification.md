@@ -1,5 +1,21 @@
 # Website verification
 
+## Software automation homepage and production SEO - 2026-10-08
+
+The homepage now presents the approved software-solutions positioning through a concise hero, a keyboard-operable illustrative software workflow, all ten unchanged services in grouped links, a separate custom automation section and a short process/FAQ. Existing branding, approved pirate art, service and bundle routes, prices and inquiry contracts are retained. The social image uses the same positioning. No customer, rating, ROI, compatibility or staffing claim has been added.
+
+The verified source baseline is main commit `e5b7ac63edd6748661ef6495dad1a66b31239780`, corresponding to active Worker version `02193524-0853-4084-9ca0-931205f39e9f`. The existing domain-bound `cyberpiratelabs-website` Worker, bindings and encrypted authentication were rechecked. Aaron explicitly waived the unavailable D-drive requirement for this delegated release. The parent viewed both original reference images and authorized proceeding from its verified interpretation after this environment's Library transfers returned HTTP 403.
+
+The previous production build used the preview-only indexing flag. Official-domain builds now use `PUBLIC_INDEXABLE=true`, exact HTTPS canonicals, public sitemap coverage and crawling permissions. Preview host/version URLs remain `noindex,nofollow`; the 404 document and Worker API responses are excluded. Organization, Service and visible-path BreadcrumbList markup contains public facts only. Existing CSP permissions are preserved, with hashes regenerated for the reviewed build.
+
+- PASS: 250 tests in 12 files; Astro checks for 57 files with zero errors/warnings/hints, Worker TypeScript, ESLint, production build, secret scan and diff whitespace checks.
+- PASS: 26 generated HTML files, 700 internal references and all inline CSP hashes. The static SEO audit passed 416 checks covering metadata, canonical URLs, robots, sitemap and factual JSON-LD.
+- PASS: all 25 content routes at 1440px desktop and 390px mobile with no overflow, broken loaded images or page errors. The homepage also passed 45 workflow interactions by click, Enter and Space at 320, 390, 768, 1024 and 1440px, plus focus, reduced-motion and JavaScript-disabled checks.
+- PASS: unchanged form action, required name/email/company fields, public Turnstile key and core/custom request context. No inquiry, notification or external form submission was performed.
+- PASS: bounded cold-load lab review. Final desktop LCP was 1,252ms with CLS 0.00083. Three mobile loads at 4x CPU, 150ms latency and 1.6Mbps download had median LCP 2,688ms and CLS 0.00151. A mobile font-wrap shift was fixed. The homepage initially requested no JavaScript bundles; the approved logo's 20KB WebP derivative replaces its 957KB PNG in the shared header/footer.
+
+These are local lab results, not field Core Web Vitals or INP. The existing deferred Three.js build warning remains on detail-demo assets. Physical devices, WebKit, Search Console and Google's hosted rich-results validation were not available in this review. The existing HTTP apex remains accessible without an HTTPS redirect; enforcing that would require a separate infrastructure/routing change. Privacy and terms pages retain their existing owner-review disclosures; this review does not certify legal compliance. Final remote commit, active deployment and GET-only production checks are recorded in the release handoff and task evidence after publication.
+
 ## Platform and tech-stack agnostic positioning — 2026-10-08
 
 The approved message is **We solve business problems with software solutions.** The homepage, metadata, shared FAQ, custom automation page and voice/chat service disclosures now make tool selection dependent on customer needs, existing systems and agreed scope. Stammer AI is optional. The ten-service catalog, four bundles, examples, branding, styles, inquiry contract and backend remain unchanged. Feasibility, authorized access and human-review boundaries remain in place.

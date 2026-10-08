@@ -11,17 +11,19 @@ Use customConsultationHref from shared/custom-automation.ts; it retains /demo/ a
 
 | Source | Edit here |
 | --- | --- |
-| `src/pages/index.astro` | Homepage offer, focused quote-request example, bundle previews, implementation sequence, and supporting delivery explanations |
+| `src/pages/index.astro` | Software automation headline, grouped ten-service index, custom software offer, three-step process and concise FAQ |
 | `shared/solutions.ts` | The ten service names, stable slugs, copy, inclusions, fit, scopes, fictional demos, related services, and four bundle workflows |
-| `shared/solution-selection.ts`, `src/components/ProblemFinder.astro` | Accessible problem choices, matching cards, and allowlisted demo-request context |
+| `shared/solution-selection.ts`, `src/components/ProblemFinder.astro` | Retained problem-selector source and active allowlisted demo-request context |
 | `src/pages/solutions/`, `src/components/SolutionCard.astro`, `SolutionDetail.astro`, `BundleFlow.astro` | Catalog-generated hubs/detail pages, reusable cards, and bundle paths/recipients |
 | `src/pages/voice-agents.astro`, `chat-agents.astro` | Supporting delivery explanations and scoped setup details |
 | `src/pages/demo.astro`, `contact.astro` | Demonstration request context and existing contact route |
 | `shared/site.ts` | Shared FAQ answers |
-| `src/components/Header.astro`, `Footer.astro`, `HeroStage.astro`, `ClosingCTA.astro` | Shared navigation, brand composition, and calls to action |
+| `src/components/Header.astro`, `Footer.astro`, `HeroStage.astro`, `ClosingCTA.astro` | Shared navigation and calls to action; earlier hero composition is retained source |
 | `src/layouts/Base.astro` | Shared metadata, canonical URLs, social image, fonts, and page shell |
 | `src/styles/agent-site.css` | Shared marketing layout and responsive styling |
-| `src/styles/solutions.css`, `solution-home.css` | Solution/bundle templates and homepage problem selector/bundle styling |
+| `src/styles/solutions.css` | Solution/bundle templates |
+| `src/components/AutomationStage.astro`, `src/styles/automation-stage.css`, `automation-home.css` | Current homepage workflow visual, local example buttons and varied homepage sections |
+| `shared/seo.ts` | Verified Organization facts and Service/BreadcrumbList helpers tied to visible content |
 | `shared/agents/fixtures.ts` | Four retained general fictional business examples, approved information, voice/chat scripts, timings, and captured fields |
 | `shared/agents/solution-scenarios.ts` | Adapter from catalog demos to the existing playback model, including source-turn reveal timing and locked delivery |
 | `shared/agents/experience.ts` | Playback state and transcript/result derivation |
@@ -48,7 +50,7 @@ Voice and chat are separate entry points. Email notifications, customer-clicked 
 
 ## Sample continuity
 
-Each catalog service supplies a fictional conversation and result through `Solution.demo`. The homepage uses the quote-request example; detail pages use their matching service. Focused samples keep their configured delivery and do not show the legacy mode/scenario selector. The general voice/chat experience retains bathroom remodeling, recurring cleaning, routine home maintenance, and a billing question that needs a person, each with voice and chat scripts.
+Each catalog service supplies a fictional conversation and result through `Solution.demo`. Detail pages use their matching service. The homepage instead uses three generic illustrative software workflows. Keep their feasibility/access/scope disclosure, keyboard buttons and readable status; these examples do not perform work in visitor systems. Focused samples keep their configured delivery and do not show the legacy mode/scenario selector. The general voice/chat experience retains bathroom remodeling, recurring cleaning, routine home maintenance, and a billing question that needs a person, each with voice and chat scripts.
 
 Keep the fictional business's approved information consistent with its answers. Add captured fields only to messages that supply them. Catalog output labels are used by the authored source-turn map in `solution-scenarios.ts`; update that map when changing labels or turn order. Unmapped summaries wait for their matching text or the final turn. The result must not invent contact details, timing, a quote, availability, or a booking. Use reserved example contact data. The transfer and billing results are simulations, not evidence that a call connected or a human joined.
 
@@ -56,9 +58,9 @@ Keep the visible “Illustrative demo · Fictional business · Sample data” di
 
 ## Brand and discovery
 
-Preserve the original `public/brand/cpl-logo.png` bytes and proportions. `scripts/generate-icons.mjs` derives icons and locally authored social-preview artwork; the social composition is illustrative. Typography uses bundled IBM Plex Sans Variable and IBM Plex Mono. Keep readable navy/teal contrast and dimensional light surfaces.
+Preserve the original `public/brand/cpl-logo.png` bytes and proportions. Shared navigation uses the generated `cpl-logo-160.webp` derivative; do not change the approved logo artwork. `scripts/generate-icons.mjs` derives icons and locally authored social-preview artwork; the social composition is illustrative. Typography uses bundled IBM Plex Sans Variable and IBM Plex Mono. Keep readable navy/teal contrast, mint surfaces, dimensional graphics and reduced-motion behavior.
 
-Update titles, descriptions, social-preview copy, structured data, and relevant sitemap routes alongside page changes. `SITE_URL` supplies the canonical base, with the existing apex URL as default. `PUBLIC_INDEXABLE` controls indexing. Do not add fabricated ratings, prices, locations, or certifications.
+Update titles, descriptions, social-preview copy, structured data, and relevant sitemap routes alongside page changes. `SITE_URL` supplies the canonical base, with the existing apex URL as default. `PUBLIC_INDEXABLE` controls indexing. Build the official marketing release with it set to true; keep the workers.dev host and API responses protected with their noindex headers. The 404 page uses explicit noindex. Do not add fabricated ratings, prices, locations, or certifications.
 
 ## Real request form
 
@@ -76,6 +78,6 @@ Preserve the `bb2366d` notification safeguards: separate archive/email states, d
 
 Run the tests, type check, lint, build, and secret scan. `tests/solutions.test.ts` checks catalog boundaries, reciprocal links, bundle topology, and request links; `tests/solution-selection.test.ts` checks filtering and prefill; `tests/solution-experience.test.ts` checks catalog scenario/playback continuity. `tests/agent-experience.test.ts` retains general narrative coverage; `tests/inquiry.test.ts` checks validation and synthetic persistence/delivery behavior. Older film tests preserve historical source invariants.
 
-Browser review remains necessary for meaningful motion, transcript/result continuity, responsive sizing, keyboard focus, reduced motion, missing WebGL, asset loads, and form failures. Check all ten detail URLs, all four bundles, related links, retained homepage anchors, and every selected-service/bundle prefill. Keep stable slugs unless providing deliberate redirects. Use synthetic local/mocked requests; do not submit production test inquiries or trigger customer communications. Record actual outcomes and limits in `docs/verification.md`. This update stops at a local review preview before production deployment.
+Browser review remains necessary for meaningful motion, transcript/result continuity, responsive sizing, keyboard focus, reduced motion, missing WebGL, asset loads, and form failures. Check all ten detail URLs, all four bundles, related links, retained homepage anchors, and every selected-service/bundle prefill. Keep stable slugs unless providing deliberate redirects. Use synthetic local/mocked requests; do not submit production test inquiries or trigger customer communications. Record actual outcomes and limits in `docs/verification.md`. The official production release is authorized for this update. Follow the current production instructions in `docs/cloudflare-deploy.md` and record deployed evidence separately from local checks.
 
 The established /demo/ document and CTA destination remains available for core demonstrations and custom consultation. Custom links use /demo/?consultation=custom-automation&interest=not-sure; /consultation/ is an additional direct custom-form route. All payload fields, notification processing and saved-state checks remain unchanged.
