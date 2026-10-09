@@ -4,14 +4,10 @@ import "../styles/automation-stage.css";
 interface Props { id?: string; }
 const { id = "automation-stage" } = Astro.props;
 const resultId = id + "-result";
-const mappedRecord = JSON.stringify({
-  contact_name: "Casey Sample",
-  email: "casey@example.com",
-  request_type: "maintenance",
-}, null, 2);
+const progressId = id + "-progress";
 ---
 
-<figure id={id} class="automation-stage" data-automation-stage data-example="quote">
+<figure id={id} class="automation-stage" data-automation-stage data-example="quote" data-playback="complete" data-phase="complete">
   <div class="automation-stage__heading">
     <span class="automation-stage__lab">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h11v14H4zM15 8h5v11h-5M8 9h3M8 12h3M8 15h3" stroke="currentColor" stroke-width="1.5" /><path d="M16 4l4 4" stroke="currentColor" stroke-width="1.5" /></svg>
@@ -26,6 +22,21 @@ const mappedRecord = JSON.stringify({
     <button type="button" data-stage-example="data-entry" aria-pressed="false" aria-controls={resultId}>Data entry</button>
   </div>
 
+  <div class="automation-stage__transport" data-stage-transport>
+    <div class="automation-stage__playback-controls" role="group" aria-label="Illustrative walkthrough playback">
+      <button type="button" data-stage-play aria-controls={resultId} disabled>
+        <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 3l9 6-9 6V3z" fill="currentColor" /></svg>
+        <span data-stage-play-label>Play demo</span>
+      </button>
+      <button type="button" data-stage-pause aria-controls={resultId} disabled>Pause</button>
+    </div>
+    <div class="automation-stage__playback-meter">
+      <label for={progressId} class="automation-stage__status">Illustrative walkthrough progress</label>
+      <progress id={progressId} data-stage-progress max="100" value="100"></progress>
+      <p class="automation-stage__action" data-stage-action>Sample ready &middot; your team reviews.</p>
+    </div>
+  </div>
+
   <div class="automation-stage__workbench">
     <div class="automation-stage__panel" data-stage-panel="quote">
       <div class="automation-stage__before" data-stage-before>
@@ -33,11 +44,20 @@ const mappedRecord = JSON.stringify({
         <p>A quote request buried in messages.</p>
         <span class="automation-stage__loose-pages" aria-hidden="true"><i></i><i></i><i></i></span>
       </div>
+
+      <div class="automation-stage__input" data-stage-input aria-label="Fictional input details">
+        <span class="automation-stage__input-label">SAMPLE INPUT</span>
+        <dl>
+          <div><dt>Project</dt><dd data-stage-input-field data-input-reveal="1" data-revealed="true">Bathroom remodel</dd></div>
+          <div><dt>Size</dt><dd data-stage-input-field data-input-reveal="2" data-revealed="true">60 sq ft</dd></div>
+          <div><dt>Contact</dt><dd data-stage-input-field data-input-reveal="3" data-revealed="true">Casey Sample</dd></div>
+        </dl>
+      </div>
       <div class="automation-stage__route-heading"><span>SCOPED AUTOMATION</span><span aria-hidden="true">01 &mdash; 03</span></div>
       <ol class="automation-stage__steps" data-stage-steps aria-label="Illustrative quote-request automation">
-        <li><span class="automation-stage__step-index" aria-hidden="true">01</span><span>Collect &amp; check<br />project details</span></li>
-        <li><span class="automation-stage__step-index" aria-hidden="true">02</span><span>Prepare<br />the brief</span></li>
-        <li><span class="automation-stage__step-index" aria-hidden="true">03</span><span>Notify<br />the reviewer</span></li>
+        <li data-step-state="done"><span class="automation-stage__step-index" aria-hidden="true">01</span><span>Collect &amp; check<br />project details</span></li>
+        <li data-step-state="done"><span class="automation-stage__step-index" aria-hidden="true">02</span><span>Prepare<br />the brief</span></li>
+        <li data-step-state="done"><span class="automation-stage__step-index" aria-hidden="true">03</span><span>Notify<br />the reviewer</span></li>
       </ol>
 
       <article class="automation-stage__artifact automation-stage__artifact--quote" data-stage-artifact aria-label="Fictional project brief">
@@ -47,12 +67,12 @@ const mappedRecord = JSON.stringify({
           <h3 data-stage-output>Ready-to-review <br />quote brief</h3>
         </div>
         <dl class="automation-stage__brief-fields">
-          <div><dt>Project</dt><dd>Bathroom remodel</dd></div>
-          <div><dt>Approx. size</dt><dd>60 sq ft</dd></div>
-          <div><dt>Area</dt><dd>Sample service area</dd></div>
-          <div><dt>Timing</dt><dd>Next month</dd></div>
-          <div><dt>Budget</dt><dd>Not decided</dd></div>
-          <div><dt>Contact</dt><dd>casey@example.com</dd></div>
+          <div><dt>Project</dt><dd data-stage-cell data-stage-reveal="1" data-revealed="true">Bathroom remodel</dd></div>
+          <div><dt>Approx. size</dt><dd data-stage-cell data-stage-reveal="1" data-revealed="true">60 sq ft</dd></div>
+          <div><dt>Area</dt><dd data-stage-cell data-stage-reveal="2" data-revealed="true">Sample service area</dd></div>
+          <div><dt>Timing</dt><dd data-stage-cell data-stage-reveal="2" data-revealed="true">Next month</dd></div>
+          <div><dt>Budget</dt><dd data-stage-cell data-stage-reveal="3" data-revealed="true">Not decided</dd></div>
+          <div><dt>Contact</dt><dd data-stage-cell data-stage-reveal="3" data-revealed="true">casey@example.com</dd></div>
         </dl>
         <p class="automation-stage__human-note" data-stage-limitation><span aria-hidden="true">&nearr;</span> A person prices and sends the quote.</p>
       </article>
@@ -64,11 +84,20 @@ const mappedRecord = JSON.stringify({
         <p>An overnight message without the details.</p>
         <span class="automation-stage__loose-pages" aria-hidden="true"><i></i><i></i><i></i></span>
       </div>
+
+      <div class="automation-stage__input" data-stage-input aria-label="Fictional input details">
+        <span class="automation-stage__input-label">SAMPLE INPUT</span>
+        <dl>
+          <div><dt>Need</dt><dd data-stage-input-field data-input-reveal="1" data-revealed="true">Routine maintenance</dd></div>
+          <div><dt>Callback</dt><dd data-stage-input-field data-input-reveal="2" data-revealed="true">+1 202-555-0147</dd></div>
+          <div><dt>Preference</dt><dd data-stage-input-field data-input-reveal="3" data-revealed="true">Morning, if available</dd></div>
+        </dl>
+      </div>
       <div class="automation-stage__route-heading"><span>SCOPED AUTOMATION</span><span aria-hidden="true">01 &mdash; 03</span></div>
       <ol class="automation-stage__steps" data-stage-steps aria-label="Illustrative after-hours inquiry automation">
-        <li><span class="automation-stage__step-index" aria-hidden="true">01</span><span>Capture callback<br />details &amp; need</span></li>
-        <li><span class="automation-stage__step-index" aria-hidden="true">02</span><span>Organize<br />the email</span></li>
-        <li><span class="automation-stage__step-index" aria-hidden="true">03</span><span>Send to the<br />agreed inbox</span></li>
+        <li data-step-state="done"><span class="automation-stage__step-index" aria-hidden="true">01</span><span>Capture callback<br />details &amp; need</span></li>
+        <li data-step-state="done"><span class="automation-stage__step-index" aria-hidden="true">02</span><span>Organize<br />the email</span></li>
+        <li data-step-state="done"><span class="automation-stage__step-index" aria-hidden="true">03</span><span>Send to the<br />agreed inbox</span></li>
       </ol>
 
       <article class="automation-stage__artifact automation-stage__artifact--email" data-stage-artifact aria-label="Fictional follow-up email">
@@ -78,12 +107,12 @@ const mappedRecord = JSON.stringify({
           <h3 data-stage-output>Morning follow-up <br />brief</h3>
         </div>
         <dl class="automation-stage__email-meta">
-          <div><dt>To</dt><dd>Agreed team inbox</dd></div>
-          <div><dt>Subject</dt><dd>Callback requested &middot; Casey Sample</dd></div>
+          <div><dt>To</dt><dd data-stage-cell data-stage-reveal="1" data-revealed="true">Agreed team inbox</dd></div>
+          <div><dt>Subject</dt><dd data-stage-cell data-stage-reveal="1" data-revealed="true">Callback requested &middot; Casey Sample</dd></div>
         </dl>
         <div class="automation-stage__callback">
-          <div><span>WHAT THEY NEED</span><strong>Routine maintenance</strong></div>
-          <div><span>CALLBACK DETAILS</span><strong>+1 202-555-0147</strong><small>Morning preferred, if available</small></div>
+          <div><span>WHAT THEY NEED</span><strong data-stage-cell data-stage-reveal="2" data-revealed="true">Routine maintenance</strong></div>
+          <div><span>CALLBACK DETAILS</span><strong data-stage-cell data-stage-reveal="3" data-revealed="true">+1 202-555-0147</strong><small data-stage-cell data-stage-reveal="3" data-revealed="true">Morning preferred, if available</small></div>
         </div>
         <p class="automation-stage__human-note" data-stage-limitation><span aria-hidden="true">&nearr;</span> No appointment made. Your team follows up.</p>
       </article>
@@ -95,11 +124,20 @@ const mappedRecord = JSON.stringify({
         <p>The same details typed into another tool.</p>
         <span class="automation-stage__loose-pages" aria-hidden="true"><i></i><i></i><i></i></span>
       </div>
+
+      <div class="automation-stage__input" data-stage-input aria-label="Fictional input details">
+        <span class="automation-stage__input-label">SAMPLE INPUT</span>
+        <dl>
+          <div><dt>Name</dt><dd data-stage-input-field data-input-reveal="1" data-revealed="true">Casey Sample</dd></div>
+          <div><dt>Email</dt><dd data-stage-input-field data-input-reveal="2" data-revealed="true">casey@example.com</dd></div>
+          <div><dt>Request</dt><dd data-stage-input-field data-input-reveal="3" data-revealed="true">Maintenance</dd></div>
+        </dl>
+      </div>
       <div class="automation-stage__route-heading"><span>POSSIBLE CUSTOM WORKFLOW</span><span aria-hidden="true">01 &mdash; 03</span></div>
       <ol class="automation-stage__steps" data-stage-steps aria-label="Illustrative custom data-entry automation">
-        <li><span class="automation-stage__step-index" aria-hidden="true">01</span><span>Validate<br />the details</span></li>
-        <li><span class="automation-stage__step-index" aria-hidden="true">02</span><span>Map the<br />agreed fields</span></li>
-        <li><span class="automation-stage__step-index" aria-hidden="true">03</span><span>Pass only<br />approved data</span></li>
+        <li data-step-state="done"><span class="automation-stage__step-index" aria-hidden="true">01</span><span>Validate<br />the details</span></li>
+        <li data-step-state="done"><span class="automation-stage__step-index" aria-hidden="true">02</span><span>Map the<br />agreed fields</span></li>
+        <li data-step-state="done"><span class="automation-stage__step-index" aria-hidden="true">03</span><span>Pass only<br />approved data</span></li>
       </ol>
 
       <article class="automation-stage__artifact automation-stage__artifact--record" data-stage-artifact aria-label="Fictional mapped record">
@@ -109,10 +147,10 @@ const mappedRecord = JSON.stringify({
           <h3 data-stage-output>Usable mapped <br />record</h3>
         </div>
         <div class="automation-stage__field-map" aria-label="Example agreed field mappings">
-          <span>Contact name <b aria-hidden="true">&rarr;</b> <code>contact_name</code></span>
-          <span>Request type <b aria-hidden="true">&rarr;</b> <code>request_type</code></span>
+          <span data-stage-cell data-stage-reveal="1" data-revealed="true">Contact name <b aria-hidden="true">&rarr;</b> <code>contact_name</code></span>
+          <span data-stage-cell data-stage-reveal="3" data-revealed="true">Request type <b aria-hidden="true">&rarr;</b> <code>request_type</code></span>
         </div>
-        <pre class="automation-stage__record" aria-label="Sample mapped record">{mappedRecord}</pre>
+        <pre class="automation-stage__record" aria-label="Sample mapped record"><span aria-hidden="true">{"{\n"}</span><span data-stage-cell data-stage-reveal="1" data-revealed="true">{'  "contact_name": "Casey Sample",\n'}</span><span data-stage-cell data-stage-reveal="2" data-revealed="true">{'  "email": "casey@example.com",\n'}</span><span data-stage-cell data-stage-reveal="3" data-revealed="true">{'  "request_type": "maintenance"\n'}</span><span aria-hidden="true">{"}"}</span></pre>
         <p class="automation-stage__human-note" data-stage-limitation><span aria-hidden="true">&nearr;</span> Assess APIs and authorized access first. Not a prebuilt integration.</p>
       </article>
     </div>
@@ -124,38 +162,246 @@ const mappedRecord = JSON.stringify({
   </figcaption>
 </figure>
 
-<noscript><style>.automation-stage__choices{display:none}</style></noscript>
+<noscript><style>.automation-stage__choices,.automation-stage__transport{display:none}</style></noscript>
 
 <script>
-  const summaries = {
-    quote: "Quote request: collect and check project details, prepare the brief, notify the reviewer. Ready-to-review quote brief. A person prices and sends the quote.",
-    "after-hours": "After hours: capture callback details and need, organize the email, send to the agreed inbox. Morning follow-up brief. No appointment made; your team follows up.",
-    "data-entry": "Data entry: validate the details, map agreed fields, pass only approved data. Usable mapped record. Assess APIs and authorized access first; not a prebuilt integration.",
+  const examples = {
+    quote: {
+      label: "Quote request",
+      summary: "Quote request: collect and check project details, prepare the brief, notify the reviewer. Ready-to-review quote brief. A person prices and sends the quote.",
+      actions: [
+        "Capturing project details",
+        "Captured: bathroom remodel · 60 sq ft",
+        "Checking the request details",
+        "Building the quote brief",
+        "Adding timing, budget & contact",
+        "Showing the reviewer handoff",
+        "Sample ready · human pricing comes next",
+      ],
+    },
+    "after-hours": {
+      label: "After hours",
+      summary: "After hours: capture callback details and need, organize the email, send to the agreed inbox. Morning follow-up brief. No appointment made; your team follows up.",
+      actions: [
+        "Capturing the callback request",
+        "Captured: need, number & preference",
+        "Checking the callback details",
+        "Organizing the follow-up email",
+        "Adding the need & callback summary",
+        "Showing the agreed inbox handoff",
+        "Sample ready · your team follows up",
+      ],
+    },
+    "data-entry": {
+      label: "Data entry",
+      summary: "Data entry: validate the details, map agreed fields, pass only approved data. Usable mapped record. Assess APIs and authorized access first; not a prebuilt integration.",
+      actions: [
+        "Capturing the sample record",
+        "Captured: name, email & request",
+        "Checking the sample fields",
+        "Mapping the agreed fields",
+        "Building the usable sample record",
+        "Showing the approved-data handoff",
+        "Sample ready · assess access & APIs first",
+      ],
+    },
   } as const;
 
+  type ExampleKey = keyof typeof examples;
+  type Playback = "idle" | "playing" | "paused" | "complete";
+  const duration = 8000;
+  const inputReveals = [450, 1050, 1650];
+  const outputReveals = [2700, 4000, 5200];
+
   document.querySelectorAll<HTMLElement>("[data-automation-stage]").forEach((stage) => {
+    if (stage.dataset.playbackBound === "true") return;
     const buttons = stage.querySelectorAll<HTMLButtonElement>("[data-stage-example]");
     const panels = stage.querySelectorAll<HTMLElement>("[data-stage-panel]");
+    const play = stage.querySelector<HTMLButtonElement>("[data-stage-play]");
+    const playLabel = stage.querySelector<HTMLElement>("[data-stage-play-label]");
+    const pause = stage.querySelector<HTMLButtonElement>("[data-stage-pause]");
+    const progress = stage.querySelector<HTMLProgressElement>("[data-stage-progress]");
+    const action = stage.querySelector<HTMLElement>("[data-stage-action]");
     const result = stage.querySelector<HTMLElement>("[data-stage-result]");
-    const select = (key: keyof typeof summaries) => {
-      if (stage.dataset.example === key) return;
-      stage.classList.remove("is-changing");
-      buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.stageExample === key)));
-      panels.forEach((panel) => { panel.hidden = panel.dataset.stagePanel !== key; });
-      stage.dataset.example = key;
-      if (result) result.textContent = summaries[key];
-      const selected = stage.querySelector<HTMLElement>('[data-stage-panel="' + key + '"]');
-      if (selected && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        selected.getBoundingClientRect();
-        stage.classList.add("is-changing");
+    if (!play || !playLabel || !pause || !progress || !action || !result) return;
+    stage.dataset.playbackBound = "true";
+
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const seals = new Map<HTMLElement, string>();
+    panels.forEach((panel) => {
+      const seal = panel.querySelector<HTMLElement>(".automation-stage__seal");
+      if (seal) seals.set(seal, seal.textContent || "");
+    });
+    let key: ExampleKey = "quote";
+    let state: Playback = motion.matches ? "complete" : "idle";
+    let elapsed = 0;
+    let lastTick = 0;
+    let frame: number | null = null;
+    let generation = 0;
+    let consumedFirstRun = motion.matches;
+    let announcement = "";
+    let observer: IntersectionObserver | null = null;
+
+    const setText = (element: HTMLElement, text: string) => {
+      if (element.textContent !== text) element.textContent = text;
+    };
+
+    // One cancellable frame chain owns the playback clock; pausing never loses progress.
+    const cancelFrame = () => {
+      generation += 1;
+      if (frame !== null) window.cancelAnimationFrame(frame);
+      frame = null;
+    };
+    const consumeFirstRun = () => {
+      consumedFirstRun = true;
+      observer?.disconnect();
+      observer = null;
+    };
+    const reveal = (element: HTMLElement, visible: boolean) => {
+      const value = String(visible);
+      if (element.dataset.revealed === value) return;
+      element.dataset.revealed = value;
+      if (visible) element.removeAttribute("aria-hidden");
+      else element.setAttribute("aria-hidden", "true");
+    };
+
+    const render = () => {
+      const time = state === "idle" || state === "complete" ? duration : elapsed;
+      const phase = time < 2700 ? "input" : time < 5900 ? "processing" : time < duration ? "handoff" : "complete";
+      stage.dataset.playback = state;
+      stage.dataset.phase = phase;
+      progress.value = Math.floor(time / duration * 100);
+      play.disabled = false;
+      setText(playLabel, state === "idle" ? "Play demo" : "Replay demo");
+      pause.disabled = state !== "playing" && state !== "paused";
+      setText(pause, state === "paused" ? "Resume" : "Pause");
+      const actionIndex = time < 900 ? 0 : time < 1800 ? 1 : time < 2700 ? 2 : time < 4300 ? 3 : time < 5900 ? 4 : time < duration ? 5 : 6;
+      const actionText = examples[key].actions[actionIndex];
+      setText(action, state === "idle" ? "Watch the sample work, step by step." : state === "paused" ? "Paused · " + actionText : actionText);
+      const panel = stage.querySelector<HTMLElement>('[data-stage-panel="' + key + '"]');
+      if (!panel) return;
+      const activeStep = phase === "input" ? 0 : phase === "processing" ? 1 : phase === "handoff" ? 2 : 3;
+      panel.querySelectorAll<HTMLElement>("[data-stage-steps] > li").forEach((step, index) => {
+        step.dataset.stepState = index < activeStep ? "done" : index === activeStep ? "active" : "pending";
+        if (index === activeStep) step.setAttribute("aria-current", "step");
+        else step.removeAttribute("aria-current");
+      });
+      panel.querySelectorAll<HTMLElement>("[data-stage-input-field]").forEach((cell) => {
+        reveal(cell, time >= inputReveals[Number(cell.dataset.inputReveal) - 1]);
+      });
+      panel.querySelectorAll<HTMLElement>("[data-stage-cell]").forEach((cell) => {
+        reveal(cell, time >= outputReveals[Number(cell.dataset.stageReveal) - 1]);
+      });
+      const seal = panel.querySelector<HTMLElement>(".automation-stage__seal");
+      if (seal) setText(seal, state === "paused" ? "PAUSED" : phase === "complete" ? seals.get(seal) || "SAMPLE READY" : phase === "input" ? "CAPTURE" : phase === "processing" ? "BUILDING" : "HANDOFF");
+
+      // Announce lifecycle changes, rather than every field or progress-frame update.
+      const nextAnnouncement = key + ":" + state + ":" + phase;
+      if (nextAnnouncement !== announcement) {
+        announcement = nextAnnouncement;
+        setText(result, state === "idle" || state === "complete"
+          ? examples[key].summary
+          : examples[key].label + " illustrative walkthrough " + state + ". " + actionText + ". No live connections.");
       }
     };
+
+    const complete = () => {
+      cancelFrame();
+      elapsed = duration;
+      state = "complete";
+      render();
+    };
+    const pauseRun = () => {
+      if (state !== "playing") return;
+      cancelFrame();
+      state = "paused";
+      render();
+    };
+    const schedule = () => {
+      const token = generation;
+      const tick = (now: number) => {
+        frame = null;
+        if (token !== generation || state !== "playing") return;
+        if (document.hidden) {
+          pauseRun();
+          return;
+        }
+        elapsed = Math.min(duration, elapsed + Math.max(0, now - lastTick));
+        lastTick = now;
+        if (elapsed >= duration) {
+          complete();
+          return;
+        }
+        render();
+        frame = window.requestAnimationFrame(tick);
+      };
+      frame = window.requestAnimationFrame(tick);
+    };
+    const start = () => {
+      consumeFirstRun();
+      cancelFrame();
+      elapsed = 0;
+      if (motion.matches) {
+        complete();
+        return;
+      }
+      state = document.hidden ? "paused" : "playing";
+      lastTick = performance.now();
+      render();
+      if (state === "playing") schedule();
+    };
+    const resume = () => {
+      if (state !== "paused") return;
+      if (motion.matches) {
+        complete();
+        return;
+      }
+      if (document.hidden) return;
+      cancelFrame();
+      state = "playing";
+      lastTick = performance.now();
+      render();
+      schedule();
+    };
+    const select = (nextKey: ExampleKey) => {
+      if (nextKey === key) return;
+      cancelFrame();
+      key = nextKey;
+      stage.dataset.example = key;
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.stageExample === key)));
+      panels.forEach((panel) => { panel.hidden = panel.dataset.stagePanel !== key; });
+      start();
+    };
+
     buttons.forEach((button) => button.addEventListener("click", () => {
-      const key = button.dataset.stageExample;
-      if (key && key in summaries) select(key as keyof typeof summaries);
+      const value = button.dataset.stageExample;
+      if (value && value in examples) select(value as ExampleKey);
     }));
-    stage.addEventListener("animationend", (event) => {
-      if (event.animationName === "stage-manifest-in") stage.classList.remove("is-changing");
+    play.addEventListener("click", start);
+    pause.addEventListener("click", () => {
+      if (state === "paused") resume();
+      else pauseRun();
     });
+    motion.addEventListener("change", () => {
+      if (motion.matches) {
+        consumeFirstRun();
+        complete();
+      }
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) pauseRun();
+    });
+    window.addEventListener("pagehide", () => {
+      consumeFirstRun();
+      pauseRun();
+      cancelFrame();
+    });
+    render();
+    if (!motion.matches && "IntersectionObserver" in window) {
+      observer = new IntersectionObserver((entries) => {
+        if (!consumedFirstRun && !document.hidden && entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= .2)) start();
+      }, { threshold: .2 });
+      observer.observe(stage);
+    }
   });
 </script>
