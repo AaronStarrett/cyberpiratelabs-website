@@ -3,163 +3,159 @@ import "../styles/automation-stage.css";
 
 interface Props { id?: string; }
 const { id = "automation-stage" } = Astro.props;
-const paint = (name: string) => `url(#${id}-${name})`;
-const resultId = `${id}-result`;
+const resultId = id + "-result";
+const mappedRecord = JSON.stringify({
+  contact_name: "Casey Sample",
+  email: "casey@example.com",
+  request_type: "maintenance",
+}, null, 2);
 ---
 
-<figure id={id} class="automation-stage" data-automation-stage data-example="request">
+<figure id={id} class="automation-stage" data-automation-stage data-example="quote">
   <div class="automation-stage__heading">
-    <span>CHART THE WORKFLOW</span>
-    <span class="automation-stage__sample"><span aria-hidden="true"></span> ILLUSTRATIVE</span>
+    <span class="automation-stage__lab">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h11v14H4zM15 8h5v11h-5M8 9h3M8 12h3M8 15h3" stroke="currentColor" stroke-width="1.5" /><path d="M16 4l4 4" stroke="currentColor" stroke-width="1.5" /></svg>
+      CPL / WORKFLOW LAB
+    </span>
+    <span class="automation-stage__sample">ILLUSTRATIVE</span>
   </div>
 
-  <div class="automation-stage__scene">
-    <svg class="automation-stage__canvas" viewBox="-12 -7 600 415" fill="none" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id={`${id}-deck`} x1="65" y1="145" x2="491" y2="325" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#0b4a63" /><stop offset="1" stop-color="#052b4e" />
-        </linearGradient>
-        <linearGradient id={`${id}-edge`} x1="269" y1="277" x2="270" y2="361" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#076b8f" /><stop offset="1" stop-color="#031d36" />
-        </linearGradient>
-        <linearGradient id={`${id}-console`} x1="168" y1="79" x2="416" y2="234" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#b7f1df" /><stop offset=".55" stop-color="#68cdbd" /><stop offset="1" stop-color="#076b8f" />
-        </linearGradient>
-        <linearGradient id={`${id}-screen`} x1="191" y1="128" x2="368" y2="209" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#0b415a" /><stop offset="1" stop-color="#052b4e" />
-        </linearGradient>
-        <linearGradient id={`${id}-route`} x1="90" y1="232" x2="455" y2="285" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#076b8f" /><stop offset=".45" stop-color="#31dcc7" /><stop offset="1" stop-color="#cef6e6" />
-        </linearGradient>
-        <radialGradient id={`${id}-halo`} cx="0" cy="0" r="1" gradientTransform="translate(301 184) rotate(90) scale(171 234)" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#31dcc7" stop-opacity=".22" /><stop offset="1" stop-color="#31dcc7" stop-opacity="0" />
-        </radialGradient>
-        <filter id={`${id}-shadow`} x="-35%" y="-35%" width="180%" height="200%" color-interpolation-filters="sRGB">
-          <feDropShadow dx="0" dy="9" stdDeviation="9" flood-color="#001829" flood-opacity=".5" />
-        </filter>
-        <filter id={`${id}-glow`} x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
-          <feGaussianBlur stdDeviation="5" />
-        </filter>
-      </defs>
-
-      <ellipse cx="291" cy="203" rx="256" ry="157" fill={paint("halo")} />
-      <g class="automation-stage__compass" transform="translate(469 86)">
-        <circle r="63" stroke="#9fdfd1" stroke-opacity=".25" />
-        <circle r="51" stroke="#9fdfd1" stroke-opacity=".45" stroke-dasharray="1 7" />
-        <circle r="42" fill="#052b4e" fill-opacity=".7" stroke="#076b8f" />
-        <path d="M0-37V-27M37 0H27M0 37V27M-37 0H-27M-26-26L-19-19M26-26L19-19M26 26L19 19M-26 26L-19 19" stroke="#9fdfd1" stroke-width="1.5" />
-        <path d="M-9 10L7-29L12-5Z" fill="#31dcc7" />
-        <path d="M-9 10L-7 29L12-5Z" fill="#d5f6e9" fill-opacity=".55" />
-        <circle r="5" fill="#052b4e" stroke="#d5f6e9" stroke-width="2" />
-        <text x="0" y="-73" text-anchor="middle" class="automation-stage__compass-label">N</text>
-      </g>
-
-      <g filter={paint("shadow")}>
-        <path d="M32 232L299 78L530 210L264 365L32 232Z" fill={paint("edge")} />
-        <path d="M32 218L299 64L530 196L264 351L32 218Z" fill={paint("deck")} stroke="#3b8d99" stroke-opacity=".55" />
-        <path d="M32 218V232L264 365V351M264 351L530 196V210" stroke="#31dcc7" stroke-opacity=".32" />
-        <g stroke="#66bbb6" stroke-opacity=".11">
-          <path d="M83 188L315 322M128 162L360 296M173 136L405 270M218 110L450 244M263 84L495 218" />
-          <path d="M79 244L346 90M125 270L392 116M171 297L438 143M217 324L484 170" />
-        </g>
-      </g>
-
-      <path d="M103 238L280 135L454 275" stroke={paint("route")} stroke-width="13" stroke-opacity=".35" filter={paint("glow")} />
-      <path class="automation-stage__route" d="M103 238L280 135L454 275" stroke={paint("route")} stroke-width="3" stroke-linecap="round" />
-      <path d="M119 218L129 225L116 232M400 241L410 249L399 251" stroke="#c8f9e7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-      <circle cx="103" cy="238" r="8" fill="#31dcc7" stroke="#cef6e6" stroke-width="2" />
-      <circle cx="454" cy="275" r="8" fill="#cef6e6" stroke="#31dcc7" stroke-width="2" />
-
-      <g class="automation-stage__console" filter={paint("shadow")}>
-        <path d="M170 116L285 49L415 125V158L300 225L170 149Z" fill="#075471" />
-        <path d="M170 116L285 49L415 125L300 192Z" fill={paint("console")} stroke="#d5f6e9" stroke-opacity=".75" />
-        <path d="M300 192V225L415 158V125" fill="#076b8f" stroke="#76dbcb" stroke-opacity=".7" />
-        <path d="M170 116V149L300 225V192" fill="#1b8394" />
-        <path d="M195 116L285 64L389 125L299 177Z" fill="#052b4e" fill-opacity=".2" stroke="#052b4e" stroke-opacity=".35" />
-        <g class="automation-stage__chip">
-          <path d="M249 106L283 86L321 108L286 128Z" fill="#052b4e" stroke="#e5fff1" stroke-width="1.5" />
-          <path d="M249 106V114L286 136L321 116V108M286 128V136" fill="#076b8f" stroke="#9bf1df" stroke-width="1.5" />
-          <path d="M266 103L283 93L303 105L286 115Z" fill="#31dcc7" />
-          <path d="M238 104L230 99M240 114L232 109M261 89L253 84M273 83L265 78M320 97L329 92M328 106L337 101M304 129L312 134M315 123L323 128" stroke="#052b4e" stroke-width="3" stroke-linecap="round" />
-        </g>
-        <path d="M204 133L236 151M213 128L245 146M325 159L362 138" stroke="#e7fff2" stroke-opacity=".7" stroke-width="2" />
-        <path d="M323 207L386 170" stroke="#31dcc7" stroke-width="3" stroke-linecap="round" />
-      </g>
-
-      <g class="automation-stage__software-label" filter={paint("shadow")}>
-        <rect x="182" y="150" width="217" height="87" rx="10" fill={paint("screen")} stroke="#66d7c5" />
-        <path d="M196 170H212M204 162V178" stroke="#31dcc7" stroke-width="2" stroke-linecap="round" />
-        <text x="223" y="174" class="automation-stage__small-label">02 / SCOPED SOFTWARE</text>
-        <text x="197" y="201" class="automation-stage__software-text" data-stage-software-one>Collect approved</text>
-        <text x="197" y="225" class="automation-stage__software-text" data-stage-software-two>details</text>
-        <circle cx="380" cy="216" r="4" fill="#31dcc7" />
-      </g>
-
-      <g filter={paint("shadow")}>
-        <path d="M18 188H145L159 202V274H32L18 260Z" fill="#8dc9bf" />
-        <rect x="18" y="181" width="127" height="79" rx="9" fill="#d9f7e9" stroke="#f0fff7" />
-        <path d="M145 190L159 202V274L145 261Z" fill="#52abaf" />
-        <text x="31" y="201" class="automation-stage__card-label">01 / INPUT</text>
-        <text x="31" y="226" class="automation-stage__card-text" data-stage-input-one>Website</text>
-        <text x="31" y="250" class="automation-stage__card-text" data-stage-input-two>inquiry</text>
-      </g>
-
-      <g filter={paint("shadow")}>
-        <path d="M372 245H530L543 258V337H385L372 324Z" fill="#086684" />
-        <rect x="372" y="237" width="158" height="87" rx="10" fill="#e6faef" stroke="#f1fff7" />
-        <path d="M530 247L543 258V337L530 325Z" fill="#42a6ab" />
-        <text x="385" y="259" class="automation-stage__card-label">03 / AGREED NEXT STEP</text>
-        <text x="385" y="284" class="automation-stage__output-text" data-stage-output-one>Team reviews</text>
-        <text x="385" y="308" class="automation-stage__output-text" data-stage-output-two>request</text>
-        <path d="M506 303L510 307L518 298" stroke="#076b8f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-      </g>
-
-      <g class="automation-stage__deck-mark" transform="translate(264 311)">
-        <path d="M-25 0H-6M6 0H25M0-9V9" stroke="#98dfce" stroke-opacity=".65" />
-        <circle r="3" fill="#31dcc7" />
-      </g>
-    </svg>
+  <div class="automation-stage__choices" role="group" aria-label="Choose an illustrative automation example">
+    <button type="button" data-stage-example="quote" aria-pressed="true" aria-controls={resultId}>Quote request</button>
+    <button type="button" data-stage-example="after-hours" aria-pressed="false" aria-controls={resultId}>After hours</button>
+    <button type="button" data-stage-example="data-entry" aria-pressed="false" aria-controls={resultId}>Data entry</button>
   </div>
 
-  <div class="automation-stage__choices" role="group" aria-label="Choose an illustrative workflow">
-    <button type="button" data-stage-example="request" aria-pressed="true" aria-controls={resultId}>A request</button>
-    <button type="button" data-stage-example="task" aria-pressed="false" aria-controls={resultId}>A repeated task</button>
-    <button type="button" data-stage-example="approval" aria-pressed="false" aria-controls={resultId}>An approval</button>
+  <div class="automation-stage__workbench">
+    <div class="automation-stage__panel" data-stage-panel="quote">
+      <div class="automation-stage__before" data-stage-before>
+        <span class="automation-stage__before-tag">BEFORE</span>
+        <p>A quote request buried in messages.</p>
+        <span class="automation-stage__loose-pages" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+      <div class="automation-stage__route-heading"><span>SCOPED AUTOMATION</span><span aria-hidden="true">01 &mdash; 03</span></div>
+      <ol class="automation-stage__steps" data-stage-steps aria-label="Illustrative quote-request automation">
+        <li><span class="automation-stage__step-index" aria-hidden="true">01</span><span>Collect &amp; check<br />project details</span></li>
+        <li><span class="automation-stage__step-index" aria-hidden="true">02</span><span>Prepare<br />the brief</span></li>
+        <li><span class="automation-stage__step-index" aria-hidden="true">03</span><span>Notify<br />the reviewer</span></li>
+      </ol>
+
+      <article class="automation-stage__artifact automation-stage__artifact--quote" data-stage-artifact aria-label="Fictional project brief">
+        <div class="automation-stage__artifact-chrome"><span>PROJECT MANIFEST / SAMPLE Q-014</span><span class="automation-stage__seal">FOR REVIEW</span></div>
+        <div class="automation-stage__artifact-title">
+          <svg viewBox="0 0 30 34" fill="none" aria-hidden="true"><path d="M6 3h14l5 5v23H6z" stroke="currentColor" stroke-width="1.5" /><path d="M20 3v6h5M11 15h9M11 20h9M11 25h6" stroke="currentColor" stroke-width="1.5" /></svg>
+          <h3 data-stage-output>Ready-to-review <br />quote brief</h3>
+        </div>
+        <dl class="automation-stage__brief-fields">
+          <div><dt>Project</dt><dd>Bathroom remodel</dd></div>
+          <div><dt>Approx. size</dt><dd>60 sq ft</dd></div>
+          <div><dt>Area</dt><dd>Sample service area</dd></div>
+          <div><dt>Timing</dt><dd>Next month</dd></div>
+          <div><dt>Budget</dt><dd>Not decided</dd></div>
+          <div><dt>Contact</dt><dd>casey@example.com</dd></div>
+        </dl>
+        <p class="automation-stage__human-note" data-stage-limitation><span aria-hidden="true">&nearr;</span> A person prices and sends the quote.</p>
+      </article>
+    </div>
+
+    <div class="automation-stage__panel" data-stage-panel="after-hours" hidden>
+      <div class="automation-stage__before" data-stage-before>
+        <span class="automation-stage__before-tag">BEFORE</span>
+        <p>An overnight message without the details.</p>
+        <span class="automation-stage__loose-pages" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+      <div class="automation-stage__route-heading"><span>SCOPED AUTOMATION</span><span aria-hidden="true">01 &mdash; 03</span></div>
+      <ol class="automation-stage__steps" data-stage-steps aria-label="Illustrative after-hours inquiry automation">
+        <li><span class="automation-stage__step-index" aria-hidden="true">01</span><span>Capture callback<br />details &amp; need</span></li>
+        <li><span class="automation-stage__step-index" aria-hidden="true">02</span><span>Organize<br />the email</span></li>
+        <li><span class="automation-stage__step-index" aria-hidden="true">03</span><span>Send to the<br />agreed inbox</span></li>
+      </ol>
+
+      <article class="automation-stage__artifact automation-stage__artifact--email" data-stage-artifact aria-label="Fictional follow-up email">
+        <div class="automation-stage__artifact-chrome"><span>TEAM INBOX / SAMPLE EMAIL</span><span class="automation-stage__seal">FOLLOW-UP</span></div>
+        <div class="automation-stage__artifact-title">
+          <svg viewBox="0 0 34 30" fill="none" aria-hidden="true"><path d="M3 5h28v20H3zM3 5l14 11L31 5" stroke="currentColor" stroke-width="1.5" /><path d="M3 25l10-11M31 25L21 14" stroke="currentColor" stroke-width="1.5" /></svg>
+          <h3 data-stage-output>Morning follow-up <br />brief</h3>
+        </div>
+        <dl class="automation-stage__email-meta">
+          <div><dt>To</dt><dd>Agreed team inbox</dd></div>
+          <div><dt>Subject</dt><dd>Callback requested &middot; Casey Sample</dd></div>
+        </dl>
+        <div class="automation-stage__callback">
+          <div><span>WHAT THEY NEED</span><strong>Routine maintenance</strong></div>
+          <div><span>CALLBACK DETAILS</span><strong>+1 202-555-0147</strong><small>Morning preferred, if available</small></div>
+        </div>
+        <p class="automation-stage__human-note" data-stage-limitation><span aria-hidden="true">&nearr;</span> No appointment made. Your team follows up.</p>
+      </article>
+    </div>
+
+    <div class="automation-stage__panel" data-stage-panel="data-entry" hidden>
+      <div class="automation-stage__before" data-stage-before>
+        <span class="automation-stage__before-tag">BEFORE</span>
+        <p>The same details typed into another tool.</p>
+        <span class="automation-stage__loose-pages" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+      <div class="automation-stage__route-heading"><span>POSSIBLE CUSTOM WORKFLOW</span><span aria-hidden="true">01 &mdash; 03</span></div>
+      <ol class="automation-stage__steps" data-stage-steps aria-label="Illustrative custom data-entry automation">
+        <li><span class="automation-stage__step-index" aria-hidden="true">01</span><span>Validate<br />the details</span></li>
+        <li><span class="automation-stage__step-index" aria-hidden="true">02</span><span>Map the<br />agreed fields</span></li>
+        <li><span class="automation-stage__step-index" aria-hidden="true">03</span><span>Pass only<br />approved data</span></li>
+      </ol>
+
+      <article class="automation-stage__artifact automation-stage__artifact--record" data-stage-artifact aria-label="Fictional mapped record">
+        <div class="automation-stage__artifact-chrome"><span>FIELD MAP / SAMPLE RECORD</span><span class="automation-stage__seal">CUSTOM SCOPE</span></div>
+        <div class="automation-stage__artifact-title">
+          <svg viewBox="0 0 34 30" fill="none" aria-hidden="true"><path d="M4 5h9v7H4zM21 18h9v7h-9zM13 9h12v9M4 22h11M10 18l5 4-5 4" stroke="currentColor" stroke-width="1.5" /></svg>
+          <h3 data-stage-output>Usable mapped <br />record</h3>
+        </div>
+        <div class="automation-stage__field-map" aria-label="Example agreed field mappings">
+          <span>Contact name <b aria-hidden="true">&rarr;</b> <code>contact_name</code></span>
+          <span>Request type <b aria-hidden="true">&rarr;</b> <code>request_type</code></span>
+        </div>
+        <pre class="automation-stage__record" aria-label="Sample mapped record">{mappedRecord}</pre>
+        <p class="automation-stage__human-note" data-stage-limitation><span aria-hidden="true">&nearr;</span> Assess APIs and authorized access first. Not a prebuilt integration.</p>
+      </article>
+    </div>
   </div>
 
   <figcaption class="automation-stage__caption">
-    <p id={resultId} role="status" aria-live="polite" aria-atomic="true" data-stage-result>Website inquiry &rarr; Collect approved details &rarr; Team reviews request</p>
-    <p class="automation-stage__disclaimer">Illustrative only. Feasibility, access and scope come first.</p>
+    <p id={resultId} class="automation-stage__status" role="status" aria-live="polite" aria-atomic="true" data-stage-result>Quote request: collect and check project details, prepare the brief, notify the reviewer. Ready-to-review quote brief. A person prices and sends the quote.</p>
+    <p class="automation-stage__disclaimer">Fictional examples. No live connections. Scope and access are assessed.</p>
   </figcaption>
 </figure>
 
 <noscript><style>.automation-stage__choices{display:none}</style></noscript>
 
 <script>
-  const examples = {
-    request: { input: ["Website", "inquiry"], software: ["Collect approved", "details"], output: ["Team reviews", "request"] },
-    task: { input: ["Recurring", "report"], software: ["Prepare defined", "summary"], output: ["Owner reviews", "report"] },
-    approval: { input: ["Change", "request"], software: ["Route agreed", "review"], output: ["Person makes", "decision"] },
+  const summaries = {
+    quote: "Quote request: collect and check project details, prepare the brief, notify the reviewer. Ready-to-review quote brief. A person prices and sends the quote.",
+    "after-hours": "After hours: capture callback details and need, organize the email, send to the agreed inbox. Morning follow-up brief. No appointment made; your team follows up.",
+    "data-entry": "Data entry: validate the details, map agreed fields, pass only approved data. Usable mapped record. Assess APIs and authorized access first; not a prebuilt integration.",
   } as const;
 
   document.querySelectorAll<HTMLElement>("[data-automation-stage]").forEach((stage) => {
     const buttons = stage.querySelectorAll<HTMLButtonElement>("[data-stage-example]");
-    const select = (key: keyof typeof examples) => {
-      const example = examples[key];
+    const panels = stage.querySelectorAll<HTMLElement>("[data-stage-panel]");
+    const result = stage.querySelector<HTMLElement>("[data-stage-result]");
+    const select = (key: keyof typeof summaries) => {
+      if (stage.dataset.example === key) return;
+      stage.classList.remove("is-changing");
       buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.stageExample === key)));
+      panels.forEach((panel) => { panel.hidden = panel.dataset.stagePanel !== key; });
       stage.dataset.example = key;
-      for (const step of ["input", "software", "output"] as const) {
-        for (const [index, line] of ["one", "two"].entries()) {
-          const label = stage.querySelector(`[data-stage-${step}-${line}]`);
-          if (label) label.textContent = example[step][index] ?? "";
-        }
+      if (result) result.textContent = summaries[key];
+      const selected = stage.querySelector<HTMLElement>('[data-stage-panel="' + key + '"]');
+      if (selected && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        selected.getBoundingClientRect();
+        stage.classList.add("is-changing");
       }
-      const result = stage.querySelector<HTMLElement>("[data-stage-result]");
-      if (result) result.textContent = [example.input, example.software, example.output].map((lines) => lines.join(" ")).join(" \u2192 ");
     };
     buttons.forEach((button) => button.addEventListener("click", () => {
       const key = button.dataset.stageExample;
-      if (key && key in examples) select(key as keyof typeof examples);
+      if (key && key in summaries) select(key as keyof typeof summaries);
     }));
+    stage.addEventListener("animationend", (event) => {
+      if (event.animationName === "stage-manifest-in") stage.classList.remove("is-changing");
+    });
   });
 </script>

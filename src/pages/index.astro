@@ -2,7 +2,7 @@
 import Base from "../layouts/Base.astro";
 import AutomationStage from "../components/AutomationStage.astro";
 import {organizationSchema} from "../../shared/seo";
-import {solutions, solutionGroups} from "../../shared/solutions";
+import HomeServiceTiles from "../components/HomeServiceTiles.astro";
 import {customConsultationHref} from "../../shared/custom-automation";
 import "../styles/automation-home.css";
 const homeFaqs = [
@@ -42,9 +42,7 @@ const homeFaqs = [
           <p>Focused voice and chat services for everyday customer and team needs.</p>
           <a class="text-link" href="/solutions/bundles/">Connect related services <span aria-hidden="true">↗</span></a>
         </aside>
-        <div class="automation-service-index">
-          {solutionGroups.map(group => <section class="automation-service-group" aria-labelledby={`group-${group.id}`}><h3 id={`group-${group.id}`}>{group.label}<span>{solutions.filter(solution => solution.group === group.id).length} {solutions.filter(solution => solution.group === group.id).length === 1 ? "service" : "services"}</span></h3><ul>{solutions.filter(solution => solution.group === group.id).map(solution => <li><a href={`/solutions/${solution.slug}/`}><span class="automation-service-id">{solution.id}</span><span>{solution.name}</span><span class="automation-service-arrow" aria-hidden="true">↗</span></a></li>)}</ul></section>)}
-        </div>
+        <HomeServiceTiles />
       </div>
     </div>
   </section>

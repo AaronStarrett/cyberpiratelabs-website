@@ -1,0 +1,76 @@
+---
+import {solutions, solutionGroups, type Solution} from "../../shared/solutions";
+import "../styles/home-service-tiles.css";
+
+const snapshots: Record<Solution["id"], {kind: string; outcome: string; wide?: boolean}> = {
+  "01": {kind: "VOICE INTAKE", outcome: "Collect a message for follow-up."},
+  "02": {kind: "CALL HANDOFF", outcome: "Screen the call. Offer one transfer."},
+  "03": {kind: "REQUEST BRIEF", outcome: "Gather details. Staff prepare the quote.", wide: true},
+  "04": {kind: "APPROVED ANSWERS", outcome: "Make business information easier to find."},
+  "05": {kind: "SERVICE GUIDANCE", outcome: "Explain options. Link the next page."},
+  "06": {kind: "CUSTOMER PREPARATION", outcome: "Give new customers a clear next step."},
+  "07": {kind: "BOOKING LINK", outcome: "Guide customers to the existing booking page.", wide: true},
+  "08": {kind: "GUIDED SUPPORT", outcome: "Approved steps, then a human path."},
+  "09": {kind: "FEEDBACK INTAKE", outcome: "Collect feedback for a person to review.", wide: true},
+  "10": {kind: "TEAM KNOWLEDGE", outcome: "Approved procedures. Verified staff access.", wide: true},
+};
+---
+<div class="automation-service-index cpl-service-tiles">
+  <p class="cpl-service-tiles__note"><span aria-hidden="true"></span> Service snapshots · illustrative</p>
+  {solutionGroups.map(group => {
+    const groupSolutions = solutions.filter(solution => solution.group === group.id);
+    return <section class="cpl-service-group" aria-labelledby={`group-${group.id}`}>
+      <p class="cpl-service-group__heading" id={`group-${group.id}`}>{group.label}<span>{groupSolutions.length} {groupSolutions.length === 1 ? "service" : "services"}</span></p>
+      <ul class="cpl-service-group__list">
+        {groupSolutions.map(solution => {
+          const snapshot = snapshots[solution.id];
+          return <li class:list={["cpl-service-group__item", {"cpl-service-group__item--wide": snapshot.wide}]}>
+            <a class:list={["cpl-service-tile", `cpl-service-tile--${solution.id}`, {"cpl-service-tile--wide": snapshot.wide}]} href={`/solutions/${solution.slug}/`} data-home-service={solution.id}>
+              <div class="cpl-service-tile__meta" aria-hidden="true"><span class="automation-service-id cpl-service-tile__id">{solution.id}</span><span>{snapshot.kind}</span><span class="cpl-service-tile__arrow">↗</span></div>
+              <div class="cpl-service-tile__body">
+                <div class="cpl-service-tile__copy"><h3 class="cpl-service-tile__name">{solution.name}</h3><p class="cpl-service-tile__outcome">{snapshot.outcome}</p></div>
+                <div class="cpl-service-artifact" aria-hidden="true">
+                  {solution.id === "01" && <div class="cpl-service-night">
+                    <span class="cpl-service-night__moon"></span>
+                    <div class="cpl-service-night__brief"><span>INQUIRY NOTE</span><i></i><i></i><small>Message + contact → your team</small></div>
+                    <div class="cpl-service-night__wave">{Array.from({length: 8}, () => <i></i>)}</div>
+                  </div>}
+                  {solution.id === "02" && <div class="cpl-service-signal">
+                    <div class="cpl-service-signal__route"><span><i></i> SCREEN</span><b>→</b><span><i></i> ONE NUMBER</span></div>
+                    <small>No answer? Capture a message.</small>
+                  </div>}
+                  {solution.id === "03" && <div class="cpl-service-brief">
+                    <span class="cpl-service-brief__label">DETAILS FOR STAFF REVIEW</span>
+                    <div class="cpl-service-brief__fields">{["Type", "Size", "Location", "Timing", "Budget", "Contact"].map(label => <span>{label}<i></i></span>)}</div>
+                  </div>}
+                  {solution.id === "04" && <div class="cpl-service-desk">
+                    <span class="cpl-service-desk__question">Services · Hours · Area</span>
+                    <div class="cpl-service-desk__answer"><span class="cpl-service-desk__mark">i</span><span>Approved business information<i></i><i></i></span></div>
+                  </div>}
+                  {solution.id === "05" && <div class="cpl-service-choice">
+                    <span class="cpl-service-choice__start">YOUR NEED</span><span class="cpl-service-choice__branches"><i></i><i></i></span><div class="cpl-service-choice__options"><span>Compare options</span><span>Service page ↗</span></div>
+                  </div>}
+                  {solution.id === "06" && <div class="cpl-service-welcome">
+                    <span class="cpl-service-welcome__tab">GETTING STARTED</span><div><span><b>1</b> What to prepare</span><span><b>2</b> Helpful resources</span><span><b>3</b> Your next step</span></div>
+                  </div>}
+                  {solution.id === "07" && <div class="cpl-service-booking">
+                    <div class="cpl-service-booking__calendar"><span></span><div>{Array.from({length: 6}, () => <i></i>)}</div></div><div class="cpl-service-booking__link"><span>EXISTING BOOKING PAGE</span><b>Choose a time <span>↗</span></b><small>Customer completes the booking</small></div>
+                  </div>}
+                  {solution.id === "08" && <div class="cpl-service-steps">
+                    <div><span>01</span><i></i><span>02</span><i></i><span>03</span></div><small>Approved guidance <b>→</b> Human help</small>
+                  </div>}
+                  {solution.id === "09" && <div class="cpl-service-feedback">
+                    <span class="cpl-service-feedback__stamp">INTAKE NOTE</span><div class="cpl-service-feedback__lines"><span>Contact<i></i></span><span>Feedback<i></i></span><span>Requested resolution<i></i></span></div><span class="cpl-service-feedback__delivery">Summary → staff email</span>
+                  </div>}
+                  {solution.id === "10" && <div class="cpl-service-procedure">
+                    <div class="cpl-service-procedure__sheet"><span>APPROVED SOP</span><i></i><i></i><i></i></div><div class="cpl-service-procedure__access"><svg viewBox="0 0 24 24" fill="none" focusable="false"><path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5z" /><path d="M12 14v3" /></svg><span>Verified<br />staff access</span></div>
+                  </div>}
+                </div>
+              </div>
+            </a>
+          </li>;
+        })}
+      </ul>
+    </section>;
+  })}
+</div>
